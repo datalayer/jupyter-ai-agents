@@ -1,3 +1,7 @@
+# Copyright (c) 2023-2024 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 # Copyright (c) Datalayer, Inc. https://datalayer.io
 # Distributed under the terms of the MIT License.
 
