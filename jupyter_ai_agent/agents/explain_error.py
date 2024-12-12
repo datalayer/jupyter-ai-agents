@@ -13,7 +13,7 @@ from jupyter_kernel_client import KernelClient
 
 from jupyter_ai_agent.providers.azure_openai import create_azure_open_ai_agent
 from jupyter_ai_agent.tools import add_code_cell_tool, add_markdown_cell_tool
-
+from jupyter_ai_agent.utils import retrieve_cells_content_until_first_error
 
 logger = logging.getLogger(__name__)
 
@@ -34,25 +34,14 @@ def explain_error(notebook: NbModelClient, kernel: KernelClient, azure_deploymen
 
     tools = [add_code_cell]
     
-    cells_content = []
-    ydoc = notebook._doc
-    for index, cell in enumerate(ydoc._ycells):
-        if "outputs" in cell.keys() and len(cell["outputs"]) > 0 and cell["outputs"][0]['output_type'] == "error":
-            error = (
-                index,
-                cell["cell_type"],  # Cell type
-                str(cell["source"]),  # Cell content
-                cell["outputs"][0]['traceback']  # Traceback
-            )
-            break
-        cells_content.append((index, cell["cell_type"], str(cell["source"])))
+    cells_content_until_first_error, first_error = retrieve_cells_content_until_first_error(notebook)
     
     SYSTEM_PROMPT_WITH_CONTENT = f"""
     {SYSTEM_PROMPT}
     
-    Notebook content: {cells_content}
+    Notebook content: {cells_content_until_first_error}
     """ 
-    input = f"Error: {error}"
+    input = f"Error: {first_error}"
     
     logger.debug("Prompt with content", SYSTEM_PROMPT_WITH_CONTENT)
     logger.debug("Input", input)

@@ -15,12 +15,12 @@
 
 *Use Jupyter AI Agent, an AI Agent equipped with tools like 'execute', 'insert_cell', and more, to transform your Jupyter Notebooks into an intelligent, interactive workspace!*
 
-![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-jupyterlab.gif)
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
 ```
 Jupyter AI Agent <-----------> JupyterLab
     |
-    |       (RTC Real Time Collaboration)
+    |   (RTC Real Time Collaboration)
     |
 JNC + JKC
 
@@ -46,8 +46,8 @@ This powerful functionality is made possible through [jupyter-nbmodel-client](ht
 **Deployment Modes**
 
 - `In-Kernel`: When installed in the kernels, the agent can be requested directly. This is not the recommended way and should be used only for development purposes.
-- `Out-Kernel Stateless`: A CLI for example, with that option it is not possible to leverage the `model memory`, meaning that the agent is stateless and does not remember previous history.
-- `Out-Kernel Statefull`: A separated process that is requested via e.g. REST endpoints, being able to leverage the `model memory` features.
+- `Out-Kernel Stateless`: A CLI for example, with that option it is not possible to leverage the `agent memory`, meaning that the agent is stateless and does not remember previous interactions.
+- `Out-Kernel Stateful`: A separated process that is requested via e.g. REST endpoints, being able to leverage the `agent memory` features.
 
 **Interaction Modes**
 
@@ -108,9 +108,9 @@ jupyter-ai-agent prompt \
   --token MY_TOKEN \
   --azure-ai-deployment-name gpt-40-mini \
   --path test.ipynb \
-  --full-context \
   --input "Create a matplotlib example"
 ```
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
 ```bash
 # Explain Error agent example.
@@ -120,6 +120,8 @@ jupyter-ai-agent explain-error \
   --azure-ai-deployment-name gpt-40-mini \
   --path test.ipynb
 ```
+
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
 ## Uninstall
 

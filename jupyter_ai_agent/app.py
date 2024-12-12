@@ -59,7 +59,7 @@ class PromptAgentApp(JupyterAIAgentAskApp):
         super(PromptAgentApp, self).initialize(*args, **kwargs)
 
     def ask(self):
-        reply = prompt(self.notebook, self.kernel, super().input, super().azure_ai_deployment_name)
+        reply = prompt(self.notebook, self.kernel, super().input, super().azure_ai_deployment_name, self.full_context)
         logger.debug("Reply", reply)
 
     def start(self):
