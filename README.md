@@ -19,12 +19,12 @@
 
 ```
 Jupyter AI Agent <---> JupyterLab
-    |            (RTC)
+    |            (RTC Real Time Collaboration)
  JNC+JKC
 
 - JNC https://github.com/datalayer/jupyter-nbmodel-client
 - JKC https://github.com/datalayer/jupyter-kernel-client
-- RTC Real Time Collaboration
+- RTC 
 ```
 
 Jupyter AI Agent empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to notebook and kernel events.
@@ -42,24 +42,29 @@ This powerful functionality is made possible through [jupyter-nbmodel-client](ht
 
 ## Concepts
 
-Deployment modes:
+**Deployment Modes**
 
-- `In-Kernel`.
-- `Out-Kernel`.
+- `In-Kernel`: When installed in the kernels, the agent can be requested directly. This is not the recommended way and should be used only for development purposes.
+- `Out-Kernel Stateless`: A CLI for example, with that option it is not possible to leverage the `model memory`, meaning that the agent is stateless and does not remember previous history.
+- `Out-Kernel Statefull`: A separated process that is requested via e.g. REST endpoints, being able to leverage the `model memory` features.
 
-Interaction modes:
+**Interaction Modes**
 
 - `Ask`.
 - `Listen`.
 
-Available Agents:
+**Available Agents**
 
 - `Prompt`.
 - `ErrorExplain`.
 
-Model Providers: Jupyter AI Agent currently supports models from Azure OpenAI, read the [documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials.
+**Model Providers**
 
-Build your own agent: TBD
+Jupyter AI Agent currently supports models from Azure OpenAI, read the [documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials.
+
+**Build your own agent**
+
+TBD
 
 ## Usage
 
@@ -74,7 +79,7 @@ pip install jupyter_ai_agent
 The Jupyter AI Agent can directly interact with JupyterLab and the modifications made by the Jupyter AI Agent can be seen in real-time thanks to [Jupyter Real Time Collaboration](https://jupyterlab.readthedocs.io/en/stable/user/rtc.html). Make sure you have JupyterLab installed with the Collaboration extension.
 
 ```bash
-pip install jupyterlab jupyter-collaboration ipykernel matplotlib
+pip install jupyterlab jupyter-collaboration ipykernel
 ```
 
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
@@ -83,33 +88,35 @@ Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and 
 jupyter lab --port 8888 --token MY_TOKEN
 ```
 
-Make sure you have a `.env` file with the following content.
+Make sure you have a `.env` file with the following variables.
 
 ```bash
-OPENAI_API_VERSION = ...
-AZURE_OPENAI_ENDPOINT = ...
-AZURE_OPENAI_API_KEY = ...
+cat << EOF >>.env
+OPENAI_API_VERSION="..."
+AZURE_OPENAI_ENDPOINT="..."
+AZURE_OPENAI_API_KEY="..."
+EOF
 ```
 
-To use the Jupyter AI Agent, an easy way is to launch a CLI.
+To use the Jupyter AI Agent, an easy way is to launch a CLI (update the Azure deployment based on your setup).
 
 ```bash
-jupyter-ai-agent --url http://localhost:8888 --token MY_TOKEN
+# Prompt agent example.
+jupyter-ai-agent prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --azure-ai-deployment-name gpt-40-mini \
+  --path test.ipynb \
+  --input "Create a matplotlib example"
 ```
 
-Execute the following code.
-
-```py
-from jupyter_ai_agent.agent import ask_agent
-
-server_url = "http://localhost:8888"
-token = "MY_TOKEN"
-azure_deployment_name = "gpt-4o-mini" # For example.
-notebook_path = "test.ipynb"
-agent_type = "prompt"
-input = "Create a matplotlib example"
-
-ask_agent(server_url, token, azure_deployment_name, azure_deployment_name, notebook_path, input, agent_type)
+```bash
+# Explain Error agent example.
+jupyter-ai-agent explain-error \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --azure-ai-deployment-name gpt-40-mini \
+  --path test.ipynb
 ```
 
 ## Uninstall
