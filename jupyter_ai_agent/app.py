@@ -7,7 +7,10 @@ from __future__ import annotations
 import warnings
 import logging
 
-from jupyter_ai_agent.base import JupyterAIAgentAskApp
+from traitlets import CBool
+from traitlets.config import boolean_flag
+
+from jupyter_ai_agent.base import JupyterAIAgentAskApp, base_flags
 from jupyter_ai_agent.agents.prompt import prompt
 from jupyter_ai_agent.agents.explain_error import explain_error
 
@@ -20,6 +23,19 @@ logger = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 
+prompt_flags = dict(base_flags)
+prompt_flags.update(
+    boolean_flag(
+        "full-context",
+        "PromptAgentApp.full_context",
+        """...
+       `c.PromptAgentApp.confirm_exit`.
+    """,
+        """...
+       `c.PromptAgentApp.confirm_exit`.
+    """,
+    )
+)
 class PromptAgentApp(JupyterAIAgentAskApp):
     """From a given instruction, code and markdown cells are added to a notebook."""
 
@@ -29,15 +45,22 @@ class PromptAgentApp(JupyterAIAgentAskApp):
       An application to ask the agent
     """
 
+    flags = prompt_flags
+
+    full_context = CBool(
+        False,
+        config=True,
+        help="""
+        ....""",
+    )
+
     def initialize(self, *args, **kwargs):
         """Initialize the app."""
         super(PromptAgentApp, self).initialize(*args, **kwargs)
 
-
     def ask(self):
         reply = prompt(self.notebook, self.kernel, super().input, super().azure_ai_deployment_name)
         logger.debug("Reply", reply)
-#           explain_error(notebook, kernel, azure_deployment_name)
 
     def start(self):
         """Start the app."""
@@ -45,6 +68,31 @@ class PromptAgentApp(JupyterAIAgentAskApp):
             warnings.warn("Too many arguments were provided for workspace export.")
             self.exit(1)
         super(PromptAgentApp, self).start()
+        self.exit(0)
+
+
+class ExplainErrorAgentApp(JupyterAIAgentAskApp):
+
+    name = "jupyter-ai-agent-explain-error"
+
+    description = """
+      An application to explain an error
+    """
+
+    def initialize(self, *args, **kwargs):
+        """Initialize the app."""
+        super(ExplainErrorAgentApp, self).initialize(*args, **kwargs)
+
+    def ask(self):
+        reply = explain_error(self.notebook, self.kernel, super().azure_ai_deployment_name)
+        logger.debug("Reply", reply)
+
+    def start(self):
+        """Start the app."""
+        if len(self.extra_args) > 1:  # pragma: no cover
+            warnings.warn("Too many arguments were provided for workspace export.")
+            self.exit(1)
+        super(ExplainErrorAgentApp, self).start()
         self.exit(0)
 
 
@@ -57,7 +105,7 @@ class JupyterAIAgentApp(JupyterAIAgentAskApp):
 
     subcommands = {
         "prompt": (PromptAgentApp, PromptAgentApp.description.splitlines()[0]),
-        "explain-error": (PromptAgentApp, PromptAgentApp.description.splitlines()[0]),
+        "explain-error": (ExplainErrorAgentApp, ExplainErrorAgentApp.description.splitlines()[0]),
     }
 
     def initialize(self, argv=None):

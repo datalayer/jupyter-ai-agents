@@ -18,13 +18,14 @@
 ![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-jupyterlab.gif)
 
 ```
-Jupyter AI Agent <---> JupyterLab
-    |            (RTC Real Time Collaboration)
- JNC+JKC
+Jupyter AI Agent <-----------> JupyterLab
+    |
+    |       (RTC Real Time Collaboration)
+    |
+JNC + JKC
 
 - JNC https://github.com/datalayer/jupyter-nbmodel-client
 - JKC https://github.com/datalayer/jupyter-kernel-client
-- RTC 
 ```
 
 Jupyter AI Agent empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to notebook and kernel events.
@@ -74,7 +75,7 @@ To install Jupyter AI Agent, run the following command.
 pip install jupyter_ai_agent
 ```
 
-### In-Kernel with JupyterLab Example
+### Out-Kernel Stateless with JupyterLab
 
 The Jupyter AI Agent can directly interact with JupyterLab and the modifications made by the Jupyter AI Agent can be seen in real-time thanks to [Jupyter Real Time Collaboration](https://jupyterlab.readthedocs.io/en/stable/user/rtc.html). Make sure you have JupyterLab installed with the Collaboration extension.
 
@@ -107,6 +108,7 @@ jupyter-ai-agent prompt \
   --token MY_TOKEN \
   --azure-ai-deployment-name gpt-40-mini \
   --path test.ipynb \
+  --full-context \
   --input "Create a matplotlib example"
 ```
 
