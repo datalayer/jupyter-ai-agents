@@ -1,3 +1,7 @@
+# Copyright (c) 2023-2024 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 from jupyter_nbmodel_client import NbModelClient
 
 def retrieve_cells_content_until_first_error(notebook: NbModelClient) -> tuple:
