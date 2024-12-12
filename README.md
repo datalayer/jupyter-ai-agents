@@ -57,7 +57,7 @@ This powerful functionality is made possible through [jupyter-nbmodel-client](ht
 **Available Agents**
 
 - `Prompt`.
-- `ErrorExplain`.
+- `ExplainError`.
 
 **Model Providers**
 
@@ -86,7 +86,7 @@ pip install jupyterlab jupyter-collaboration ipykernel
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
 
 ```bash
-jupyter lab --port 8888 --token MY_TOKEN
+jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 ```
 
 Make sure you have a `.env` file with the following variables.
