@@ -14,7 +14,7 @@ from jupyter_ai_agent.agents.explain_error import explain_error
 load_dotenv(find_dotenv())
 
 
-def ask_agent(server_url: str, token: str, azure_deployment_name: str, notebook_path: str, input: str, agent_type: str) -> list:
+def ask_agent(server_url: str, token: str, azure_deployment_name: str, notebook_path: str, agent_type: str, input: str='') -> list:
     """From a given instruction, code and markdown cells are added to a notebook."""
 
     kernel = KernelClient(server_url=server_url, token=token)
@@ -27,4 +27,4 @@ def ask_agent(server_url: str, token: str, azure_deployment_name: str, notebook_
         prompt(notebook, kernel, input, azure_deployment_name)
 
     if agent_type == "explain_error":
-        explain_error(notebook, kernel, input, azure_deployment_name)
+        explain_error(notebook, kernel, azure_deployment_name)

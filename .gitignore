@@ -117,3 +117,6 @@ dmypy.json
 !*.*rc.json
 !.github
 !.devcontainer
+
+untracked_notebooks/*
+.jupyter_ystore.db

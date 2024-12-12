@@ -29,7 +29,7 @@ def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, azure_depl
     @tool
     def add_markdown_cell(cell_content: str) -> None:
         """Add a Markdown cell with a content to the notebook."""
-        return add_markdown_cell_tool(notebook, kernel, cell_content)
+        return add_markdown_cell_tool(notebook, cell_content)
     
 
     tools = [add_code_cell, add_markdown_cell]
