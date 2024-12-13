@@ -39,7 +39,7 @@ module.exports = {
       items: [
         {
           type: 'doc',
-          docId: 'index',
+          docId: 'overview/index',
           position: 'left',
           label: 'Jupyter AI Agent',
         },
@@ -77,7 +77,7 @@ module.exports = {
           items: [
             {
               label: 'Jupyter AI Agent',
-              to: '/',
+              to: '/docs',
             },
           ],
         },
@@ -133,9 +133,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/datalayer/jupyter-ai-agent/edit/main/',
+          editUrl: 'https://github.com/datalayer/jupyter-ai-agent/edit/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

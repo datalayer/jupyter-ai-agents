@@ -12,7 +12,7 @@ header:
     - '**/*.yaml'
     - '**/*.yml'
     - '**/.*'
-    - 'docs/*'
+    - 'docs/**/*'
     - 'LICENSE'
 
   comment: on-failure
