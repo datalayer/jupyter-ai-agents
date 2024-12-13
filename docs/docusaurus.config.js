@@ -39,7 +39,7 @@ module.exports = {
       items: [
         {
           type: 'doc',
-          docId: 'overview/index',
+          docId: 'index',
           position: 'left',
           label: 'Jupyter AI Agent',
         },
