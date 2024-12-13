@@ -37,7 +37,7 @@ def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, azure_depl
         SYSTEM_PROMP_FINAL = f"""
         {SYSTEM_PROMPT}
         
-        Notebook content: {retrieve_cells_content_until_first_error(notebook)}
+        Notebook content: {retrieve_cells_content_until_first_error(notebook)[0]}
         """         
     else:
         SYSTEM_PROMP_FINAL = SYSTEM_PROMPT
