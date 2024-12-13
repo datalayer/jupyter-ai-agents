@@ -1,0 +1,21 @@
+# Usage
+
+First, make sure the Jupyter AI Agent is installed (refer to the [installation guide](/docs/install)).
+
+Jupyter AI Agent currently supports models from Azure OpenAI, read the [documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials.
+
+Jupyter AI Agent can be used in different deployment modes and interactions.
+The **deployment modes** refer to where the agent is running, and the **interaction modes** refer to how the agent is used.
+
+Deployment Modes:
+
+- `In-Kernel`: When installed in the kernels, the agent can be requested directly. This is not the recommended way and should be used only for development purposes.
+- `Out-Kernel Stateless`: A CLI for example, with that option it is not possible to leverage the `agent memory`, meaning that the agent is stateless and does not remember previous interactions.
+- `Out-Kernel Stateful`: A separated process that is requested via e.g. REST endpoints, being able to leverage the `agent memory` features.
+
+Interaction Modes:
+
+- `Ask` : The agent is triggered when the user requests it.
+- `Listen`: The agent "observe" the notebook actions in the background and is triggered when a specific event occurs.
+
+

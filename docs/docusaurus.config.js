@@ -77,7 +77,7 @@ module.exports = {
           items: [
             {
               label: 'Jupyter AI Agent',
-              to: '/docs',
+              to: '/',
             },
           ],
         },

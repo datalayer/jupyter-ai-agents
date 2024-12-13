@@ -1,0 +1,21 @@
+# Prompt Agent
+
+The Prompt Agent generates code cells based on natural language input. It leverages AI models to generate code, add new cells, and modify the notebook content.
+
+Use Case Examples: 
+- Code Generation: Generate cells code based on natural language input.
+- Notebook Modification: Add new cells based on existing one.
+
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+
+Refer to [usage instructions](/docs/usage) to get started with the Prompt Agent.
+
+## Parameters
+
+The Prompt Agent can be configured with the following parameters:
+- `--url`: JupyterLab URL.
+- `--token`: JupyterLab token.
+- `--azure-ai-deployment-name`: Azure AI model deployment name.
+- `--path`: Notebook to modify path.
+- `--input`: Natural language input.
+- `--full-context`: Optional flag to provide the full notebook context i.e. notebook content to the AI model (default: False).
