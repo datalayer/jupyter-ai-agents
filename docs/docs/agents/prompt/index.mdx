@@ -1,14 +1,22 @@
 # Prompt Agent
 
-The Prompt Agent generates code cells based on natural language input. It leverages AI models to generate code, add new cells, and modify the notebook content.
+The Prompt Agent generates code cells based on natural language input. It leverages AI models to generate code, add new cells, and modify the notebook content. This is a great Agent to support the following use cases:
 
-Use Case Examples: 
 - Code Generation: Generate cells code based on natural language input.
 - Notebook Modification: Add new cells based on existing one.
 
 ![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
-Refer to [usage instructions](/docs/interactions) to get started with the Prompt Agent.
+To use the Jupyter AI Agent, an easy way is to launch a CLI (update the Azure deployment based on your setup).
+
+```bash
+jupyter-ai-agent prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --azure-ai-deployment-name gpt-40-mini \
+  --path test.ipynb \
+  --input "Create a matplotlib example"
+```
 
 ## Parameters
 

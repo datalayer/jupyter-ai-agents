@@ -1,13 +1,22 @@
 # Agents
 
-Jupyter AI Agent currently provides two agents: `Prompt Agent` and `Explain Error Agent`.
+First, make sure the Jupyter AI Agent is installed (refer to the [installation guide](/docs/install)). Make sure you understand the different [**deployment modes**](/docs/deployments) referring to where the agent is running, and the [**interactions modes**](/docs/interactions) referring to how the agent is used.
+
+## Existing Agents
+
+Jupyter AI Agent currently provides two agents:
+
+- [Prompt Agent](/docs/agents/prompt): Generates code cells based on natural language input.
+- [Explain Error Agent](/docs/explain_error): Explains the first error encountered in a notebook.
+
+More Jupyter AI Agent like `Code Refactor Agent`, `Documentation Agent`... can be created by extending the base class.
+
+## Create your Agents
 
 :::info
+
 [LangChain Agent Framework](https://python.langchain.com/v0.1/docs/modules/agents/how_to/custom_agent/) is used to manage the interactions between the AI model and the tools.
-:::
 
-More Jupyter AI Agent like `Code Refactor Agent`, `Documentation Agent`, ... can be created by extending the base class.
-
-:::note
 🚧 A guide to create custom agent is under construction and will be available soon.
+
 :::
