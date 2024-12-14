@@ -7,9 +7,15 @@ sidebar_position: 1
 **Jupyter AI Agent** is a flexible and powerful solution for **using and creating AI agents 🤖** to **interact with 📓 Jupyter Notebooks**  
 with tools like `insert_cell`, `execute_cell`... ✨
 
+:::info
+
+**Jupyter AI Agent** empowers **AI models** to **interact** with and **modify** Jupyter Notebooks.
+
+:::
+
 ![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
-Jupyter AI Agent empowers **AI models** to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with [Tools](/docs/tools) such as adding Code Cells, inserting Markdown Cells, executing Code, enabling it to modify the Notebook comprehensively based on user instructions or by reacting to Notebook and Kernel events.
+The agent is equipped with [Tools](/docs/tools) such as adding Code Cells, inserting Markdown Cells, executing Code, enabling it to modify the Notebook comprehensively based on user instructions or by reacting to Notebook and Kernel events.
 
 Jupyter AI Agent transforms your Notebooks into an interactive, AI-powered workspace that adapts to your needs!
 
@@ -39,18 +45,22 @@ JNC + JKC
 - JKC https://github.com/datalayer/jupyter-kernel-client
 ```
 
-This powerful functionality is made possible through [jupyter-nbmodel-client](https://github.com/datalayer/jupyter-nbmodel-client) and [jupyter-kernel-client](https://github.com/datalayer/jupyter-kernel-client), enabling interaction with Jupyter Notebooks and Kernels.
+This powerful functionality is made possible through the Jupyter [NbModel](https://github.com/datalayer/jupyter-nbmodel-client) and [Kernel](https://github.com/datalayer/jupyter-kernel-client) clients, enabling interactions with both Jupyter Notebooks and Kernels.
 
 ## Key Features
 
 - **Dynamic Notebook Interaction**: Jupyter AI agents can add, edit, and execute cells dynamically based on user instructions or notebook events.
-- **Remote Agent Execution**: The agent can be executed independently, remotely on a different kernel than the one used by the notebook of interest to separate the agent execution from the notebook execution. Refer to "Deployment modes" in [Usage](/docs/interactions) for more details.
-- **Event-Based Modifications**: Can react to kernel and notebook changes in real time, enabling modifications without user intervention. Refer to "Interaction modes" in [Usage](/docs/interactions) for more details.
+- **Remote Agent Execution**: The agent can be executed independently, remotely on a different kernel than the one used by the notebook of interest to separate the agent execution from the notebook execution. Refer to the [Deployment Modes](/docs/deployments) for more details.
+- **Event-Based Modifications**: Can react to Kernel and Notebook changes in real time, enabling modifications without user intervention. Refer to the [Interaction Modes](/docs/interactions) for more details.
 - **Advanced Jupyter Tools**: Includes current capabilities like inserting markdown or code cells, running code.
 - **Built on RTC**: Real-Time Collaboration ensures seamless commmunication across all the actors.
 
 ## Feedback and Contributions
 
+:::success
+
 **We value your feedback!**
 
 If you encounter any issues or have suggestions for improvement, please open a [GitHub issue](https://github.com/datalayer/jupyter-ai-agent/issues).
+
+:::
