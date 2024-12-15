@@ -6,8 +6,8 @@
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: '🪐 🤖 Jupyter AI Agent documentation',
-  tagline: 'Jupyter AI Agent documentation',
+  title: '🪐 ✨ Jupyter AI Agent documentation',
+  tagline: 'Tansform your Notebooks into an interactive, AI-powered workspace that adapts to your needs!',
   url: 'https://datalayer.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -41,7 +41,43 @@ module.exports = {
           type: 'doc',
           docId: 'index',
           position: 'left',
-          label: 'Jupyter AI Agent',
+          label: 'Overview',
+        },
+        {
+          type: 'doc',
+          docId: 'use-cases/index',
+          position: 'left',
+          label: 'Use Cases',
+        },
+        {
+          type: 'doc',
+          docId: 'agents/index',
+          position: 'left',
+          label: 'Agents',
+        },
+        {
+          type: 'doc',
+          docId: 'deployments/index',
+          position: 'left',
+          label: 'Deployments',
+        },
+        {
+          type: 'doc',
+          docId: 'interactions/index',
+          position: 'left',
+          label: 'Interactions',
+        },
+        {
+          type: 'doc',
+          docId: 'tools/index',
+          position: 'left',
+          label: 'Tools',
+        },
+        {
+          type: 'doc',
+          docId: 'models/index',
+          position: 'left',
+          label: 'Models',
         },
         {
           href: 'https://www.linkedin.com/company/datalayer',

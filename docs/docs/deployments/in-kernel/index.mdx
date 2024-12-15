@@ -1,0 +1,29 @@
+# In Kernel
+
+When installed in a Jupyter Kernel, the Agent can be requested directly.
+
+:::warning
+
+This is not the recommended way and should be used only for development purposes.
+
+:::
+
+To install Jupyter AI Agent, run the following command.
+
+```bash
+pip install jupyter_ai_agent
+```
+
+The Jupyter AI Agent can directly interact with JupyterLab and the modifications made by the Jupyter AI Agent can be seen in real-time thanks to [Jupyter Real Time Collaboration](https://jupyterlab.readthedocs.io/en/stable/user/rtc.html). 
+
+Make sure you have JupyterLab installed with the Collaboration extension.
+
+```bash
+pip install jupyterlab jupyter-collaboration ipykernel
+```
+
+Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
+
+```bash
+jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
+```
