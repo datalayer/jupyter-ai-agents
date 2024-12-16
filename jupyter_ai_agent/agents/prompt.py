@@ -42,7 +42,7 @@ def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, azure_depl
     else:
         SYSTEM_PROMP_FINAL = SYSTEM_PROMPT
         
-    agent = create_azure_open_ai_agent(azure_deployment_name, SYSTEM_PROMPT, tools)
+    agent = create_azure_open_ai_agent(azure_deployment_name, SYSTEM_PROMP_FINAL, tools)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
     return list(agent_executor.stream({"input": input}))

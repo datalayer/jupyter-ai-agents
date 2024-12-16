@@ -32,6 +32,7 @@ def explain_error(notebook: NbModelClient, kernel: KernelClient, azure_deploymen
         """Add a Python code cell with a content to the notebook and execute it."""
         return add_code_cell_tool(notebook, kernel, cell_content)
 
+
     tools = [add_code_cell]
     
     cells_content_until_first_error, first_error = retrieve_cells_content_until_first_error(notebook)

@@ -4,7 +4,14 @@ import DocCardList from '@theme/DocCardList';
 
 The **interaction modes** refer to how the agent is used.
 
-- `Ask` - The Agent is triggered when the User requests it.
-- `Listen` - The Agent "observes" the Notebook an Kernels events in the background and is triggered when a specific event occurs.
+- [`Ask Mode`](/docs/interactions/ask-mode) - The Agent is explicitely `requested` by the User.
+- [`Listen Mode`](/docs/interactions/listen-mode) - The Agent `observes` the Notebook an Kernels events and is requested when a specific event occurs without User action.
+
+To interact with the Agent, you will need to.
+
+- Provide information via [`Inputters`](/docs/interactions/inputters)
+- Retrieve the result via [`Outputters`](/docs/interactions/outputters).
+
+[`Controllers`](/docs/interactions/controllers) are available to ease the User interaction with the Agent.
 
 <DocCardList />
