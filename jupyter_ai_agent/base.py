@@ -10,10 +10,10 @@ import logging
 
 from dotenv import load_dotenv, find_dotenv
 
-from traitlets import Unicode
+from traitlets import Unicode, Integer
 from jupyter_core.application import JupyterApp, base_aliases, base_flags
 
-from jupyter_nbmodel_client import NbModelClient
+from jupyter_nbmodel_client import NbModelClient, get_jupyter_notebook_websocket_url
 from jupyter_kernel_client import KernelClient
 
 from jupyter_ai_agent.__version__ import __version__
@@ -44,6 +44,7 @@ jupyter_ai_agent_aliases.update(
         "azure-openai-version": "JupyterAIAgentBaseApp.azure_openai_version",
         "azure-openai-api-key": "JupyterAIAgentBaseApp.azure_openai_api_key",
         "azure-ai-deployment-name": "JupyterAIAgentBaseApp.azure_ai_deployment_name",
+        "current-cell-index": "JupyterAIAgentBaseApp.current_cell_index",
     }
 )
 
@@ -106,7 +107,11 @@ class JupyterAIAgentBaseApp(JupyterApp):
         help="""Azure AI deployment name.""",
         config=True,
     )
-
+    current_cell_index = Integer(
+        -1,
+        config=True,
+        help="Index of the cell where the prompt is asked."
+    )
 
 class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
 
@@ -122,7 +127,7 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
         try:
             self.kernel = KernelClient(server_url=self.server_url, token=self.token)
             self.kernel.start()
-            self.notebook = NbModelClient(server_url=self.server_url, token=self.token, path=self.path)
+            self.notebook = NbModelClient(get_jupyter_notebook_websocket_url(server_url=self.server_url, token=self.token, path=self.path))
             self.notebook.start()
             self.ask()
         except Exception as e:

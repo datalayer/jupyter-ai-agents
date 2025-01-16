@@ -28,14 +28,9 @@ prompt_flags.update(
     boolean_flag(
         "full-context",
         "PromptAgentApp.full_context",
-        """...
-       `c.PromptAgentApp.confirm_exit`.
-    """,
-        """...
-       `c.PromptAgentApp.confirm_exit`.
-    """,
     )
 )
+    
 class PromptAgentApp(JupyterAIAgentAskApp):
     """From a given instruction, code and markdown cells are added to a notebook."""
 
@@ -50,8 +45,7 @@ class PromptAgentApp(JupyterAIAgentAskApp):
     full_context = CBool(
         False,
         config=True,
-        help="""
-        ....""",
+        help="Fag to provide the full notebook context i.e. notebook content to the AI model.",
     )
 
     def initialize(self, *args, **kwargs):
@@ -59,7 +53,7 @@ class PromptAgentApp(JupyterAIAgentAskApp):
         super(PromptAgentApp, self).initialize(*args, **kwargs)
 
     def ask(self):
-        reply = prompt(self.notebook, self.kernel, super().input, super().azure_ai_deployment_name, self.full_context)
+        reply = prompt(self.notebook, self.kernel, super().input, super().azure_ai_deployment_name, self.full_context, self.current_cell_index)
         logger.debug("Reply", reply)
 
     def start(self):
@@ -84,7 +78,7 @@ class ExplainErrorAgentApp(JupyterAIAgentAskApp):
         super(ExplainErrorAgentApp, self).initialize(*args, **kwargs)
 
     def ask(self):
-        reply = explain_error(self.notebook, self.kernel, super().azure_ai_deployment_name)
+        reply = explain_error(self.notebook, self.kernel, super().azure_ai_deployment_name, self.current_cell_index)
         logger.debug("Reply", reply)
 
     def start(self):
