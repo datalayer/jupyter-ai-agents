@@ -1,6 +1,6 @@
 # Explain Error Agent
 
-The Explain Error Agent explains the first error encountered in a notebook. It leverages AI models to explain the error in the code cell, providing insights into the error and potential solutions by adding new cells. This is a great Agent to support the following use cases:
+The Explain Error Agent explains an error encountered in a notebook. It leverages AI models to explain the error in the code cell, providing insights into the error and potential solutions by adding new cells. This is a great Agent to support the following use cases:
 
 - Error Explanation: Explain the error encountered in the code cell.
 - Error Resolution: Provide potential solutions to resolve the error.
@@ -21,3 +21,4 @@ jupyter-ai-agent explain-error \
 - `--token`: JupyterLab token.
 - `--azure-ai-deployment-name`: Azure AI model deployment name.
 - `--path`: Notebook to modify path.
+- `--current-cell-index`: Optional flag to provide the index of the cell where the error is encountered. If not provided, the error considered is the first one in the notebook.
