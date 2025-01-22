@@ -15,10 +15,10 @@ from .__version__ import __version__
 
 _examples = """
 # Start a console connected to a local Jupyter Server running at http://localhost:8888 with a new python kernel.
-jupyter-ai-agent --token <server_token>
+jupyter-ai-agents --token <server_token>
 
 # Start a console connected to a distant Jupyter Server with a new python kernel.
-jupyter-ai-agent --url https://my.jupyter-server.xzy --token <server_token>
+jupyter-ai-agents --url https://my.jupyter-server.xzy --token <server_token>
 """
 
 # -----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ jupyter-ai-agent --url https://my.jupyter-server.xzy --token <server_token>
 class AIAgentConsoleApp(KonsoleApp):
     """Start a terminal frontend to a kernel."""
 
-    name = "jupyter-ai-agent"
+    name = "jupyter-ai-agents"
     version = __version__
 
     description = """
@@ -44,7 +44,7 @@ class AIAgentConsoleApp(KonsoleApp):
         single-process Terminal IPython shell, such as connecting to an
         existing jupyter kernel, via:
 
-            jupyter-ai-agent --token <server token> --existing <kernel_id>
+            jupyter-ai-agents --token <server token> --existing <kernel_id>
 
         where the previous session could have been created by another jupyter
         console, or by opening a notebook.

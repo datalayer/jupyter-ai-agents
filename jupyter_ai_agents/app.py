@@ -10,9 +10,9 @@ import logging
 from traitlets import CBool
 from traitlets.config import boolean_flag
 
-from jupyter_ai_agent.base import JupyterAIAgentAskApp, base_flags
-from jupyter_ai_agent.agents.prompt import prompt
-from jupyter_ai_agent.agents.explain_error import explain_error
+from jupyter_ai_agents.base import JupyterAIAgentAskApp, base_flags
+from jupyter_ai_agents.agents.prompt import prompt
+from jupyter_ai_agents.agents.explain_error import explain_error
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ prompt_flags.update(
 class PromptAgentApp(JupyterAIAgentAskApp):
     """From a given instruction, code and markdown cells are added to a notebook."""
 
-    name = "jupyter-ai-agent-prompt"
+    name = "jupyter-ai-agents-prompt"
 
     description = """
       An application to ask the agent
@@ -67,7 +67,7 @@ class PromptAgentApp(JupyterAIAgentAskApp):
 
 class ExplainErrorAgentApp(JupyterAIAgentAskApp):
 
-    name = "jupyter-ai-agent-explain-error"
+    name = "jupyter-ai-agents-explain-error"
 
     description = """
       An application to explain an error
@@ -91,7 +91,7 @@ class ExplainErrorAgentApp(JupyterAIAgentAskApp):
 
 
 class JupyterAIAgentApp(JupyterAIAgentAskApp):
-    name = "jupyter-ai-agent"
+    name = "jupyter-ai-agents"
 
     description = """
       The Jupyter AI Agent application.

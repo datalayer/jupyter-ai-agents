@@ -16,7 +16,7 @@ from jupyter_core.application import JupyterApp, base_aliases, base_flags
 from jupyter_nbmodel_client import NbModelClient, get_jupyter_notebook_websocket_url
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agent.__version__ import __version__
+from jupyter_ai_agents.__version__ import __version__
 
 
 logger = logging.getLogger(__name__)
@@ -30,10 +30,10 @@ load_dotenv(find_dotenv())
 # Flags and Aliases
 # -----------------------------------------------------------------------------
 
-jupyter_ai_agent_flags = dict(base_flags)
+jupyter_ai_agents_flags = dict(base_flags)
 
-jupyter_ai_agent_aliases = dict(base_aliases)
-jupyter_ai_agent_aliases.update(
+jupyter_ai_agents_aliases = dict(base_aliases)
+jupyter_ai_agents_aliases.update(
     {
         "url": "JupyterAIAgentBaseApp.server_url",
         "token": "JupyterAIAgentBaseApp.token",
@@ -55,8 +55,8 @@ jupyter_ai_agent_aliases.update(
 
 
 class JupyterAIAgentBaseApp(JupyterApp):
-    aliases = jupyter_ai_agent_aliases
-    flags = jupyter_ai_agent_flags
+    aliases = jupyter_ai_agents_aliases
+    flags = jupyter_ai_agents_flags
 
     version = __version__
 

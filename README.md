@@ -10,12 +10,12 @@
 
 # 🪐 ✨ Jupyter AI Agent
 
-[![Github Actions Status](https://github.com/datalayer/jupyter-ai-agent/workflows/Build/badge.svg)](https://github.com/datalayer/jupyter-ai-agent/actions/workflows/build.yml)
-[![PyPI - Version](https://img.shields.io/pypi/v/jupyter-ai-agent)](https://pypi.org/project/jupyter-ai-agent)
+[![Github Actions Status](https://github.com/datalayer/jupyter-ai-agents/workflows/Build/badge.svg)](https://github.com/datalayer/jupyter-ai-agents/actions/workflows/build.yml)
+[![PyPI - Version](https://img.shields.io/pypi/v/jupyter-ai-agents)](https://pypi.org/project/jupyter-ai-agents)
 
 *Use Jupyter AI Agent, an AI Agent equipped with tools like 'execute', 'insert_cell', and more, to transform your Jupyter Notebooks into an intelligent, interactive workspace!*
 
-![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agents/ai-agents-prompt-demo-terminal.gif)
 
 ```
 Jupyter AI Agent <-----------> JupyterLab
@@ -43,21 +43,21 @@ This powerful functionality is made possible through [jupyter-nbmodel-client](ht
 
 ## Usage
 
-This library is documented on https://jupyter-ai-agent.datalayer.tech.
+This library is documented on https://jupyter-ai-agents.datalayer.tech.
 
 We put here a quick example for a Out-Kernel Stateless Agent helping your JupyterLab session.
 
 To install Jupyter AI Agent, run the following command.
 
 ```bash
-pip install jupyter_ai_agent
+pip install jupyter_ai_agents
 ```
 
 Or clone this repository and install it from source.
 
 ```bash
-git clone https://github.com/datalayer/jupyter-ai-agent
-cd jupyter-ai-agent
+git clone https://github.com/datalayer/jupyter-ai-agents
+cd jupyter-ai-agents
 pip install -e .
 ```
 
@@ -87,7 +87,7 @@ To use the Jupyter AI Agent, an easy way is to launch a CLI (update the Azure de
 
 ```bash
 # Prompt agent example.
-jupyter-ai-agent prompt \
+jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --azure-ai-deployment-name gpt-40-mini \
@@ -95,25 +95,25 @@ jupyter-ai-agent prompt \
   --input "Create a matplotlib example"
 ```
 
-![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agents/ai-agents-prompt-demo-terminal.gif)
 
 ```bash
 # Explain Error agent example.
-jupyter-ai-agent explain-error \
+jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --azure-ai-deployment-name gpt-40-mini \
   --path test.ipynb
 ```
 
-![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
+![Jupyter AI Agent](https://assets.datalayer.tech/jupyter-ai-agents/ai-agents-explainerror-demo-terminal.gif)
 
 ## Uninstall
 
 To uninstall the agent, execute.
 
 ```bash
-pip uninstall jupyter_ai_agent
+pip uninstall jupyter_ai_agents
 ```
 
 ## Contributing
@@ -122,7 +122,7 @@ pip uninstall jupyter_ai_agent
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the jupyter_ai_agent directory
+# Change directory to the jupyter_ai_agents directory
 # Install package in development mode - will automatically enable
 # The server extension.
 pip install -e ".[test,lint,typing]"
@@ -145,7 +145,7 @@ pytest
 ### Development uninstall
 
 ```bash
-pip uninstall jupyter_ai_agent
+pip uninstall jupyter_ai_agents
 ```
 
 ### Packaging the library

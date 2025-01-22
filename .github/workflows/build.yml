@@ -38,8 +38,8 @@ jobs:
           pip install build
           python -m build --sdist
           cp dist/*.tar.gz my_server_extension.tar.gz
-          pip uninstall -y "jupyter_ai_agent"
-          rm -rf "jupyter_ai_agent"
+          pip uninstall -y "jupyter_ai_agents"
+          rm -rf "jupyter_ai_agents"
 
       - uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
@@ -84,8 +84,8 @@ jobs:
       - name: Install and Test
         run: |
           pip install my_server_extension.tar.gz
-          pip list 2>&1 | grep -ie "jupyter_ai_agent"
-          python -c "import jupyter_ai_agent"
+          pip list 2>&1 | grep -ie "jupyter_ai_agents"
+          python -c "import jupyter_ai_agents"
 
   check_release:
     needs: test_sdist
@@ -104,5 +104,5 @@ jobs:
       - name: Upload Distributions
         uses: actions/upload-artifact@v4
         with:
-          name: jupyter_ai_agent-releaser-dist-${{ github.run_number }}
+          name: jupyter_ai_agents-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
