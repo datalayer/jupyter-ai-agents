@@ -6,7 +6,7 @@
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: '🪐 ✨ Jupyter AI Agent documentation',
+  title: '🪐 ✨ Jupyter AI Agents documentation',
   tagline: 'Tansform your Notebooks into an interactive, AI-powered workspace that adapts to your needs!',
   url: 'https://datalayer.io',
   baseUrl: '/',
@@ -14,7 +14,7 @@ module.exports = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'datalayer', // Usually your GitHub org/user name.
-  projectName: 'jupyter-ai-agent', // Usually your repo name.
+  projectName: 'jupyter-ai-agents', // Usually your repo name.
   markdown: {
     mermaid: true,
   },
@@ -31,7 +31,7 @@ module.exports = {
       disableSwitch: true,
     },
     navbar: {
-      title: 'Jupyter AI Agent Docs',
+      title: 'Jupyter AI Agents Docs',
       logo: {
         alt: 'Datalayer Logo',
         src: 'img/datalayer/logo.svg',
@@ -92,7 +92,7 @@ module.exports = {
           'aria-label': 'Bluesky',
         },
         {
-          href: 'https://github.com/datalayer/jupyter-ai-agent',
+          href: 'https://github.com/datalayer/jupyter-ai-agents',
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub',
@@ -112,7 +112,7 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Jupyter AI Agent',
+              label: 'Jupyter AI Agents',
               to: '/docs',
             },
           ],
@@ -169,7 +169,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/datalayer/jupyter-ai-agent/edit/main/',
+          editUrl: 'https://github.com/datalayer/jupyter-ai-agents/edit/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

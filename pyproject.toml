@@ -7,7 +7,7 @@ requires = ["hatchling~=1.21"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyter_ai_agent"
+name = "jupyter_ai_agents"
 authors = [{ name = "Datalayer", email = "info@datalayer.io" }]
 dynamic = ["version"]
 readme = "README.md"
@@ -35,18 +35,18 @@ lint = ["mdformat>0.7", "mdformat-gfm>=0.3.5", "ruff"]
 typing = ["mypy>=0.990"]
 
 [project.scripts]
-jaa = "jupyter_ai_agent.app:main"
-jupyter-ai-agent = "jupyter_ai_agent.app:main"
-jupyter-ai-agent-console = "jupyter_ai_agent.consoleapp:main"
+jaa = "jupyter_ai_agents.app:main"
+jupyter-ai-agents = "jupyter_ai_agents.app:main"
+jupyter-ai-agents-console = "jupyter_ai_agents.consoleapp:main"
 
 [project.license]
 file = "LICENSE"
 
 [project.urls]
-Home = "https://github.com/datalayer/jupyter-ai-agent"
+Home = "https://github.com/datalayer/jupyter-ai-agents"
 
 [tool.hatch.version]
-path = "jupyter_ai_agent/__version__.py"
+path = "jupyter_ai_agents/__version__.py"
 
 [tool.pytest.ini_options]
 filterwarnings = [
@@ -100,4 +100,4 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 # S101 Use of `assert` detected
-"jupyter_ai_agent/tests/*" = ["S101"]
+"jupyter_ai_agents/tests/*" = ["S101"]

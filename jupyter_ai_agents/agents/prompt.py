@@ -8,9 +8,9 @@ from langchain.agents import AgentExecutor
 from jupyter_nbmodel_client import NbModelClient
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agent.providers.azure_openai import create_azure_open_ai_agent
-from jupyter_ai_agent.tools import insert_execute_code_cell_tool, insert_markdown_cell_tool
-from jupyter_ai_agent.utils import retrieve_cells_content
+from jupyter_ai_agents.providers.azure_openai import create_azure_open_ai_agents
+from jupyter_ai_agents.tools import insert_execute_code_cell_tool, insert_markdown_cell_tool
+from jupyter_ai_agents.utils import retrieve_cells_content
 
 SYSTEM_PROMPT = """You are a powerful coding assistant.
 Create and execute code in a notebook based on user instructions.
@@ -54,7 +54,7 @@ def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, azure_depl
     else:
         system_prompt_final = system_prompt_enriched
         
-    agent = create_azure_open_ai_agent(azure_deployment_name, system_prompt_final, tools)
+    agent = create_azure_open_ai_agents(azure_deployment_name, system_prompt_final, tools)
     agent_executor = AgentExecutor(name="NotebookPromptAgent", agent=agent, tools=tools, verbose=True)
 
     return list(agent_executor.stream({"input": input}))

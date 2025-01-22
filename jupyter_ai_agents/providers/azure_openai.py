@@ -9,7 +9,7 @@ from langchain.agents.format_scratchpad.openai_tools import format_to_openai_too
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 
 
-def create_azure_open_ai_agent(azure_deployment_name: str, system_prompt: str, tools: list) -> dict:
+def create_azure_open_ai_agents(azure_deployment_name: str, system_prompt: str, tools: list) -> dict:
     """Create an agent from a set of tools and an Azure deployment name."""
 
     llm = AzureChatOpenAI(azure_deployment=azure_deployment_name)

@@ -54,16 +54,16 @@ build: ## build
 publish: build ## publish
 	($(CONDA_ACTIVATE) ${ENV_NAME}; \
 	  aws s3 rm \
-			s3://datalayer-jupyter-ai-agent/ \
+			s3://datalayer-jupyter-ai-agents/ \
 			--recursive \
 			--profile datalayer && \
 	  aws s3 cp \
 			./build \
-			s3://datalayer-jupyter-ai-agent/ \
+			s3://datalayer-jupyter-ai-agents/ \
 			--recursive \
 			--profile datalayer && \
 	  aws cloudfront create-invalidation \
 			--distribution-id E2U9KIMWUI2OHQ \
 			--paths "/*" \
 			--profile datalayer && \
-	echo open ✨  https://jupyter-ai-agent.datalayer.tech )
+	echo open ✨  https://jupyter-ai-agents.datalayer.tech )

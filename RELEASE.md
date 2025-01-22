@@ -4,7 +4,7 @@
   ~ BSD 3-Clause License
 -->
 
-# Making a new release of jupyter_ai_agent
+# Making a new release of jupyter_ai_agents
 
 The extension can be published to `PyPI` manually or using the [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
 
