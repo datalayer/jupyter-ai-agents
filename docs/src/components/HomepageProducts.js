@@ -11,11 +11,11 @@ import styles from './HomepageProducts.module.css';
 const ProductList = [
 /*
   {
-    title: 'Jupyter AI Agent',
+    title: 'Jupyter AI Agents',
     Svg: require('../../static/img/product_1.svg').default,
     description: (
       <>
-        Get started by creating a Jupyter platform in the cloud with Jupyter AI Agent. You will get Jupyter on Kubernetes with a cloud database and storage bucket to persist your notebooks and datasets.
+        Get started by creating a Jupyter platform in the cloud with Jupyter AI Agents. You will get Jupyter on Kubernetes with a cloud database and storage bucket to persist your notebooks and datasets.
       </>
     ),
   },

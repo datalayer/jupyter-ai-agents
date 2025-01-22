@@ -6,7 +6,7 @@
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: '🪐 ✨ Jupyter AI Agent documentation',
+  title: '🪐 ✨ Jupyter AI Agents documentation',
   tagline: 'Tansform your Notebooks into an interactive, AI-powered workspace that adapts to your needs!',
   url: 'https://datalayer.io',
   baseUrl: '/',
@@ -31,7 +31,7 @@ module.exports = {
       disableSwitch: true,
     },
     navbar: {
-      title: 'Jupyter AI Agent Docs',
+      title: 'Jupyter AI Agents Docs',
       logo: {
         alt: 'Datalayer Logo',
         src: 'img/datalayer/logo.svg',
@@ -112,7 +112,7 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Jupyter AI Agent',
+              label: 'Jupyter AI Agents',
               to: '/docs',
             },
           ],

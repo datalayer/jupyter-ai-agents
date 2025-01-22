@@ -94,7 +94,7 @@ class JupyterAIAgentApp(JupyterAIAgentAskApp):
     name = "jupyter-ai-agents"
 
     description = """
-      The Jupyter AI Agent application.
+      The Jupyter AI Agents application.
     """
 
     subcommands = {
@@ -108,7 +108,7 @@ class JupyterAIAgentApp(JupyterAIAgentAskApp):
 
     def start(self):
         super(JupyterAIAgentApp, self).start()
-        self.log.info("Jupyter AI Agent [%s] ", self.version)
+        self.log.info("Jupyter AI Agents [%s] ", self.version)
 
 
 # -----------------------------------------------------------------------------

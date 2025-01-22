@@ -33,7 +33,7 @@ class AIAgentConsoleApp(KonsoleApp):
     version = __version__
 
     description = """
-        The Jupyter AI Agent terminal-based Console.
+        The Jupyter AI Agents terminal-based Console.
 
         This launches a Console application inside a terminal.
 
