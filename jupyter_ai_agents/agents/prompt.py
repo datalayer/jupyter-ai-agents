@@ -3,12 +3,11 @@
 # BSD 3-Clause License
 
 from langchain.agents import tool
-from langchain.agents import AgentExecutor
 
 from jupyter_nbmodel_client import NbModelClient
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agents.providers.azure_openai import create_azure_open_ai_agents
+from jupyter_ai_agents.agents.utils import create_ai_agent
 from jupyter_ai_agents.tools import insert_execute_code_cell_tool, insert_markdown_cell_tool
 from jupyter_ai_agents.utils import retrieve_cells_content
 
@@ -19,7 +18,7 @@ Assume that no packages are installed in the notebook, so install them using !pi
 Ensure updates to cell indexing when new cells are inserted. Maintain the logical flow of execution by adjusting cell index as needed.
 """
 
-def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, azure_deployment_name: str, full_context: bool, current_cell_index: int) -> list:
+def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, model_provider: str, model_name: str, full_context: bool, current_cell_index: int) -> list:
     """From a given instruction, code and markdown cells are added to a notebook."""
 
     @tool
@@ -54,7 +53,6 @@ def prompt(notebook: NbModelClient, kernel: KernelClient, input: str, azure_depl
     else:
         system_prompt_final = system_prompt_enriched
         
-    agent = create_azure_open_ai_agents(azure_deployment_name, system_prompt_final, tools)
-    agent_executor = AgentExecutor(name="NotebookPromptAgent", agent=agent, tools=tools, verbose=True)
+    agent = create_ai_agent(model_provider, model_name, system_prompt_final, tools)
 
-    return list(agent_executor.stream({"input": input}))
+    return list(agent.stream({"input": input}))

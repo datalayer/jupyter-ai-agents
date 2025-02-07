@@ -11,7 +11,8 @@ The Explain Error Agent explains an error encountered in a notebook. It leverage
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --azure-ai-deployment-name gpt-40-mini \
+  --model-provider azure-openai \
+  --model-name gpt-4o-mini \
   --path test.ipynb
 ```
 
@@ -19,6 +20,7 @@ jupyter-ai-agents explain-error \
 
 - `--url`: JupyterLab URL.
 - `--token`: JupyterLab token.
-- `--azure-ai-deployment-name`: Azure AI model deployment name.
+- `--model-provider`: `azure-openai` or `github-copilot`.
+- `--model-name`: Azure AI model deployment name or Github Copilot model to use.
 - `--path`: Notebook to modify path.
 - `--current-cell-index`: Optional flag to provide the index of the cell where the error is encountered. If not provided, the error considered is the first one in the notebook.

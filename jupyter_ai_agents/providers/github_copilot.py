@@ -2,15 +2,15 @@
 #
 # BSD 3-Clause License
 
-from langchain_openai import AzureChatOpenAI
+from langchain_github_copilot import ChatGithubCopilot
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 
-def create_azure_openai_agent(model_name: str, system_prompt: str, tools: list) -> dict:
-    """Create an agent from a set of tools and an Azure deployment"""
+def create_github_copilot_agent(model_name: str, system_prompt: str, tools: list) -> dict:
+    """Create an agent from a set of tools and a Github Copilot model"""
     
-    llm = AzureChatOpenAI(azure_deployment=model_name)
+    llm = ChatGithubCopilot(model_name=model_name)
 
     prompt = ChatPromptTemplate.from_messages(
     [
