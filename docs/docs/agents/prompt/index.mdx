@@ -1,9 +1,10 @@
 # Prompt Agent
 
-The Prompt Agent generates code cells based on natural language input. It leverages AI models to generate code, add new cells, and modify the notebook content. This is a great Agent to support the following use cases:
+The Prompt Agent generates code cells based on natural language input. It leverages AI models to generate code, markdown, add new cells, and modify the notebook content. This is a great Agent to support the following use cases:
 
 - Code Generation: Generate cells code based on natural language input.
-- Notebook Modification: Add new cells based on existing one.
+- Markdown Generation: Generate markdown cells based on natural language input.
+- Notebook Modification: Insert new cells based on existing one to your notebook.
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agents/ai-agent-prompt-demo-terminal.gif)
 
@@ -13,7 +14,8 @@ To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure d
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --azure-ai-deployment-name gpt-40-mini \
+  - model-provider azure-openai \
+  --model-name gpt-4o-mini \
   --path test.ipynb \
   --input "Create a matplotlib example"
 ```
@@ -23,7 +25,8 @@ jupyter-ai-agents prompt \
 The Prompt Agent can be configured with the following parameters:
 - `--url`: JupyterLab URL.
 - `--token`: JupyterLab token.
-- `--azure-ai-deployment-name`: Azure AI model deployment name.
+- `--model-provider`: `azure-openai` or `github-copilot`.
+- `--model-name`: Azure AI model deployment name or Github Copilot model to use.
 - `--path`: Notebook to modify path.
 - `--input`: Natural language input.
 - `--full-context`: Optional flag to provide the full notebook context i.e. notebook content to the AI model (default: False).

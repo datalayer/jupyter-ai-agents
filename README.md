@@ -15,7 +15,7 @@
 
 *The Jupyter AI Agents are equipped with tools like 'execute', 'insert_cell', and more, to transform your Jupyter Notebooks into an intelligent, interactive workspace!*
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agents/ai-agents-prompt-demo-terminal.gif)
+![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
 ```
 Jupyter AI Agents <-----------> JupyterLab
@@ -73,6 +73,8 @@ Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and 
 jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 ```
 
+Jupyter AI Agents supports multiple AI model providers (more information on [here](https://jupyter-ai-agents.datalayer.tech/docs/models/)). Here is an example with the Azure OpenAI provider.
+
 Read the [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials and make sure you define them in the following `.env` file.
 
 ```bash
@@ -90,23 +92,25 @@ To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure d
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --azure-ai-deployment-name gpt-40-mini \
+  --model-provider azure-openai \
+  --model-name gpt-4o-mini \
   --path test.ipynb \
   --input "Create a matplotlib example"
 ```
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agents/ai-agents-prompt-demo-terminal.gif)
+![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
 ```bash
 # Explain Error agent example.
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --azure-ai-deployment-name gpt-40-mini \
+  --model-provider azure-openai \
+  --model-name gpt-4o-mini \
   --path test.ipynb
 ```
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agents/ai-agents-explainerror-demo-terminal.gif)
+![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
 ## Uninstall
 

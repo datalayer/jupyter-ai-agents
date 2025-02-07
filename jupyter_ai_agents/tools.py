@@ -2,10 +2,6 @@
 #
 # BSD 3-Clause License
 
-from dotenv import load_dotenv, find_dotenv
-
-from langchain.agents import tool
-
 from jupyter_nbmodel_client import NbModelClient
 from jupyter_kernel_client import KernelClient
 

@@ -53,7 +53,7 @@ class PromptAgentApp(JupyterAIAgentAskApp):
         super(PromptAgentApp, self).initialize(*args, **kwargs)
 
     def ask(self):
-        reply = prompt(self.notebook, self.kernel, super().input, super().azure_ai_deployment_name, self.full_context, self.current_cell_index)
+        reply = prompt(self.notebook, self.kernel, super().input, super().model_provider, super().model_name, self.full_context, self.current_cell_index)
         logger.debug("Reply", reply)
 
     def start(self):
@@ -78,7 +78,7 @@ class ExplainErrorAgentApp(JupyterAIAgentAskApp):
         super(ExplainErrorAgentApp, self).initialize(*args, **kwargs)
 
     def ask(self):
-        reply = explain_error(self.notebook, self.kernel, super().azure_ai_deployment_name, self.current_cell_index)
+        reply = explain_error(self.notebook, self.kernel, super().model_provider, super().model_name, self.current_cell_index)
         logger.debug("Reply", reply)
 
     def start(self):
