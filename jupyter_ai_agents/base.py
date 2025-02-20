@@ -8,6 +8,7 @@ import asyncio
 import os
 import logging
 
+from asyncio import sleep
 from dotenv import load_dotenv, find_dotenv
 
 from traitlets import Unicode, Integer
@@ -137,7 +138,7 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
     def start(self):
         """Start the app."""
         super(JupyterAIAgentAskApp, self).start()
-        asyncio.get_running_loop().run_until_complete(self._start_clients())
+        asyncio.run(self._start_clients())
 
     async def _start_clients(self):
         try:
@@ -149,10 +150,10 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
         except Exception as e:
             logger.error("Exception", e)
         finally:
+            await sleep(1)
             await self.notebook.stop()
             self.kernel.stop()
     
 
 class JupyterAIAgentListenApp(JupyterAIAgentBaseApp):
     pass    
-
