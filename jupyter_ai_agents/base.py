@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-
+import asyncio
 import os
 import logging
 
@@ -137,16 +137,19 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
     def start(self):
         """Start the app."""
         super(JupyterAIAgentAskApp, self).start()
+        asyncio.get_running_loop().run_until_complete(self._start_clients())
+
+    async def _start_clients(self):
         try:
             self.kernel = KernelClient(server_url=self.server_url, token=self.token)
             self.kernel.start()
             self.notebook = NbModelClient(get_jupyter_notebook_websocket_url(server_url=self.server_url, token=self.token, path=self.path))
-            self.notebook.start()
+            await self.notebook.start()
             self.ask()
         except Exception as e:
             logger.error("Exception", e)
         finally:
-            self.notebook.stop()
+            await self.notebook.stop()
             self.kernel.stop()
     
 

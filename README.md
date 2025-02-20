@@ -45,6 +45,8 @@ This powerful functionality is made possible through [jupyter-nbmodel-client](ht
 
 This library is documented on https://jupyter-ai-agents.datalayer.tech.
 
+### Modify externally a notebook
+
 We put here a quick example for a Out-Kernel Stateless Agent helping your JupyterLab session.
 
 To install Jupyter AI Agents, run the following command.
@@ -111,6 +113,15 @@ jupyter-ai-agents explain-error \
 ```
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
+
+
+### React to document changes
+
+In the underlying library jupyter-nbmodel-client, we define a [specification to set user
+prompts](https://github.com/datalayer/jupyter-nbmodel-client?tab=readme-ov-file#data-models) in the notebook metadata. You can create a agent reacting to a user prompt set through
+that specification by inheriting from `jupyter_nbmodel_client.BaseNbAgent`. You can see an
+example in the class [PromptAgent](./jupyter_ai_agents/agents/crdt.py).
+
 
 ## Uninstall
 
