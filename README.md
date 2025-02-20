@@ -45,7 +45,7 @@ This powerful functionality is made possible through [jupyter-nbmodel-client](ht
 
 This library is documented on https://jupyter-ai-agents.datalayer.tech.
 
-### Modify externally a notebook
+### Modify externally a Notebook
 
 We put here a quick example for a Out-Kernel Stateless Agent helping your JupyterLab session.
 
@@ -53,6 +53,9 @@ To install Jupyter AI Agents, run the following command.
 
 ```bash
 pip install jupyter_ai_agents
+# We ask you to take additional actions to overcome issues with the pycrdt library.
+pip uninstall -y pycrdt datalayer_pycrdt
+pip install datalayer_pycrdt
 ```
 
 Or clone this repository and install it from source.
