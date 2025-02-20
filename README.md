@@ -90,6 +90,34 @@ AZURE_OPENAI_API_KEY="..."
 EOF
 ```
 
+### Using Direct OpenAI Integration
+
+In addition to Azure OpenAI, you can also use direct OpenAI API integration. To use OpenAI directly, you'll need to:
+
+1. Get an API key from [OpenAI](https://platform.openai.com)
+2. Set up your environment variables:
+
+```bash
+cat << EOF >>.env
+OPENAI_API_KEY="your-api-key-here"
+EOF
+```
+
+Example usage with direct OpenAI integration:
+
+```bash
+# Prompt agent example with OpenAI
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider openai \
+  --model-name gpt-4o-mini \
+  --path test.ipynb \
+  --input "Create a matplotlib example"
+```
+
+Note that when using direct OpenAI integration, you don't need to specify the `--azure-ai-deployment-name` parameter.
+
 To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure deployment name based on your setup).
 
 ```bash
