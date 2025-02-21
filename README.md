@@ -53,9 +53,6 @@ To install Jupyter AI Agents, run the following command.
 
 ```bash
 pip install jupyter_ai_agents
-# We ask you to take additional actions to overcome issues with the pycrdt library.
-pip uninstall -y pycrdt datalayer_pycrdt
-pip install datalayer_pycrdt
 ```
 
 Or clone this repository and install it from source.
@@ -72,13 +69,22 @@ The Jupyter AI Agents can directly interact with JupyterLab. The modifications m
 pip install jupyterlab jupyter-collaboration ipykernel
 ```
 
+We ask you to take additional actions to overcome limitations and bugs of the pycrdt library.
+
+```bash
+pip uninstall -y pycrdt datalayer_pycrdt
+pip install datalayer_pycrdt
+```
+
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
 
 ```bash
 jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 ```
 
-Jupyter AI Agents supports multiple AI model providers (more information on [here](https://jupyter-ai-agents.datalayer.tech/docs/models/)). Here is an example with the Azure OpenAI provider.
+Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
+
+The following takes you through an example with the Azure OpenAI provider.
 
 Read the [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials and make sure you define them in the following `.env` file.
 
@@ -117,14 +123,13 @@ jupyter-ai-agents explain-error \
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
-
 ### React to document changes
 
-In the underlying library jupyter-nbmodel-client, we define a [specification to set user
-prompts](https://github.com/datalayer/jupyter-nbmodel-client?tab=readme-ov-file#data-models) in the notebook metadata. You can create a agent reacting to a user prompt set through
-that specification by inheriting from `jupyter_nbmodel_client.BaseNbAgent`. You can see an
-example in the class [PromptAgent](./jupyter_ai_agents/agents/crdt.py).
+In the underlying library jupyter-nbmodel-client, we define a [specification to set user prompts](https://github.com/datalayer/jupyter-nbmodel-client?tab=readme-ov-file#data-models) in the Notebook metadata.
 
+You can create a agent reacting to a user prompt set through that specification by inheriting from `jupyter_nbmodel_client.BaseNbAgent`.
+
+You can see an example in the class [PromptAgent](./jupyter_ai_agents/agents/metadata.py).
 
 ## Uninstall
 
