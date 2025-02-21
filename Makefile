@@ -32,8 +32,7 @@ jupyterlab:
 	jupyter lab \
 		--port 8888 \
 		--ServerApp.root_dir ./dev/content \
-		--IdentityProvider.token MY_TOKEN \
-		./dev/content/test.ipynb
+		--IdentityProvider.token MY_TOKEN
 
 prompt:
 	jupyter-ai-agents prompt \

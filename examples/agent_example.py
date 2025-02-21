@@ -15,10 +15,11 @@ from langchain.agents import tool
 
 from jupyter_ai_agents.agents import prompt as prompt_agent
 from jupyter_ai_agents.providers.azure_openai import create_azure_openai_agent
-from jupyter_ai_agents.tools import (
+from jupyter_ai_agents.tools.tools import (
     insert_execute_code_cell_tool,
     insert_markdown_cell_tool,
 )
+
 
 AZURE_MODEL_NAME = "gpt-40-mini"
 

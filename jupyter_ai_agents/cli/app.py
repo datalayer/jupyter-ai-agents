@@ -10,7 +10,7 @@ import logging
 from traitlets import CBool
 from traitlets.config import boolean_flag
 
-from jupyter_ai_agents.base import JupyterAIAgentAskApp, base_flags
+from jupyter_ai_agents.cli.base import JupyterAIAgentAskApp, base_flags
 from jupyter_ai_agents.agents.prompt import prompt
 from jupyter_ai_agents.agents.explain_error import explain_error
 
@@ -116,6 +116,7 @@ class JupyterAIAgentApp(JupyterAIAgentAskApp):
 # -----------------------------------------------------------------------------
 
 main = launch_new_instance = JupyterAIAgentApp.launch_instance
+
 
 if __name__ == "__main__":
     main()
