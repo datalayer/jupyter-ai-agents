@@ -157,4 +157,4 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
 
 
 class JupyterAIAgentListenApp(JupyterAIAgentBaseApp):
-    pass    
+    pass
