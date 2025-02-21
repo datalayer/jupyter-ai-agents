@@ -8,7 +8,6 @@ import asyncio
 import os
 import logging
 
-from asyncio import sleep
 from dotenv import load_dotenv, find_dotenv
 
 from traitlets import Unicode, Integer
@@ -21,7 +20,6 @@ from jupyter_ai_agents.__version__ import __version__
 
 
 logger = logging.getLogger(__name__)
-
 
 
 load_dotenv(find_dotenv())
@@ -127,33 +125,36 @@ class JupyterAIAgentBaseApp(JupyterApp):
         help="Index of the cell where the prompt is asked."
     )
 
+
 class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
 
     kernel = None
     notebook = None
 
+
     def ask(self):
         pass
 
-    def start(self):
-        """Start the app."""
-        super(JupyterAIAgentAskApp, self).start()
-        asyncio.run(self._start_clients())
 
-    async def _start_clients(self):
+    def _start_clients(self):
         try:
             self.kernel = KernelClient(server_url=self.server_url, token=self.token)
             self.kernel.start()
             self.notebook = NbModelClient(get_jupyter_notebook_websocket_url(server_url=self.server_url, token=self.token, path=self.path))
-            await self.notebook.start()
+            asyncio.get_event_loop().run_until_complete(self.notebook.start())
             self.ask()
         except Exception as e:
             logger.error("Exception", e)
         finally:
-            await sleep(1)
-            await self.notebook.stop()
+            asyncio.get_event_loop().run_until_complete(self.notebook.stop())
             self.kernel.stop()
-    
+
+
+    def start(self):
+        """Start the app."""
+        super(JupyterAIAgentAskApp, self).start()
+        self._start_clients()
+
 
 class JupyterAIAgentListenApp(JupyterAIAgentBaseApp):
-    pass    
+    pass

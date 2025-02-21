@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from jupyter_kernel_client import KonsoleApp
 
-from .__version__ import __version__
+from jupyter_ai_agents.__version__ import __version__
 
 
 # -----------------------------------------------------------------------------

@@ -27,3 +27,26 @@ build:
 
 clean: ## clean
 	git clean -fdx
+
+jupyterlab:
+	jupyter lab \
+		--port 8888 \
+		--ServerApp.root_dir ./dev/content \
+		--IdentityProvider.token MY_TOKEN
+
+prompt:
+	jupyter-ai-agents prompt \
+		--url http://localhost:8888 \
+		--token MY_TOKEN \
+		--model-provider azure-openai \
+		--model-name gpt-4o-mini \
+		--path test.ipynb \
+		--input "Create a matplotlib example"
+
+explain-error:
+	jupyter-ai-agents explain-error \
+		--url http://localhost:8888 \
+		--token MY_TOKEN \
+		--model-provider azure-openai \
+		--model-name gpt-4o-mini \
+		--path test.ipynb

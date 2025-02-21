@@ -10,7 +10,7 @@ from jupyter_nbmodel_client import NbModelClient
 from jupyter_kernel_client import KernelClient
 
 from jupyter_ai_agents.agents.utils import create_ai_agent
-from jupyter_ai_agents.tools import insert_execute_code_cell_tool
+from jupyter_ai_agents.tools.tools import insert_execute_code_cell_tool
 from jupyter_ai_agents.utils import retrieve_cells_content_until_first_error, retrieve_cells_content_error
 
 logger = logging.getLogger(__name__)
