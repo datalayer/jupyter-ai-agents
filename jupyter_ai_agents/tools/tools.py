@@ -14,8 +14,6 @@ def add_markdown_cell_tool(notebook: NbModelClient, cell_content: str) -> None:
 def insert_markdown_cell_tool(notebook: NbModelClient, cell_content: str, cell_index:int) -> None:
     """Insert a Markdown cell with a content at a specific index in the notebook."""
     notebook.insert_markdown_cell(cell_index, cell_content)
-    from time import sleep
-    sleep(5)
 
 
 def add_execute_code_cell_tool(notebook: NbModelClient, kernel: KernelClient, cell_content: str) -> None:
