@@ -43,6 +43,7 @@ jupyter_ai_agents_aliases.update(
         "openai-api-version": "JupyterAIAgentBaseApp.openai_api_version",
         "azure-openai-version": "JupyterAIAgentBaseApp.azure_openai_version",
         "azure-openai-api-key": "JupyterAIAgentBaseApp.azure_openai_api_key",
+        "openai-api-key": "JupyterAIAgentBaseApp.openai_api_key",
         "model-name": "JupyterAIAgentBaseApp.model_name",
         "current-cell-index": "JupyterAIAgentBaseApp.current_cell_index",
     }
@@ -88,11 +89,11 @@ class JupyterAIAgentBaseApp(JupyterApp):
     model_provider = Unicode(
         "github-copilot",
         config=True,
-        help="Model provider can be 'azure-openai' or 'github-copilot'."
+        help="Model provider can be 'azure-openai', 'github-copilot', or 'openai'."
     )
     openai_api_version = Unicode(
         os.environ.get("OPENAI_API_VERSION"),
-        help="""OpenAI version.""",
+        help="""OpenAI API version.""",
         config=True,
     )
     azure_openai_version = Unicode(
@@ -110,12 +111,19 @@ class JupyterAIAgentBaseApp(JupyterApp):
         help="""Github token.""",
         config=True,
     )
+    openai_api_key = Unicode(
+        os.environ.get("OPENAI_API_KEY"),
+        help="""OpenAI API key.""",
+        config=True,
+    )
     model_name = Unicode(
         "gpt-4o",
         help=(
             "The 'Azure AI deployment' name for 'azure-openai' model provider."
             "For 'github-copilot' model provider, gpt-4o, o1, or o3-mini (as of 2024-02-07) "
-            "- check your GithubCopilot settings to make sure the model you want to use is enabled."""
+            "- check your GithubCopilot settings to make sure the model you want to use is enabled."
+            "For 'openai' model provider, gpt-4o, o1, or o3-mini (as of 2024-02-07) "
+            "- check the limits in your OpenAI API Dashboard to make sure the model you want to use is enabled."
             ),
         config=True,
     )
