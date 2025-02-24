@@ -1,0 +1,26 @@
+# OpenAI
+
+Jupyter AI Agents supports [models](https://platform.openai.com/docs/models#current-model-aliases) from [OpenAI](https://platform.openai.com/docs/overview).
+
+
+To use OpenAI directly, you'll need to:
+
+1. Get an API key from [OpenAI](https://platform.openai.com)
+2. Set up your environment variables:
+
+```bash
+export OPENAI_API_KEY="..."
+```
+
+Example usage with direct OpenAI integration:
+
+```bash
+# Prompt agent example with OpenAI
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider openai \
+  --model-name gpt-4o-mini \
+  --path test.ipynb \
+  --input "Create a matplotlib example"
+```
