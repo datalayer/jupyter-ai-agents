@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# Copyright (c) 2023-2024 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 # Integration test for Anthropic provider
 
 import os
