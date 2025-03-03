@@ -24,6 +24,7 @@ dependencies = [
   "langchain",
   "langchain-openai",
   "langchain-github-copilot",
+  "langchain-anthropic",
   "jupyter_kernel_client",
   "jupyter_nbmodel_client>=0.8.0",
   "python-dotenv",
