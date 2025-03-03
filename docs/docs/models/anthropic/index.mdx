@@ -1,0 +1,35 @@
+# Anthropic
+
+Jupyter AI Agents supports [Claude models](https://docs.anthropic.com/claude/docs/models-overview) from [Anthropic](https://www.anthropic.com/).
+
+To use Anthropic Claude directly, you'll need to:
+
+1. Get an API key from [Anthropic's Console](https://console.anthropic.com/)
+2. Set up your environment variables:
+
+```bash
+export ANTHROPIC_API_KEY="..."
+```
+
+Example usage with direct Anthropic integration:
+
+```bash
+# Prompt agent example with Anthropic Claude
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider anthropic \
+  --model-name claude-3-5-sonnet-20241022 \
+  --path test.ipynb \
+  --input "Create a matplotlib example"
+```
+
+## Available Claude Models
+
+You can use any of the following Claude models:
+
+- `claude-3-haiku-20240307` - Fastest and most compact Claude model
+- `claude-3-sonnet-20240229` - Balanced model for most tasks
+- `claude-3-opus-20240229` - Most powerful Claude model
+- `claude-3-5-sonnet-20241022` - Previous most intelligent Claude 3.5 model 
+- `claude-3-7-sonnet-20250219` - Most intelligent model Claude 3.7 model (recommended)

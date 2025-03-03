@@ -14,7 +14,7 @@ from traitlets import Unicode, Integer
 from jupyter_core.application import JupyterApp, base_aliases, base_flags
 
 from jupyter_nbmodel_client import NbModelClient, get_jupyter_notebook_websocket_url
-from jupyter_kernel_client import KernelClient
+from jupyter_kernel_client import KernelClient 
 
 from jupyter_ai_agents.__version__ import __version__
 
@@ -44,6 +44,7 @@ jupyter_ai_agents_aliases.update(
         "azure-openai-version": "JupyterAIAgentBaseApp.azure_openai_version",
         "azure-openai-api-key": "JupyterAIAgentBaseApp.azure_openai_api_key",
         "openai-api-key": "JupyterAIAgentBaseApp.openai_api_key",
+        "anthropic-api-key": "JupyterAIAgentBaseApp.anthropic_api_key",
         "model-name": "JupyterAIAgentBaseApp.model_name",
         "current-cell-index": "JupyterAIAgentBaseApp.current_cell_index",
     }
@@ -114,6 +115,11 @@ class JupyterAIAgentBaseApp(JupyterApp):
     openai_api_key = Unicode(
         os.environ.get("OPENAI_API_KEY"),
         help="""OpenAI API key.""",
+        config=True,
+    )
+    anthropic_api_key = Unicode(
+        os.environ.get("ANTHROPIC_API_KEY"),
+        help="""Anthropic API key.""",
         config=True,
     )
     model_name = Unicode(
