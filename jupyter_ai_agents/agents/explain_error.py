@@ -4,14 +4,17 @@
 
 import logging
 
-from langchain.agents import tool
-
-from jupyter_nbmodel_client import NbModelClient
 from jupyter_kernel_client import KernelClient
+from jupyter_nbmodel_client import NbModelClient
+from langchain.agents import AgentExecutor, tool
 
+from jupyter_ai_agents.agents.base import RuntimeAgent
 from jupyter_ai_agents.agents.utils import create_ai_agent
 from jupyter_ai_agents.tools.tools import insert_execute_code_cell_tool
-from jupyter_ai_agents.utils import retrieve_cells_content_until_first_error, retrieve_cells_content_error
+from jupyter_ai_agents.utils import (
+    retrieve_cells_content_error,
+    retrieve_cells_content_until_first_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +26,13 @@ Ensure updates to cell indexing when new cells are inserted. Maintain the logica
 """
 
 
-def explain_error(notebook: NbModelClient, kernel: KernelClient, model_provider: str, model_name: str, current_cell_index: int) -> list:
+def _create_agent(
+    notebook: NbModelClient,
+    kernel: KernelClient,
+    model_provider: str,
+    model_name: str,
+    current_cell_index: int,
+) -> AgentExecutor:
     """Explain and correct an error in a notebook based on the prior cells."""
 
     @tool
@@ -33,10 +42,11 @@ def explain_error(notebook: NbModelClient, kernel: KernelClient, model_provider:
         return "Code cell added and executed."
 
     tools = [insert_execute_code_cell]
-    
+
     if current_cell_index != -1:
-        
-        cells_content_until_error, error = retrieve_cells_content_error(notebook, current_cell_index)
+        cells_content_until_error, error = retrieve_cells_content_error(
+            notebook, current_cell_index
+        )
 
         system_prompt_final = f"""
         {SYSTEM_PROMPT}
@@ -44,21 +54,32 @@ def explain_error(notebook: NbModelClient, kernel: KernelClient, model_provider:
         Notebook content: {cells_content_until_error}
         """
         input = f"Error: {error}"
-    
+
     else:
-    
-        cells_content_until_first_error, first_error = retrieve_cells_content_until_first_error(notebook)
-        
-        system_prompt_final= f"""
+        cells_content_until_first_error, first_error = retrieve_cells_content_until_first_error(
+            notebook
+        )
+
+        system_prompt_final = f"""
         {SYSTEM_PROMPT}
         
         Notebook content: {cells_content_until_first_error}
-        """ 
+        """
         input = f"Error: {first_error}"
-    
+
     logger.debug("Prompt with content", system_prompt_final)
     logger.debug("Input", input)
 
-    agent = create_ai_agent(model_provider, model_name, system_prompt_final, tools)
-        
+    return create_ai_agent(model_provider, model_name, system_prompt_final, tools)
+
+
+def explain_error(
+    notebook: NbModelClient,
+    kernel: KernelClient,
+    model_provider: str,
+    model_name: str,
+    current_cell_index: int,
+) -> list:
+    """Explain and correct an error in a notebook based on the prior cells."""
+    agent = _create_agent(notebook, kernel, model_provider, model_name, current_cell_index)
     return list(agent.stream({"input": input}))
