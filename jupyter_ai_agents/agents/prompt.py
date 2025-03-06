@@ -126,9 +126,15 @@ class PromptAgent(RuntimeAgent):
 
         output = None
 
-        async for reply in agent_executor.astream({"input": prompt}):
-            output = reply.get("output", "")
-            if not output:
-                output = reply["messages"][-1].content
-            self._log.debug("Got a reply for prompt [%s]: [%s].", prompt_id, (output or "")[:30])
+        try:
+            await self.notify("Thinking…", cell_id=cell_id)
+            async for reply in agent_executor.astream({"input": prompt}):
+                output = reply.get("output", "")
+                if not output:
+                    output = reply["messages"][-1].content
+                self._log.debug(
+                    "Got a reply for prompt [%s]: [%s].", prompt_id, (output or "")[:30]
+                )
+        finally:
+            await self.notify("Done", cell_id=cell_id)
         return output

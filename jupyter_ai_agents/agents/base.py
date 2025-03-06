@@ -37,6 +37,8 @@ class RuntimeAgent(BaseNbAgent):
 
     @runtime_client.setter
     def runtime_client(self, client: KernelClient) -> None:
+        if self._runtime_client:
+            self._runtime_client.stop()
         self._runtime_client = client
 
     async def stop(self) -> None:
