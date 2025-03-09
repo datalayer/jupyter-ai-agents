@@ -155,6 +155,14 @@ To uninstall the agent, execute.
 pip uninstall jupyter_ai_agents
 ```
 
+## Server
+
+You can start a Jupyter AI Agents server to be used in combination with the [Datalayer service](https://datalayer.io).
+
+```bash
+make start
+```
+
 ## Contributing
 
 ### Development install

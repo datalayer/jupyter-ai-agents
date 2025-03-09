@@ -28,11 +28,17 @@ build:
 clean: ## clean
 	git clean -fdx
 
-jupyterlab:
+jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
 		--ServerApp.root_dir ./dev/content \
 		--IdentityProvider.token MY_TOKEN
+
+server: ## server
+	@exec echo
+	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
+	@exec echo
+	python -m uvicorn jupyter_ai_agents.datalayer.server:app --reload --port 4400
 
 prompt:
 	jupyter-ai-agents prompt \
