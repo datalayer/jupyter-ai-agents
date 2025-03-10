@@ -67,7 +67,7 @@ def _create_agent(
     return create_ai_agent(model_provider, model_name, system_prompt_final, tools)
 
 
-def prompt(
+async def prompt(
     notebook: NbModelClient,
     kernel: KernelClient,
     input: str,
@@ -79,7 +79,10 @@ def prompt(
     agent = _create_agent(
         notebook, kernel, model_provider, model_name, full_context, current_cell_index
     )
-    return list(agent.stream({"input": input}))
+    replies = []
+    async for reply in agent.astream({"input": input}):
+        replies.append(reply)
+    return replies
 
 
 class PromptAgent(RuntimeAgent):

@@ -146,7 +146,7 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
     notebook = None
 
 
-    def ask(self):
+    async def ask(self):
         pass
 
 
@@ -156,7 +156,7 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
             self.kernel.start()
             self.notebook = NbModelClient(get_jupyter_notebook_websocket_url(server_url=self.server_url, token=self.token, path=self.path))
             asyncio.get_event_loop().run_until_complete(self.notebook.start())
-            self.ask()
+            asyncio.get_event_loop().run_until_complete(self.ask())
         except Exception as e:
             logger.error("Exception", e)
         finally:

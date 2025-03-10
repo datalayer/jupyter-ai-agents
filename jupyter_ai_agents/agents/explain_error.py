@@ -73,7 +73,7 @@ def _create_agent(
     return create_ai_agent(model_provider, model_name, system_prompt_final, tools)
 
 
-def explain_error(
+async def explain_error(
     notebook: NbModelClient,
     kernel: KernelClient,
     model_provider: str,
@@ -82,4 +82,7 @@ def explain_error(
 ) -> list:
     """Explain and correct an error in a notebook based on the prior cells."""
     agent = _create_agent(notebook, kernel, model_provider, model_name, current_cell_index)
-    return list(agent.stream({"input": input}))
+    replies = []
+    async for reply in agent.astream({"input": input}):
+        replies.append(reply)
+    return replies
