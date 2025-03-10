@@ -67,7 +67,7 @@ The Jupyter AI Agents can directly interact with JupyterLab. The modifications m
 pip install jupyterlab jupyter-collaboration ipykernel
 ```
 
-We ask you to take additional actions to overcome limitations and bugs of the pycrdt library.
+We ask you to take additional actions to overcome limitations and bugs of the pycrdt library. Ensure you create a new shell after running the following commands.
 
 ```bash
 pip uninstall -y pycrdt datalayer_pycrdt
@@ -153,6 +153,14 @@ To uninstall the agent, execute.
 
 ```bash
 pip uninstall jupyter_ai_agents
+```
+
+## Server
+
+You can start a Jupyter AI Agents server to be used in combination with the [Datalayer service](https://datalayer.io).
+
+```bash
+make start
 ```
 
 ## Contributing

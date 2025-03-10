@@ -52,8 +52,8 @@ class PromptAgentApp(JupyterAIAgentAskApp):
         """Initialize the app."""
         super(PromptAgentApp, self).initialize(*args, **kwargs)
 
-    def ask(self):
-        reply = prompt(self.notebook, self.kernel, super().input, super().model_provider, super().model_name, self.full_context, self.current_cell_index)
+    async def ask(self):
+        reply = await prompt(self.notebook, self.kernel, super().input, super().model_provider, super().model_name, self.full_context, self.current_cell_index)
         logger.debug("Reply", reply)
 
     def start(self):
@@ -77,8 +77,8 @@ class ExplainErrorAgentApp(JupyterAIAgentAskApp):
         """Initialize the app."""
         super(ExplainErrorAgentApp, self).initialize(*args, **kwargs)
 
-    def ask(self):
-        reply = explain_error(self.notebook, self.kernel, super().model_provider, super().model_name, self.current_cell_index)
+    async def ask(self):
+        reply = await explain_error(self.notebook, self.kernel, super().model_provider, super().model_name, self.current_cell_index)
         logger.debug("Reply", reply)
 
     def start(self):

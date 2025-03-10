@@ -2,7 +2,13 @@
 #
 # BSD 3-Clause License
 
+import re
+
 from jupyter_nbmodel_client import NbModelClient
+
+
+def http_to_ws(s: str):
+    return re.sub("^http", "ws", s)
 
 
 def retrieve_cells_content(notebook: NbModelClient, cell_index_stop: int=-1) -> list:
