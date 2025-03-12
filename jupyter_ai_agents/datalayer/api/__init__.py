@@ -140,7 +140,7 @@ async def create_ai_agents_endpoint(
         token = re.sub(r"^(B|b)earer\s+", "", authorization).strip()
 
         whoami = WhoamiApp(token=token)
-        user = whoami.run()["profile"]
+        user = whoami.get_profile()["profile"]
 
         runtime = agent_request.runtime
         jupyter_ingress = runtime.ingress
