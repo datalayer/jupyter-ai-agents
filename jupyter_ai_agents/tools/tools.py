@@ -23,8 +23,9 @@ def add_execute_code_cell_tool(notebook: NbModelClient, kernel: KernelClient, ce
     assert results["status"] == "ok"
 
 
-def insert_execute_code_cell_tool(notebook: NbModelClient, kernel: KernelClient, cell_content: str, cell_index:int) -> None:
+def insert_execute_code_cell_tool(notebook: NbModelClient, kernel: KernelClient | None, cell_content: str, cell_index:int) -> None:
     """Insert a Python code cell with a content at a specific index in the notebook and execute it."""
     notebook.insert_code_cell(cell_index, cell_content)
-    results = notebook.execute_cell(cell_index, kernel)
-    assert results["status"] == "ok"
+    if kernel is not None:
+        results = notebook.execute_cell(cell_index, kernel)
+        assert results["status"] == "ok"
