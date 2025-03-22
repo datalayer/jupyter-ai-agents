@@ -4,13 +4,13 @@
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_github_copilot import ChatGithubCopilot
+from langchain_github_copilot import ChatGitHubCopilot
 
 
 def create_github_copilot_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools and a Github Copilot model"""
 
-    llm = ChatGithubCopilot(model_name=model_name)
+    llm = ChatGitHubCopilot(model_name=model_name)
 
     prompt = ChatPromptTemplate.from_messages(
         [
