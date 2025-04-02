@@ -37,19 +37,19 @@ env:
 
 clean: ## clear
 	($(CONDA_ACTIVATE) ${ENV_NAME}; \
-	  yarn clear )
+	  npm clear )
 
 install: ## install
 	($(CONDA_ACTIVATE) ${ENV_NAME}; \
-	  yarn install )
+	  npm install )
 
 start: ## start
 	($(CONDA_ACTIVATE) ${ENV_NAME}; \
-	  yarn start )
+	  npm start )
 
 build: ## build
 	($(CONDA_ACTIVATE) ${ENV_NAME}; \
-	  yarn build )
+	  npm run build )
 
 publish: build ## publish
 	($(CONDA_ACTIVATE) ${ENV_NAME}; \

@@ -26,7 +26,7 @@
     "react": "18.2.0",
     "react-calendly": "4.1.0",
     "react-dom": "18.2.0",
-    "react-modal-image": "2.5.0"
+    "react-modal-image": "2.6.0"
   },
   "browserslist": {
     "production": [
