@@ -12,6 +12,7 @@ from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import BaseNbAgent
 from jupyter_nbmodel_client.constants import REQUEST_TIMEOUT
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,5 +46,3 @@ class RuntimeAgent(BaseNbAgent):
         await super().stop()
         if self._runtime_client:
             self._runtime_client.stop()
-
-

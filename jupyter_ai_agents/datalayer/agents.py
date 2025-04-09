@@ -10,12 +10,14 @@ from collections import Counter
 
 from jupyter_ai_agents.agents.base import RuntimeAgent
 
+
 logger = logging.getLogger(__name__)
+
 
 SPACER_AGENT = "DatalayerSpacer"
 
-DELAY_FOR_STOPPING_AGENT = 20 * 60
 """Delay in seconds before stopping an agent."""
+DELAY_FOR_STOPPING_AGENT = 20 * 60
 
 
 async def _stop_agent(agent: RuntimeAgent, room: str) -> None:
@@ -35,7 +37,6 @@ class AIAgentManager:
         self._background_tasks: list[asyncio.Task] = []
         self._agents_to_stop: set[str] = set()
         self._to_stop_counter: Counter[str] = Counter()
-
         # A usefull task will be set when the first agent is added.
         self._stop_task: asyncio.Task = asyncio.create_task(asyncio.sleep(0))
 
@@ -48,8 +49,7 @@ class AIAgentManager:
     async def _stop_lonely_agents(self) -> None:
         """Periodically check if an agent as connected peer.
 
-        If it the only peer is the spacer server, kill the agent after
-        some delay.
+        If it the only peer is the spacer server, kill the agent after some delay.
         """
         while True:
             await asyncio.sleep(DELAY_FOR_STOPPING_AGENT * 0.25)
@@ -57,14 +57,9 @@ class AIAgentManager:
                 peers = agent.get_connected_peers()
                 if len(peers) == 1:
                     peer_state = agent.get_peer_state(peers[0]) or {}
-                    if (
-                        peer_state.get("user", {})
-                        .get("agent", "")
-                        .startswith(SPACER_AGENT)
-                    ):
+                    if (peer_state.get("user", {}).get("agent", "").startswith(SPACER_AGENT)):
                         self._agents_to_stop.add(key)
                         self._to_stop_counter.update([key])
-
             to_stop = []
             for key, count in self._to_stop_counter.most_common():
                 if count < 4:
@@ -89,11 +84,9 @@ class AIAgentManager:
         """Stop all background tasks and reset the state."""
         if self._stop_task.cancel():
             await asyncio.wait([self._stop_task])
-
         all_tasks = asyncio.gather(*self._background_tasks)
         if all_tasks.cancel():
             await asyncio.wait([all_tasks])
-
         await asyncio.shield(
             asyncio.gather(
                 *(_stop_agent(agent, room) for room, agent in self._agents.items())
