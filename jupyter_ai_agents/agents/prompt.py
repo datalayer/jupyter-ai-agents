@@ -115,9 +115,7 @@ class PromptAgent(RuntimeAgent):
         """
         document_client = self
         runtime_client = self.runtime_client
-
         current_cell_index = self.get_cell_index(cell_id)
-
         agent_executor = _create_agent(
             document_client,
             runtime_client,
@@ -126,9 +124,7 @@ class PromptAgent(RuntimeAgent):
             self.full_context,
             current_cell_index,
         )
-
         output = None
-
         try:
             await self.notify("Thinking…", cell_id=cell_id)
             async for reply in agent_executor.astream({"input": prompt}):

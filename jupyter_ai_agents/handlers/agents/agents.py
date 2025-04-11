@@ -21,11 +21,11 @@ SPACER_AGENT = "DatalayerSpacer"
 DELAY_FOR_STOPPING_AGENT = 20 * 60
 
 
-async def _stop_agent(agent: RuntimeAgent, room: str) -> None:
+def _stop_agent(agent: RuntimeAgent, room: str) -> None:
     try:
         if agent.runtime_client is not None:
             agent.runtime_client.stop()
-        await agent.stop()
+        agent.stop()
     except BaseException as e:
         logger.error("Failed to stop AI Agent for room [%s].", room, exc_info=e)
 
@@ -103,19 +103,19 @@ class AIAgentsManager:
         return [k for k, a in self._agents.items() if a._username == user]
 
 
-    def track_agent(self, key: str, agent: RuntimeAgent) -> None:
+    async def track_agent(self, key: str, agent: RuntimeAgent) -> None:
         """Add an agent and start it."""
         if self._stop_task.done():
             self._stop_task = asyncio.create_task(self._stop_lonely_agents())
         self._agents[key] = agent
-        start = asyncio.create_task(agent.start())
+        start = asyncio.create_task(await agent.start())
         self._background_tasks.append(start)
         start.add_done_callback(lambda task: self._background_tasks.remove(task))
         if agent.runtime_client is not None:
             agent.runtime_client.start()
 
 
-    async def forget_agent(self, key: str) -> None:
+    def forget_agent(self, key: str) -> None:
         if key in self:
             logger.info("Removing AI Agent in room [%s].", key)
             agent = self._agents.pop(key)
@@ -123,4 +123,4 @@ class AIAgentsManager:
                 self._agents_to_stop.remove(key)
             if key in self._to_stop_counter:
                 self._to_stop_counter.pop(key)
-            await _stop_agent(agent, key)
+            _stop_agent(agent, key)
