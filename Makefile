@@ -32,7 +32,7 @@ jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
 		--ServerApp.root_dir ./dev/content \
-		--IdentityProvider.token MY_TOKEN
+		--IdentityProvider.token=
 
 server: ## server
 	@exec echo

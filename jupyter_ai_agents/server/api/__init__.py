@@ -96,7 +96,7 @@ async def get_ai_agents_endpoint(request: Request = None):
     user_agents = agents.get_user_agents(user["uid"])
     return {
         "success": True,
-        "message": "AI agents spawned by the user.",
+        "message": "AI Agents spawned by the user.",
         "agents": [
             {"room_id": a.path, "runtime": {"ingress": a.runtime_client.server_url}}
             for a in user_agents
@@ -105,23 +105,20 @@ async def get_ai_agents_endpoint(request: Request = None):
 
 
 @router.post("/v1/agents", summary="Create a AI Agent")
-async def create_ai_agents_endpoint(
-    agent_request: AgentRequestModel,
-    request: Request = None,
-) -> dict:
-    """Endpoint creating an AI agent for a given room."""
+async def create_ai_agents_endpoint(agent_request: AgentRequestModel, request: Request = None) -> dict:
+    """Endpoint creating an AI Agent for a given room."""
     logger.info("Create AI Agents is requested", agent_request.model_dump())
-    agents = request.state.agent_manager
+    agent_manager = request.state.agent_manager
     room_id = agent_request.room_id
-    if room_id in agents:
-        logger.info("AI agent for room [%s] already exists.", room_id)
+    if room_id in agent_manager:
+        logger.info("AI Agent for room [%s] already exists.", room_id)
         # TODO check agent
         return {
             "success": True,
-            "message": "AI agent already exists",
+            "message": "AI Agent already exists",
         }
     else:
-        logger.info("Creating AI agent for room [%s]…", room_id)
+        logger.info("Creating AI Agent for room [%s]…", room_id)
         authorization = request.headers.get("Authorization", "")
         token = re.sub(r"^(B|b)earer\s+", "", authorization).strip()
         whoami = WhoamiApp(token=token)
@@ -140,7 +137,7 @@ async def create_ai_agents_endpoint(
         # 2. Start AI Agent
         qs = urlencode({"sessionId": session_id, "token": token})
         ws_url = f"{DATALAYER_RTC_ROOM_WS_URL}/{room_id}?{qs}"
-        agent_request = PromptAgent(
+        prompt_agent = PromptAgent(
             websocket_url=ws_url,
             username=user["uid"],
             path=room_id,
@@ -149,16 +146,14 @@ async def create_ai_agents_endpoint(
                 server_url=jupyter_ingress,
                 token=jupyter_token,
                 username=user["uid"],
-            )
-            if has_runtime
-            else None,
+            ) if has_runtime else None,
             log=logger,
         )
-        logger.info("Starting AI agent for room [%s]…", room_id)
-        agents.track_agent(room_id, agent_request)
+        logger.info("Starting AI Agent for room [%s]…", room_id)
+        agent_manager.track_agent(room_id, prompt_agent)
     return {
         "success": True,
-        "message": f"AI agent started for room '{room_id}'.",
+        "message": f"AI Agent started for room '{room_id}'.",
     }
 
 
