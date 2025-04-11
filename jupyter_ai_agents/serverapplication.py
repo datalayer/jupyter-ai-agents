@@ -16,6 +16,7 @@ from jupyter_ai_agents.__version__ import __version__
 
 from jupyter_ai_agents.handlers.index.handler import IndexHandler
 from jupyter_ai_agents.handlers.config.handler import ConfigHandler
+from jupyter_ai_agents.handlers.agents.handler import AIAgentsHandler, AIAgentHandler
 
 
 DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
@@ -80,6 +81,7 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
 
 
     def initialize_settings(self):
+        self.settings.update({"disable_check_xsrf": True})
         self.log.debug("Jupyter AI Agents Config {}".format(self.config))
 
 
@@ -91,7 +93,9 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         self.log.debug("Jupyter AI Agents Config {}".format(self.settings['jupyter_ai_agents_jinja2_env']))
         handlers = [
             ("jupyter_ai_agents", IndexHandler),
-            (url_path_join("jupyter_ai_agents", "config"), ConfigHandler),
+            (url_path_join(self.name, "config"), ConfigHandler),
+            (url_path_join(self.name, "agents"), AIAgentsHandler),
+            (url_path_join(self.name, r"agents/(.+)$"), AIAgentHandler),
         ]
         self.handlers.extend(handlers)
 
