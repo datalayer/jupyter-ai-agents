@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 SPACER_AGENT = "DatalayerSpacer"
 
+
 """Delay in seconds before stopping an agent."""
 DELAY_FOR_STOPPING_AGENT = 20 * 60
 
@@ -29,7 +30,7 @@ async def _stop_agent(agent: RuntimeAgent, room: str) -> None:
         logger.error("Failed to stop AI agent for room [%s].", room, exc_info=e)
 
 
-class AIAgentManager:
+class AIAgentsManager:
     """AI Agents manager."""
 
     def __init__(self) -> None:
@@ -40,11 +41,14 @@ class AIAgentManager:
         # A usefull task will be set when the first agent is added.
         self._stop_task: asyncio.Task = asyncio.create_task(asyncio.sleep(0))
 
+
     def __contains__(self, key: str) -> bool:
         return key in self._agents
 
+
     def __getitem__(self, key: str) -> RuntimeAgent:
         return self._agents[key]
+
 
     async def _stop_lonely_agents(self) -> None:
         """Periodically check if an agent as connected peer.
@@ -80,6 +84,7 @@ class AIAgentManager:
                 self._to_stop_counter.pop(key, None)
                 logger.info("AI Agent for room [%s] stopped.", key)
 
+
     async def stop_all(self) -> None:
         """Stop all background tasks and reset the state."""
         if self._stop_task.cancel():
@@ -96,20 +101,22 @@ class AIAgentManager:
         self._agents_to_stop.clear()
         self._to_stop_counter.clear()
 
+
     def get_user_agents(self, user: str) -> list[str]:
         return [k for k, a in self._agents.items() if a._username == user]
+
 
     def track_agent(self, key: str, agent: RuntimeAgent) -> None:
         """Add an agent and start it."""
         if self._stop_task.done():
             self._stop_task = asyncio.create_task(self._stop_lonely_agents())
-
         self._agents[key] = agent
         start = asyncio.create_task(agent.start())
         self._background_tasks.append(start)
         start.add_done_callback(lambda task: self._background_tasks.remove(task))
         if agent.runtime_client is not None:
             agent.runtime_client.start()
+
 
     async def forget_agent(self, key: str) -> None:
         if key in self:
@@ -119,5 +126,4 @@ class AIAgentManager:
                 self._agents_to_stop.remove(key)
             if key in self._to_stop_counter:
                 self._to_stop_counter.pop(key)
-
             await _stop_agent(agent, key)

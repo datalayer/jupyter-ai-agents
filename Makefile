@@ -38,7 +38,7 @@ server: ## server
 	@exec echo
 	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
 	@exec echo
-	python -m uvicorn jupyter_ai_agents.datalayer.server:app --reload --port 4400
+	python -m uvicorn jupyter_ai_agents.server.main:main --reload --port 4400
 
 prompt:
 	jupyter-ai-agents prompt \
