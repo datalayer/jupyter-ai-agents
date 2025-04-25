@@ -1,0 +1,37 @@
+<!--
+  ~ Copyright (c) 2023-2024 Datalayer, Inc.
+  ~
+  ~ Datalayer License
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>🪐 ✨ Jupyter AI Agents</title>
+    <script id="datalayer-config-data" type="application/json">
+      {
+        "jupyterServerUrl": "",
+        "jupyterServerToken": "{{ token }}"
+      }
+    </script>
+    <script id="jupyter-config-data" type="application/json">
+      {
+        "baseUrl": "http://localhost:8888{{ base_url }}",
+        "wsUrl": "ws://localhost:8888{{ base_url }}",
+        "token": "{{ token }}",
+        "appUrl": "/lab",
+        "themesUrl": "/lab/api/themes",
+        "disableRTC": false,
+        "terminalsAvailable": "false",
+        "mathjaxUrl": "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js",
+        "mathjaxConfig": "TeX-AMS_CHTML-full,Safe"
+      }
+    </script>
+    <link rel="shortcut icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAC7SURBVFiF7ZU9CgIxEIXfTHbPopfYc+pJ9AALtmJnZSOIoJWFoCTzLHazxh/Ebpt5EPIxM8XXTCKTxYyMCYwJFhOYCo4JFiMuu317PZwaqEBUIar4YMmskL73DytGjgu4gAt4PDJdzkkzMBloBhqBgcu69XW+1I+rNSQESNDuaMEhdP/Fj/7oW+ACLuACHk/3F5BAfuMLBjm8/ZnxNvNtHmY4b7Ztut0bqStoVSHfWj9Z6mr8LXABF3CBB3nvkDfEVN6PAAAAAElFTkSuQmCC" type="image/x-icon" />
+    <script defer src="{{ base_url }}static/jupyter_ai_agents/main.jupyter-iam.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

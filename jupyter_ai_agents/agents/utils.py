@@ -13,7 +13,7 @@ from jupyter_ai_agents.providers.openai import create_openai_agent
 def create_ai_agent(
     model_provider: str, model_name: str, system_prompt_final: str, tools: list
 ) -> AgentExecutor:
-    """Create an AI agent based on the model provider."""
+    """Create an AI Agent based on the model provider."""
     if model_provider == "azure-openai":
         agent = create_azure_openai_agent(model_name, system_prompt_final, tools)
     elif model_provider == "github-copilot":

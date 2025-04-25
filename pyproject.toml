@@ -14,13 +14,19 @@ readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["Jupyter"]
 classifiers = [
-  "Intended Audience :: Developers",
-  "Intended Audience :: System Administrators",
-  "License :: OSI Approved :: BSD License",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
+    "Framework :: Jupyter",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
+  "anyio",
   "datalayer_core",
   "langchain",
   "langchain-openai",
@@ -29,6 +35,7 @@ dependencies = [
   "fastapi",
   "jupyter_kernel_client==0.6.0",
   "jupyter_nbmodel_client==0.11.3",
+  "jupyter_server>=2.10,<3",
   "pydantic-settings",
   "python-dotenv",
   "uvicorn",
@@ -36,7 +43,7 @@ dependencies = [
 
 [project.optional-dependencies]
 example = ["jupyter-server-ydoc"]
-test = ["ipykernel", "jupyter_server>=1.6,<3", "pytest>=7.0"]
+test = ["ipykernel", "pytest>=7.0"]
 lint = ["mdformat>0.7", "mdformat-gfm>=0.3.5", "ruff"]
 typing = ["mypy>=0.990"]
 
@@ -53,6 +60,10 @@ Home = "https://github.com/datalayer/jupyter-ai-agents"
 
 [tool.hatch.version]
 path = "jupyter_ai_agents/__version__.py"
+
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
+"jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
 [tool.pytest.ini_options]
 filterwarnings = [
