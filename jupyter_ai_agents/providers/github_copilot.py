@@ -5,10 +5,13 @@
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_github_copilot import ChatGitHubCopilot
+from dotenv import load_dotenv
 
 
 def create_github_copilot_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools and a Github Copilot model"""
+    
+    load_dotenv()
 
     llm = ChatGitHubCopilot(model_name=model_name)
 
