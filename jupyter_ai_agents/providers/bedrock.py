@@ -2,16 +2,15 @@
 #
 # BSD 3-Clause License
 
-from typing import List, Any, Dict
+from typing import List
 from langchain.agents.agent import AgentExecutor
-from langchain_anthropic import ChatAnthropic
+from langchain_aws import ChatBedrockConverse
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
 from langchain_core.tools import BaseTool
 from dotenv import load_dotenv
 
-
-def create_anthropic_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
+def create_bedrock_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
     """Create an agent from a set of tools using Anthropic's Claude API.
     
     Args:
@@ -26,7 +25,7 @@ def create_anthropic_agent(model_name: str, system_prompt: str, tools: List[Base
     load_dotenv()
 
     # Create the Anthropic LLM
-    llm = ChatAnthropic(model=model_name)
+    llm = ChatBedrockConverse(model_id=model_name)
 
     # Create a prompt template for the agent with enhanced instructions
     enhanced_system_prompt = f"""
