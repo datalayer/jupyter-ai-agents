@@ -41,14 +41,11 @@ class AIAgentsManager:
         # A usefull task will be set when the first agent is added.
         self._stop_task: asyncio.Task = asyncio.create_task(asyncio.sleep(0))
 
-
     def __contains__(self, key: str) -> bool:
         return key in self._agents
 
-
     def __getitem__(self, key: str) -> RuntimeAgent:
         return self._agents[key]
-
 
     async def _stop_lonely_agents(self) -> None:
         """Periodically check if an agent as connected peer.
@@ -83,7 +80,6 @@ class AIAgentsManager:
                 self._to_stop_counter.pop(key, None)
                 logger.info("AI Agent for room [%s] stopped.", key)
 
-
     async def stop_all(self) -> None:
         """Stop all background tasks and reset the state."""
         if self._stop_task.cancel():
@@ -98,22 +94,22 @@ class AIAgentsManager:
         self._agents_to_stop.clear()
         self._to_stop_counter.clear()
 
-
     def get_user_agents(self, user: str) -> list[str]:
         return [k for k, a in self._agents.items() if a._username == user]
 
+    def register_ai_agent(self, key: str, agent: RuntimeAgent):
+        self._agents[key] = agent        
 
     async def track_agent(self, key: str, agent: RuntimeAgent) -> None:
         """Add an agent and start it."""
         if self._stop_task.done():
             self._stop_task = asyncio.create_task(self._stop_lonely_agents())
-        self._agents[key] = agent
+        self.register_ai_agent(key, agent)
         start = asyncio.create_task(await agent.start())
         self._background_tasks.append(start)
         start.add_done_callback(lambda task: self._background_tasks.remove(task))
         if agent.runtime_client is not None:
             agent.runtime_client.start()
-
 
     def forget_agent(self, key: str) -> None:
         if key in self:

@@ -16,7 +16,7 @@ from jupyter_ai_agents.__version__ import __version__
 
 from jupyter_ai_agents.handlers.index.handler import IndexHandler
 from jupyter_ai_agents.handlers.config.handler import ConfigHandler
-from jupyter_ai_agents.handlers.agents.handler import AIAgentsHandler, AIAgentHandler
+from jupyter_ai_agents.handlers.agents.handler import AIAgentsHandler, AIAgentsInstanceHandler
 
 
 DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
@@ -95,7 +95,7 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             ("jupyter_ai_agents", IndexHandler),
             (url_path_join(self.name, "config"), ConfigHandler),
             (url_path_join(self.name, "agents"), AIAgentsHandler),
-            (url_path_join(self.name, r"agents/(.+)$"), AIAgentHandler),
+            (url_path_join(self.name, r"agents/(.+)$"), AIAgentsInstanceHandler),
         ]
         self.handlers.extend(handlers)
 
