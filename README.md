@@ -59,7 +59,7 @@ We ask you to take additional actions to overcome limitations and bugs of the py
 
 ```bash
 pip uninstall -y pycrdt datalayer_pycrdt
-pip install datalayer_pycrdt==0.12.15
+pip install datalayer_pycrdt==0.12.17
 ```
 
 ## Use from the CLI
