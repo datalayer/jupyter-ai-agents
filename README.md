@@ -52,7 +52,7 @@ pip install -e .
 The Jupyter AI Agents can directly interact with JupyterLab. The modifications made by the Jupyter AI Agents can be seen in real-time thanks to [Jupyter Real Time Collaboration](https://jupyterlab.readthedocs.io/en/stable/user/rtc.html). Make sure you have JupyterLab installed with the Collaboration extension.
 
 ```bash
-pip install jupyterlab==4.4.1 jupyter-collaboration==4.0.2 ipykernel
+pip install jupyterlab==4.4.1 jupyter-collaboration==4.0.2
 ```
 
 We ask you to take additional actions to overcome limitations and bugs of the pycrdt library. Ensure you create a new shell after running the following commands.
