@@ -27,7 +27,9 @@ Jupyter Clients
 
 Jupyter AI Agents empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to the Jupyter notebook events.
 
-This agent is **innovative** as it is designed to **operate on the entire notebook**, not just at the cell level, enabling more comprehensive and seamless modifications. The agent can also run separetely from the Jupyter server as the communication is achieved through RTC () via the [Jupyter NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client) and the [Jupyter Kernel Client](https://github.com/datalayer/jupyter-kernel-client).
+This agent is **innovative** as it is designed to **operate on the entire Notebook**, not just at the cell level, enabling more comprehensive and seamless modifications.
+
+The agent can also run separetely from the Jupyter server as the communication is achieved through RTC via the [Jupyter NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client) and the [Jupyter Kernel Client](https://github.com/datalayer/jupyter-kernel-client).
 
 The [LangChain Agent Framework](https://python.langchain.com/v0.1/docs/modules/agents/how_to/custom_agent) is used to manage the interactions between the AI model and the tools.
 
@@ -69,13 +71,8 @@ We put here a quick example for a Out-Kernel Stateless Agent via CLI helping you
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
 
 ```bash
+# make jupyterlab
 jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
-```
-
-You can also start JupyterLab with the following command.
-
-```bash
-make jupyterlab
 ```
 
 Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
@@ -96,6 +93,7 @@ To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure d
 
 ```bash
 # Prompt agent example.
+# make prompt
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
@@ -105,30 +103,19 @@ jupyter-ai-agents prompt \
   --input "Create a matplotlib example"
 ```
 
-You can also start prompt with the following command.
-
-```bash
-make prompt
-```
-
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
 **Explain Error Agent**
 
 ```bash
 # Explain Error agent example.
+# make explain-error
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --model-provider azure-openai \
   --model-name gpt-4o-mini \
   --path test.ipynb
-```
-
-You can also start request the error explanation with the following command.
-
-```bash
-make explain-error
 ```
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
