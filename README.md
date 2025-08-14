@@ -82,8 +82,8 @@ The following takes you through an example with the Azure OpenAI provider. Read 
 ```bash
 cat << EOF >>.env
 OPENAI_API_VERSION="..."
-AZURE_OPENAI_ENDPOINT="..."
-AZURE_OPENAI_API_KEY="..."
+DATALAYER_AZURE_OPENAI_CHAT_COMPLETION_ENDPOINT="..."
+DATALAYER_AZURE_OPENAI_API_KEY="..."
 EOF
 ```
 

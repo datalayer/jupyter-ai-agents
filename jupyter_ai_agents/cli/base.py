@@ -98,12 +98,12 @@ class JupyterAIAgentBaseApp(JupyterApp):
         config=True,
     )
     azure_openai_version = Unicode(
-        os.environ.get("AZURE_OPENAI_ENDPOINT"),
+        os.environ.get("DATALAYER_AZURE_OPENAI_CHAT_COMPLETION_ENDPOINT"),
         help="""Azure OpenAI endpoint.""",
         config=True,
     )
     azure_openai_api_key = Unicode(
-        os.environ.get("AZURE_OPENAI_API_KEY"),
+        os.environ.get("DATALAYER_AZURE_OPENAI_API_KEY"),
         help="""Azure OpenAI key.""",
         config=True,
     )

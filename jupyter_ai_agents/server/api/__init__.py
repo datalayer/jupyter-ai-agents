@@ -38,7 +38,7 @@ DATALAYER_RUN_URL = os.environ.get("DATALAYER_RUN_URL", "https://prod1.datalayer
 
 DATALAYER_RUN_WS_URL = http_to_ws(DATALAYER_RUN_URL)
 
-DATALAYER_RTC_ROOM_WS_URL = os.environ.get("DATALAYER_RTC_ROOM_WS_URL", f"{DATALAYER_RUN_WS_URL}/api/spacer/v1/rooms")
+DATALAYER_DOCUMENTS_WS_URL = os.environ.get("DATALAYER_DOCUMENTS_WS_URL", f"{DATALAYER_RUN_WS_URL}/api/spacer/v1/documents")
 
 
 ROOMS = {}
@@ -130,13 +130,13 @@ async def create_ai_agents_endpoint(agent_request: AgentRequestModel, request: R
         has_runtime = jupyter_ingress and jupyter_token and kernel_id
         # 1. Fetch room session id
         try:
-            url = re.sub(r"^ws", "http", DATALAYER_RTC_ROOM_WS_URL) + f"/{room_id}"
+            url = re.sub(r"^ws", "http", DATALAYER_DOCUMENTS_WS_URL) + f"/{room_id}"
             session_id = await _fetch_session_id(url, token)
         except ValueError as e:
             return {"success": False, "message": str(e)}, HTTPStatus.BAD_REQUEST
         # 2. Start AI Agent
         qs = urlencode({"sessionId": session_id, "token": token})
-        ws_url = f"{DATALAYER_RTC_ROOM_WS_URL}/{room_id}?{qs}"
+        ws_url = f"{DATALAYER_DOCUMENTS_WS_URL}/{room_id}?{qs}"
         prompt_agent = PromptAgent(
             websocket_url=ws_url,
             username=user["uid"],
