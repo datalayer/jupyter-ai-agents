@@ -86,7 +86,7 @@ module.exports = {
           'aria-label': 'LinkedIn',
         },
         {
-          href: 'https://bsky.app/profile/datalayer.io',
+          href: 'https://bsky.app/profile/datalayer.ai',
           position: 'right',
           className: 'header-bluesky-link',
           'aria-label': 'Bluesky',
