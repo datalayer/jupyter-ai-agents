@@ -101,6 +101,7 @@
   "devDependencies": {
     "@jupyterlab/builder": "^4.0.0",
     "@jupyterlab/testutils": "^4.0.0",
+    "@tailwindcss/postcss": "^4.1.14",
     "@types/jest": "^29.2.0",
     "@types/json-schema": "^7.0.11",
     "@types/react": "^18.0.26",

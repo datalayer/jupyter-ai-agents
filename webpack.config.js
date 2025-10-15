@@ -9,8 +9,29 @@ module.exports = {
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './lib')
-    },
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
-  }
+    }
+  },
+  module: {
+    rules: [
+      {
+        test: /(?<!\.raw)\.css$/,
+        use: [
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  require('@tailwindcss/postcss'),
+                  require('autoprefixer'),
+                ],
+              },
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
+
+
 
