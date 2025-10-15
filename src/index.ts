@@ -11,8 +11,42 @@ import {
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ILabShell } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { ReactWidget } from '@jupyterlab/ui-components';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 
 import { requestAPI } from './handler';
+import { ChatComponent } from './ChatWidget';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false
+    }
+  }
+});
+
+/**
+ * Chat widget with React Query provider
+ */
+class ChatWidgetWithProvider extends ReactWidget {
+  constructor() {
+    super();
+    this.addClass('jp-ai-chat-container');
+    this.id = 'jupyter-ai-chat';
+    this.title.label = 'AI Chat';
+    this.title.closable = true;
+  }
+
+  render(): JSX.Element {
+    return React.createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      React.createElement(ChatComponent, null)
+    );
+  }
+}
 
 /**
  * Initialization data for the @datalayer/jupyter-ai-agents extension.
@@ -32,6 +66,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     console.log(
       'JupyterLab extension @datalayer/jupyter-ai-agents is activated!'
     );
+
+    // Create and add chat widget to left sidebar
+    const chatWidget = new ChatWidgetWithProvider();
+    labShell.add(chatWidget, 'left', { rank: 1000 });
 
     if (settingRegistry) {
       settingRegistry

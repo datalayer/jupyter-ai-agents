@@ -1,23 +1,41 @@
-import { Message, MessageContent } from '@/components/ai-elements/message'
+import React from 'react';
+import { Message, MessageContent } from './components/ai-elements/message';
 
-import { Actions, Action } from '@/components/ai-elements/actions'
-import { Response } from '@/components/ai-elements/response'
-import { CopyIcon, RefreshCcwIcon } from 'lucide-react'
-import type { UIDataTypes, UIMessagePart, UITools, UIMessage } from 'ai'
-import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning'
-import { Tool, ToolHeader, ToolInput, ToolOutput, ToolContent } from '@/components/ai-elements/tool'
-import { CodeBlock } from '@/components/ai-elements/code-block'
+import { Actions, Action } from './components/ai-elements/actions';
+import { Response } from './components/ai-elements/response';
+import { CopyIcon, RefreshCcwIcon } from 'lucide-react';
+import type { UIDataTypes, UIMessagePart, UITools, UIMessage } from 'ai';
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger
+} from './components/ai-elements/reasoning';
+import {
+  Tool,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+  ToolContent
+} from './components/ai-elements/tool';
+import { CodeBlock } from './components/ai-elements/code-block';
 
-interface PartProps {
-  part: UIMessagePart<UIDataTypes, UITools>
-  message: UIMessage
-  status: string
-  regen: (id: string) => void
-  index: number
-  lastMessage: boolean
+interface IPartProps {
+  part: UIMessagePart<UIDataTypes, UITools>;
+  message: UIMessage;
+  status: string;
+  regen: (id: string) => void;
+  index: number;
+  lastMessage: boolean;
 }
 
-export function Part({ part, message, status, regen, index, lastMessage }: PartProps) {
+export function Part({
+  part,
+  message,
+  status,
+  regen,
+  index,
+  lastMessage
+}: IPartProps) {
   function copy(text: string) {
     navigator.clipboard.writeText(text).catch((error: unknown) => {
       console.error('Error copying text:', error)

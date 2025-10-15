@@ -1,0 +1,35 @@
+/**
+ * AI Chat Widget Styles
+ */
+
+.jp-ai-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--jp-layout-color1);
+  overflow: hidden;
+}
+
+.jp-ai-chat-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+}
+
+/* Ensure proper layout for conversation */
+.jp-ai-chat-widget [class*="conversation"] {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Adjust prompt input spacing */
+.jp-ai-chat-widget [class*="prompt-input"] {
+  padding: 12px;
+  border-top: 1px solid var(--jp-border-color1);
+  background: var(--jp-layout-color2);
+}

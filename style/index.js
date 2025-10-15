@@ -4,4 +4,4 @@
  */
 
 import './base.css';
-import './components.css';
+import './chat.css';
