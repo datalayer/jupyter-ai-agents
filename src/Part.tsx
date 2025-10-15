@@ -1,4 +1,3 @@
-import React from 'react';
 import { Message, MessageContent } from './components/ai-elements/message';
 
 import { Actions, Action } from './components/ai-elements/actions';
