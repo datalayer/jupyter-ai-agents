@@ -53,7 +53,7 @@ class ChatWidgetWithProvider extends ReactWidget {
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: '@datalayer/jupyter-ai-agents:plugin',
-  description: 'Jupyter MCP Tools.',
+  description: 'Jupyter AI Agents.',
   autoStart: true,
   optional: [ISettingRegistry],
   requires: [ILabShell, INotebookTracker],
@@ -88,13 +88,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
         });
     }
 
-    requestAPI<any>('get-example')
+    requestAPI<any>('jupyter-ai-agents')
       .then(data => {
         console.log(data);
       })
       .catch(reason => {
         console.error(
-          `The jupyter_ai-agents server extension appears to be missing.\n${reason}`
+          `The jupyter-ai-agents server extension appears to be missing.\n${reason}`
         );
       });
   }

@@ -150,7 +150,8 @@
     },
     "extension": true,
     "outputDir": "jupyter_ai_agents/labextension",
-    "schemaDir": "schema"
+    "schemaDir": "schema",
+    "webpackConfig": "./webpack.config.js"
   },
   "eslintIgnore": [
     "node_modules",

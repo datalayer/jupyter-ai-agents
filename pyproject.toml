@@ -63,9 +63,6 @@ jupyter-ai-agents-console = "jupyter_ai_agents.cli.consoleapp:main"
 [project.license]
 file = "LICENSE"
 
-[project.urls]
-Home = "https://github.com/datalayer/jupyter-ai-agents"
-
 [project.entry-points."jupyterlab.extensions"]
 jupyter-ai-agents = "jupyter_ai_agents.extension"
 
