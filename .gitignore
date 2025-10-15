@@ -7,6 +7,7 @@ dist
 build
 package-lock.json
 **/.jupyter_ystore.db
+tsconfig.tsbuildinfo
 jupyter_ai_agents/labextension
 
 # Version file is handled by hatchling
