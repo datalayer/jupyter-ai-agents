@@ -7,14 +7,23 @@
 from typing import Any, Dict, List
 
 from jupyter_ai_agents.__version__ import __version__
-from jupyter_ai_agents.serverapplication import JupyterAIAgentsExtensionApp
+# from jupyter_ai_agents.extension1 import JupyterAIAgentsExtensionApp
+from jupyter_ai_agents.extension2 import AIChatExtension
 
 
 __all__ = []
 
 
+def _jupyter_labextension_paths():
+    return [{
+        "src": "labextension",
+        "dest": "@datalayer/jupyter-ai-agents"
+    }]
+
+
 def _jupyter_server_extension_points() -> List[Dict[str, Any]]:
     return [{
         "module": "jupyter_ai_agents",
-        "app": JupyterAIAgentsExtensionApp,
+        # "app": JupyterAIAgentsExtensionApp,
+        "app": AIChatExtension,
     }]

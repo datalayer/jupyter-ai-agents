@@ -18,12 +18,15 @@ class AIChatExtension(ExtensionApp):
     """JupyterLab AI Chat Extension."""
     
     name = "jupyter_ai_agents"
-    app_name = "Jupyter AI Agents"
+
+    extension_url = "/jupyter_ai_agents"
+
+    load_other_extensions = True
+
     description = "AI Chat sidebar for JupyterLab with MCP support"
     
+    app_name = "Jupyter AI Agents"
     app_version = "0.1.0"
-    extension_url = "/jupyter-ai-agents"
-    load_other_extensions = True
     
     def initialize_settings(self):
         """Initialize extension settings."""
@@ -60,49 +63,19 @@ class AIChatExtension(ExtensionApp):
         except Exception as e:
             self.log.error(f"Error initializing Jupyter AI Agents: {e}", exc_info=True)
             raise
-    
+
+
     def initialize_handlers(self):
         """Register HTTP handlers."""
         self.log.info("Registering Jupyter AI Agents handlers...")
         
+        # Use relative paths - they will be joined with base_url in _load_jupyter_server_extension
         handlers = [
-            (r"/api/chat", ChatHandler),
-            (r"/api/configure", ConfigureHandler),
-            (r"/api/mcp/servers", MCPServersHandler),
-            (r"/api/mcp/servers/([^/]+)", MCPServerHandler),
+            (url_path_join(self.name, "chat"), ChatHandler),
+            (url_path_join(self.name, "configure"), ConfigureHandler),
+            (url_path_join(self.name, "mcp/servers"), MCPServersHandler),
+            (r"jupyter_ai_agents/mcp/servers/([^/]+)", MCPServerHandler),
         ]
         
         self.handlers.extend(handlers)
         self.log.info(f"Registered {len(handlers)} HTTP handlers")
-
-
-# Entry point for jupyter server
-def _jupyter_server_extension_points():
-    """
-    Returns a list of dictionaries with metadata describing
-    where to find the `_load_jupyter_server_extension` function.
-    """
-    return [{"module": "jupyter_ai_agents.extension"}]
-
-
-def _load_jupyter_server_extension(server_app):
-    """Load the JupyterLab extension."""
-    extension = AIChatExtension()
-    extension.load_config_file()
-    extension.update_config(server_app.config)
-    extension.initialize_settings()
-    extension.initialize_handlers()
-    server_app.web_app.settings.update(extension.settings)
-    
-    # Add handlers to the server app
-    for handler in extension.handlers:
-        pattern = url_path_join(server_app.web_app.settings['base_url'], handler[0])
-        server_app.web_app.add_handlers(".*$", [(pattern, handler[1], dict(
-            config=server_app.config
-        ))])
-    
-    extension.log.info("Jupyter AI Agents extension loaded!")
-
-
-# For backward compatibility
-load_jupyter_server_extension = _load_jupyter_server_extension

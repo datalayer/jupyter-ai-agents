@@ -22,7 +22,7 @@ export async function requestAPI<T>(
   const settings = ServerConnection.makeSettings();
   const requestUrl = URLExt.join(
     settings.baseUrl,
-    'jupyter-ai-agents', // API Namespace
+    'jupyter_ai_agents', // API Namespace - matches backend handlers at /jupyter-ai-agents/*
     endPoint
   );
 

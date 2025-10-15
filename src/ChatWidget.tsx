@@ -14,6 +14,7 @@ import {
 import { Part } from './Part';
 import { useJupyterChat } from './hooks/useJupyterChat';
 import { useQuery } from '@tanstack/react-query';
+import { requestAPI } from './handler';
 
 interface IModelConfig {
   id: string;
@@ -32,8 +33,7 @@ interface IRemoteConfig {
 }
 
 async function getModels() {
-  const res = await fetch('/api/configure');
-  return (await res.json()) as IRemoteConfig;
+  return await requestAPI<IRemoteConfig>('configure');
 }
 
 /**
@@ -123,7 +123,6 @@ export class ChatWidget extends ReactWidget {
     super();
     this.addClass('jp-ai-chat-container');
     this.id = 'jupyter-ai-chat';
-    this.title.label = 'AI Chat';
     this.title.closable = true;
   }
 

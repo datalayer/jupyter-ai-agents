@@ -23,7 +23,6 @@ DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
 
 DEFAULT_TEMPLATE_FILES_PATH = os.path.join(os.path.dirname(__file__), "./templates")
 
-
 class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
     """The Jupyter AI Agents Server extension."""
 
