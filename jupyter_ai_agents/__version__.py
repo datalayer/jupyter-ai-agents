@@ -4,4 +4,4 @@
 
 """Jupyter AI Agents."""
 
-__version__ = "0.12.0"
+from ._version import __version__

@@ -38,8 +38,13 @@ dependencies = [
   "jupyter_kernel_client",
   "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
+  "jupyterlab>=4.0.0,<5",
+  "pydantic-ai-slim[anthropic,openai,cli]>=1.0.10",
   "pydantic-settings",
   "python-dotenv",
+  "sse-starlette>=3.0.2",
+  "httpx>=0.25.0",
+  "tornado>=6.0",
   "uvicorn",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
@@ -57,6 +62,12 @@ jupyter-ai-agents-console = "jupyter_ai_agents.cli.consoleapp:main"
 
 [project.license]
 file = "LICENSE"
+
+[project.urls]
+Home = "https://github.com/datalayer/jupyter-ai-agents"
+
+[project.entry-points."jupyterlab.extensions"]
+jupyter-ai-agents = "jupyter_ai_agents.extension"
 
 [tool.hatch.version]
 source = "nodejs"
