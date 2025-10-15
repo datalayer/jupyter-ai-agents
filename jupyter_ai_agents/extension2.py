@@ -14,7 +14,7 @@ from .chat.mcp_tools import MCPToolManager
 from .chat.config import ChatConfig
 
 
-class AIChatExtension(ExtensionApp):
+class JupyterAIAgentsExtensionApp(ExtensionApp):
     """JupyterLab AI Chat Extension."""
     
     name = "jupyter_ai_agents"
@@ -79,3 +79,10 @@ class AIChatExtension(ExtensionApp):
         
         self.handlers.extend(handlers)
         self.log.info(f"Registered {len(handlers)} HTTP handlers")
+
+
+# -----------------------------------------------------------------------------
+# Main entry point
+# -----------------------------------------------------------------------------
+
+main = launch_new_instance = JupyterAIAgentsExtensionApp.launch_instance

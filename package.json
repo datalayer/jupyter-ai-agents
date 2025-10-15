@@ -88,8 +88,8 @@
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.542.0",
     "nanoid": "^5.1.6",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-syntax-highlighter": "^15.6.6",
     "streamdown": "^1.2.0",
     "tailwind-merge": "^3.3.1",
@@ -102,9 +102,9 @@
     "@jupyterlab/testutils": "^4.0.0",
     "@types/jest": "^29.2.0",
     "@types/json-schema": "^7.0.11",
-    "@types/react": "^19.1.10",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.26",
     "@types/react-addons-linked-state-mixin": "^0.14.22",
-    "@types/react-dom": "^19.1.7",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
@@ -136,6 +136,18 @@
   "styleModule": "style/index.js",
   "publishConfig": {
     "access": "public"
+  },
+  "resolutions": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.26"
+  },
+  "overrides": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.26"
   },
   "jupyterlab": {
     "discovery": {

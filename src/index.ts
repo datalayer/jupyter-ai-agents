@@ -13,11 +13,10 @@ import { ILabShell } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { LabIcon } from '@jupyterlab/ui-components';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
 import { requestAPI } from './handler';
-import { ChatComponent } from './ChatWidget';
+import { ChatRoot } from './ChatRoot';
 
 // Sparkles icon SVG
 const sparklesIconSvg = `
@@ -27,15 +26,6 @@ const sparklesIconSvg = `
 const sparklesIcon = new LabIcon({
   name: 'ai-chat:sparkles',
   svgstr: sparklesIconSvg
-});
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false
-    }
-  }
 });
 
 /**
@@ -51,11 +41,7 @@ class ChatWidgetWithProvider extends ReactWidget {
   }
 
   render(): JSX.Element {
-    return React.createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      React.createElement(ChatComponent, null)
-    );
+    return React.createElement(ChatRoot);
   }
 }
 

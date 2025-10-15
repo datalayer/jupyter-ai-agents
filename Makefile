@@ -28,9 +28,9 @@ build:
 clean: ## clean
 	git clean -fdx
 
+#	pip uninstall -y pycrdt datalayer_pycrdt
+#	pip install datalayer_pycrdt
 jupyterlab: ## jupyterlab
-	pip uninstall -y pycrdt datalayer_pycrdt
-	pip install datalayer_pycrdt
 	jupyter lab \
 		--port 8888 \
 		--ServerApp.root_dir ./dev/content \
