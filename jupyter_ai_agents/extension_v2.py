@@ -14,7 +14,7 @@ from .chat.mcp_tools import MCPToolManager
 from .chat.config import ChatConfig
 
 
-class JupyterAIAgentsExtensionApp(ExtensionApp):
+class JupyterAIAgentsV2ExtensionApp(ExtensionApp):
     """JupyterLab AI Chat Extension."""
     
     name = "jupyter_ai_agents"
@@ -71,10 +71,10 @@ class JupyterAIAgentsExtensionApp(ExtensionApp):
         
         # Use relative paths - they will be joined with base_url in _load_jupyter_server_extension
         handlers = [
-            (url_path_join(self.name, "chat"), ChatHandler),
-            (url_path_join(self.name, "configure"), ConfigureHandler),
-            (url_path_join(self.name, "mcp/servers"), MCPServersHandler),
-            (r"jupyter_ai_agents/mcp/servers/([^/]+)", MCPServerHandler),
+            (url_path_join(self.name, "v2", "chat"), ChatHandler),
+            (url_path_join(self.name, "v2", "configure"), ConfigureHandler),
+            (url_path_join(self.name, "v2", "mcp/servers"), MCPServersHandler),
+            (r"jupyter_ai_agents/v2/mcp/servers/([^/]+)", MCPServerHandler),
         ]
         
         self.handlers.extend(handlers)
@@ -85,4 +85,4 @@ class JupyterAIAgentsExtensionApp(ExtensionApp):
 # Main entry point
 # -----------------------------------------------------------------------------
 
-main = launch_new_instance = JupyterAIAgentsExtensionApp.launch_instance
+main = launch_new_instance = JupyterAIAgentsV2ExtensionApp.launch_instance

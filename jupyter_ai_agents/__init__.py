@@ -7,7 +7,7 @@
 from typing import Any, Dict, List
 
 from jupyter_ai_agents.__version__ import __version__
-from jupyter_ai_agents.extension2 import JupyterAIAgentsExtensionApp
+from jupyter_ai_agents.extension_v2 import JupyterAIAgentsV2ExtensionApp
 
 
 __all__ = []
@@ -23,5 +23,5 @@ def _jupyter_labextension_paths():
 def _jupyter_server_extension_points() -> List[Dict[str, Any]]:
     return [{
         "module": "jupyter_ai_agents",
-        "app": JupyterAIAgentsExtensionApp,
+        "app": JupyterAIAgentsV2ExtensionApp,
     }]

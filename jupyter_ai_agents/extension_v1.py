@@ -23,7 +23,7 @@ DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
 
 DEFAULT_TEMPLATE_FILES_PATH = os.path.join(os.path.dirname(__file__), "./templates")
 
-class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
+class JupyterAIAgentsV1ExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
     """The Jupyter AI Agents Server extension."""
 
     name = "jupyter_ai_agents"
@@ -76,7 +76,7 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
 
     @default("launcher")
     def _default_launcher(self):
-        return JupyterAIAgentsExtensionApp.Launcher(parent=self, config=self.config)
+        return JupyterAIAgentsV1ExtensionApp.Launcher(parent=self, config=self.config)
 
 
     def initialize_settings(self):
@@ -92,9 +92,9 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         self.log.debug("Jupyter AI Agents Config {}".format(self.settings['jupyter_ai_agents_jinja2_env']))
         handlers = [
             ("jupyter_ai_agents", IndexHandler),
-            (url_path_join(self.name, "config"), ConfigHandler),
-            (url_path_join(self.name, "agents"), AIAgentsHandler),
-            (url_path_join(self.name, r"agents/(.+)$"), AIAgentsInstanceHandler),
+            (url_path_join(self.name, "v1", "config"), ConfigHandler),
+            (url_path_join(self.name, "v1", "agents"), AIAgentsHandler),
+            (url_path_join(self.name, "v1", r"agents/(.+)$"), AIAgentsInstanceHandler),
         ]
         self.handlers.extend(handlers)
 
@@ -103,4 +103,4 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
 # Main entry point
 # -----------------------------------------------------------------------------
 
-main = launch_new_instance = JupyterAIAgentsExtensionApp.launch_instance
+main = launch_new_instance = JupyterAIAgentsV1ExtensionApp.launch_instance
