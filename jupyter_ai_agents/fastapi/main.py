@@ -11,8 +11,8 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from jupyter_ai_agents.server.agents import AIAgentsManager
-from jupyter_ai_agents.server.api import router
+from jupyter_ai_agents.fastapi.agents import AIAgentsManager
+from jupyter_ai_agents.fastapi.endpoints import router
 
 
 logger = logging.getLogger(__name__)

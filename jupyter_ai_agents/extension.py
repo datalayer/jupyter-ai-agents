@@ -12,21 +12,19 @@ from traitlets.config import Configurable
 from jupyter_server.utils import url_path_join
 from jupyter_server.extension.application import ExtensionApp, ExtensionAppJinjaMixin
 
-from jupyter_ai_agents.__version__ import __version__
-
-from jupyter_ai_agents.handlers.index.handler import IndexHandler
-from jupyter_ai_agents.handlers.config.handler import ConfigHandler
-from jupyter_ai_agents.handlers.agents.handler import AIAgentsHandler, AIAgentsInstanceHandler
-
-from jupyter_ai_agents.chat.handler import (
+from jupyter_ai_agents.handlers.index import IndexHandler
+from jupyter_ai_agents.handlers.config import ConfigHandler
+from jupyter_ai_agents.handlers.agents import AIAgentsHandler, AIAgentsInstanceHandler
+from jupyter_ai_agents.handlers.chat import (
     ChatHandler,
     ConfigureHandler,
     MCPServersHandler,
     MCPServerHandler
 )
-from jupyter_ai_agents.chat.agent import create_chat_agent
 from jupyter_ai_agents.chat.mcp_tools import MCPToolManager
 from jupyter_ai_agents.chat.config import ChatConfig
+from jupyter_ai_agents.chat.agent import create_chat_agent
+from jupyter_ai_agents.__version__ import __version__
 
 
 DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
@@ -148,10 +146,10 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         handlers = [
             (url_path_join(self.name), IndexHandler),
             (url_path_join(self.name, "config"), ConfigHandler),
+            (url_path_join(self.name, "configure"), ConfigureHandler),
             (url_path_join(self.name, "agents"), AIAgentsHandler),
             (url_path_join(self.name, r"agents/(.+)$"), AIAgentsInstanceHandler),
             (url_path_join(self.name, "v1", "chat"), ChatHandler),
-            (url_path_join(self.name, "v1", "configure"), ConfigureHandler),
             (url_path_join(self.name, "v1", "mcp/servers"), MCPServersHandler),
             (url_path_join(self.name, "v1", r"mcp/servers/([^/]+)"), MCPServerHandler),
         ]

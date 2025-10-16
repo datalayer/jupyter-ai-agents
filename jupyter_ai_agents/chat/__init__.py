@@ -17,6 +17,5 @@ __all__ = [
 ]
 
 from .agent import create_chat_agent
-from .handler import ChatHandler, ConfigureHandler
 from .mcp_tools import MCPToolManager
 from .config import ChatConfig

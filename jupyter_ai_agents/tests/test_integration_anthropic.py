@@ -26,7 +26,7 @@ class TestAnthropicIntegration(unittest.TestCase):
         """Test creating an Anthropic agent with tools."""
         # Import here to avoid import errors if dependencies aren't installed
         from langchain_core.tools import tool
-        from jupyter_ai_agents.providers import create_anthropic_agent
+        from jupyter_ai_agents.llm import create_anthropic_agent
         
         # Setup mock ChatAnthropic
         mock_llm = MagicMock()
@@ -63,7 +63,7 @@ class TestAnthropicIntegration(unittest.TestCase):
     def test_simplified_tool_invocation(self, mock_chat_anthropic, mock_agent_invoke):
         """Test that tool invocation works correctly with mocked invoke."""
         from langchain_core.tools import tool
-        from jupyter_ai_agents.providers import create_anthropic_agent
+        from jupyter_ai_agents.llm import create_anthropic_agent
         
         # Define a test tool
         @tool

@@ -9,14 +9,14 @@ import os
 from logging import Logger
 
 from jupyter_kernel_client import KernelClient
-from jupyter_ai_agents.nbmodel.agent import BaseNbAgent
+from jupyter_ai_agents.agents.nbmodel_agent import BaseNbModelAgent
 from jupyter_nbmodel_client.constants import REQUEST_TIMEOUT
 
 
 logger = logging.getLogger(__name__)
 
 
-class RuntimeAgent(BaseNbAgent):
+class RuntimeAgent(BaseNbModelAgent):
     """A base notebook agent connected to a runtime client."""
 
     def __init__(

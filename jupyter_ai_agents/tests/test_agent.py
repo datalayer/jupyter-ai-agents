@@ -7,12 +7,12 @@ import uuid
 from unittest.mock import AsyncMock
 
 from jupyter_nbmodel_client import NbModelClient
-from jupyter_ai_agents.nbmodel.agent import BaseNbAgent
+from jupyter_ai_agents.agents.nbmodel_agent import BaseNbModelAgent
 
 
 async def test_default_content(ws_server):
     room = uuid.uuid4().hex
-    async with BaseNbAgent(f"{ws_server}/{room}") as agent:
+    async with BaseNbModelAgent(f"{ws_server}/{room}") as agent:
         await asyncio.sleep(0)
         default_content = agent.as_dict()
 
@@ -23,7 +23,7 @@ async def test_set_user_prompt(ws_server):
     room = uuid.uuid4().hex
     room_url = f"{ws_server}/{room}"
     async with NbModelClient(room_url) as client:
-        async with BaseNbAgent(room_url) as agent:
+        async with BaseNbModelAgent(room_url) as agent:
             agent._on_user_prompt = AsyncMock(return_value="hello")
             idx = client.add_code_cell("print('hello')")
             client.set_cell_metadata(
@@ -82,7 +82,7 @@ async def test_set_cell_with_user_prompt(ws_server):
     room = uuid.uuid4().hex
     room_url = f"{ws_server}/{room}"
     async with NbModelClient(room_url) as client:
-        async with BaseNbAgent(room_url) as agent:
+        async with BaseNbModelAgent(room_url) as agent:
             agent._on_user_prompt = AsyncMock()
             client.add_code_cell(
                 "print('hello')",

@@ -2,7 +2,76 @@
 #
 # BSD 3-Clause License
 
-"""This module provides a base class AI agent to interact with collaborative Jupyter notebook."""
+"""This module provides a base class AI agent to interact with collaborative Jupyter notebook.
+
+The following json schema describes the data model used in cells and notebook metadata to communicate between user clients and an Jupyter AI Agent.
+
+```json
+{
+  "datalayer": {
+    "type": "object",
+    "properties": {
+      "ai": {
+        "type": "object",
+        "properties": {
+          "prompts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "title": "Prompt unique identifier",
+                  "type": "string"
+                },
+                "prompt": {
+                  "title": "User prompt",
+                  "type": "string"
+                },
+                "username": {
+                  "title": "Unique identifier of the user making the prompt.",
+                  "type": "string"
+                },
+                "timestamp": {
+                  "title": "Number of milliseconds elapsed since the epoch; i.e. January 1st, 1970 at midnight UTC.",
+                  "type": "integer"
+                }
+              },
+              "required": ["id", "prompt"]
+            }
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "parent_id": {
+                  "title": "Prompt unique identifier",
+                  "type": "string"
+                },
+                "message": {
+                  "title": "AI reply",
+                  "type": "string"
+                },
+                "type": {
+                  "title": "Type message",
+                  "enum": [0, 1, 2]
+                },
+                "timestamp": {
+                  "title": "Number of milliseconds elapsed since the epoch; i.e. January 1st, 1970 at midnight UTC.",
+                  "type": "integer"
+                }
+              },
+              "required": ["id", "prompt"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+"""
 
 from __future__ import annotations
 
@@ -56,7 +125,6 @@ class PeerEvent(TypedDict):
 
 # def _debug_print_changes(part: str, changes: Any) -> None:
 #     print(f"{part}")
-
 #     def print_change(changes):
 #         if isinstance(changes, MapEvent):
 #             print(f"{type(changes.target)} {changes.target} {changes.keys} {changes.path}")
@@ -64,7 +132,6 @@ class PeerEvent(TypedDict):
 #             print(f"{type(changes.target)} {changes.target} {changes.delta} {changes.path}")
 #         else:
 #             print(changes)
-
 #     if isinstance(changes, list):
 #         for c in changes:
 #             print_change(c)
@@ -72,7 +139,7 @@ class PeerEvent(TypedDict):
 #         print_change(changes)
 
 
-class BaseNbAgent(NbModelClient):
+class BaseNbModelAgent(NbModelClient):
     """Base class to react to user prompt and notebook changes based on CRDT changes.
 
     Notes:

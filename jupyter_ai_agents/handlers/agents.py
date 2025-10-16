@@ -18,8 +18,8 @@ from jupyter_server.base.handlers import APIHandler
 
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agents.handlers.agents.manager import AIAgentsManager
-from jupyter_ai_agents.agents.prompt import PromptAgent
+from jupyter_ai_agents.handlers.agents_manager import AIAgentsManager
+from jupyter_ai_agents.agents.prompt_agent import PromptAgent
 from jupyter_ai_agents.models import AgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__

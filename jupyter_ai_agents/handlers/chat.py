@@ -3,9 +3,8 @@
 import json
 import tornado.web
 from jupyter_server.base.handlers import APIHandler
-from typing import Optional
 
-from .models import FrontendConfig, AIModel, BuiltinTool
+from ..chat.models import FrontendConfig, AIModel, BuiltinTool
 
 
 class ChatHandler(APIHandler):
@@ -164,7 +163,7 @@ class MCPServersHandler(APIHandler):
     async def post(self):
         """Add a new MCP server."""
         try:
-            from .models import MCPServer
+            from ..chat.models import MCPServer
             
             data = json.loads(self.request.body.decode('utf-8'))
             server = MCPServer(**data)
@@ -194,7 +193,7 @@ class MCPServerHandler(APIHandler):
     async def put(self, server_id: str):
         """Update MCP server."""
         try:
-            from .models import MCPServer
+            from ..chat.models import MCPServer
             
             data = json.loads(self.request.body.decode('utf-8'))
             server = MCPServer(**data)

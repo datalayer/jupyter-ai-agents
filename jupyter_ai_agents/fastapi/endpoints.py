@@ -20,7 +20,7 @@ from jupyter_kernel_client import KernelClient
 
 from datalayer_core.client import DatalayerClient
 
-from jupyter_ai_agents.agents.prompt import PromptAgent
+from jupyter_ai_agents.agents.prompt_agent import PromptAgent
 from jupyter_ai_agents.models import AgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__

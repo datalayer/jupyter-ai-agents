@@ -40,7 +40,7 @@ server: ## server
 	@exec echo
 	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
 	@exec echo
-	python -m uvicorn jupyter_ai_agents.server.main:main --reload --port 4400
+	python -m uvicorn jupyter_ai_agents.fastapi.main:main --reload --port 4400
 
 ai-agents-prompt:
 	jupyter-ai-agents prompt \

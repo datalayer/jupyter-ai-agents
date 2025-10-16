@@ -6,9 +6,9 @@ from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 from langchain.agents import AgentExecutor, tool
 
-from jupyter_ai_agents.agents.base import RuntimeAgent
-from jupyter_ai_agents.agents.utils import create_ai_agent
-from jupyter_ai_agents.tools.tools import insert_execute_code_cell_tool, insert_markdown_cell_tool
+from jupyter_ai_agents.agents.base_agent import RuntimeAgent
+from jupyter_ai_agents.llm.utils import create_ai_agent
+from jupyter_ai_agents.utils_nbmodel import insert_execute_code_cell_tool, insert_markdown_cell_tool
 from jupyter_ai_agents.utils import retrieve_cells_content
 
 SYSTEM_PROMPT = """You are a powerful coding assistant.
