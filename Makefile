@@ -34,6 +34,7 @@ jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
 		--ServerApp.root_dir ./dev/content \
+		--ServerApp.disable_check_xsrf True \
 		--IdentityProvider.token=
 
 server: ## server

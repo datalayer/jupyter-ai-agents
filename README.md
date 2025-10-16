@@ -72,7 +72,7 @@ Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and 
 
 ```bash
 # make jupyterlab
-jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
+jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN --ServerApp.disable_check_xsrf True
 ```
 
 Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
