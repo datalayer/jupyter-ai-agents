@@ -11,9 +11,6 @@ import httpx
 import os
 import re
 
-from pydantic import BaseModel
-from typing import Optional
-
 from http import HTTPStatus
 from urllib.parse import urlencode
 
@@ -22,10 +19,9 @@ from fastapi import APIRouter, Request
 from jupyter_kernel_client import KernelClient
 
 from jupyter_ai_agents.agents.prompt import PromptAgent
+from jupyter_ai_agents.models import AgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
-
-from datalayer_core.authn.apps.whoamiapp import WhoamiApp
 
 
 logger = logging.getLogger(__name__)
@@ -44,20 +40,8 @@ DATALAYER_DOCUMENTS_WS_URL = os.environ.get("DATALAYER_DOCUMENTS_WS_URL", f"{DAT
 ROOMS = {}
 
 
-class RuntimeModel(BaseModel):
-    ingress: Optional[str] = None
-    token: Optional[str] = None
-    kernel_id: Optional[str] = None
-    jupyter_pod_name: Optional[str] = None
-
-
-class AgentRequestModel(BaseModel):
-    room_id: Optional[str] = None
-    runtime: Optional[RuntimeModel] = None
-
-
 @contextlib.asynccontextmanager
-async def _get_client(token: str | None = None) -> typing.AsyncIterator[httpx.AsyncClient]:
+async def _get_http_client(token: str | None = None) -> typing.AsyncIterator[httpx.AsyncClient]:
     headers = {
         "User-Agent": f"datalayer-ai-agents/{__version__}",
         "Content-Type": "application/json",
@@ -75,7 +59,7 @@ async def _fetch_session_id(url: str, token: str | None = None) -> str:
     Args:
         url: URL to fetch the session ID from.
     """
-    async with _get_client(token) as client:
+    async with _get_http_client(token) as client:
         response = await client.get(url)
         response.raise_for_status()
     data = response.json()

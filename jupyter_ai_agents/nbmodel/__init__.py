@@ -70,6 +70,5 @@ The following json schema describes the data model used in cells and notebook me
   }
 }
 ```
-    
 
-""" 
+"""
