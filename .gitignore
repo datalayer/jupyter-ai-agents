@@ -121,6 +121,7 @@ dmypy.json
 
 # Include
 !**/.*ignore
+!src/**/lib
 !**/.*rc
 !**/.*rc.js
 !**/.*rc.json
