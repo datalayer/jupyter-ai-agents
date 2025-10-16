@@ -1,10 +1,54 @@
 """Tornado handlers for chat API compatible with Vercel AI SDK."""
 
 import json
+import asyncio
 import tornado.web
+from tornado.web import HTTPError
 from jupyter_server.base.handlers import APIHandler
+from pydantic import BaseModel
+from pydantic_ai.ui.vercel_ai import VercelAIAdapter
 
 from jupyter_ai_agents.chat.models import FrontendConfig, AIModel, BuiltinTool
+
+
+class ChatRequestExtra(BaseModel, extra='ignore'):
+    """Extra data from chat request."""
+    model: str | None = None
+    builtin_tools: list[str] = []
+
+
+class TornadoRequestAdapter:
+    """Adapter to make Tornado request compatible with Vercel AI adapter."""
+    
+    def __init__(self, handler):
+        self.handler = handler
+        self._body = None
+    
+    @property
+    def url(self):
+        """Get request URL."""
+        return self.handler.request.uri
+    
+    @property
+    def method(self):
+        """Get request method."""
+        return self.handler.request.method
+    
+    async def body(self):
+        """Get request body as bytes."""
+        if self._body is None:
+            self._body = self.handler.request.body
+        return self._body
+    
+    async def json(self):
+        """Get request body as JSON."""
+        body = await self.body()
+        return json.loads(body.decode('utf-8'))
+    
+    @property
+    def headers(self):
+        """Get request headers."""
+        return dict(self.handler.request.headers)
 
 
 class ChatHandler(APIHandler):
@@ -19,7 +63,6 @@ class ChatHandler(APIHandler):
     - Source citations
     """
     
-    @tornado.web.authenticated
     async def post(self):
         """Handle chat POST request with streaming."""
         try:
@@ -30,39 +73,54 @@ class ChatHandler(APIHandler):
                 self.finish(json.dumps({"error": "Chat agent not initialized"}))
                 return
             
-            # Parse request body
-            body = json.loads(self.request.body.decode('utf-8'))
-            messages = body.get('messages', [])
-            model = body.get('model')
-            builtin_tools = body.get('builtinTools', [])
+            # Create request adapter
+            tornado_request = TornadoRequestAdapter(self)
             
-            # Set up streaming response headers
-            self.set_header('Content-Type', 'text/event-stream')
-            self.set_header('Cache-Control', 'no-cache')
-            self.set_header('Connection', 'keep-alive')
-            self.set_header('Access-Control-Allow-Origin', '*')
+            # Validate request using Vercel AI adapter
+            request_data = await VercelAIAdapter.validate_request(tornado_request)
+            extra_data = ChatRequestExtra.model_validate(request_data.__pydantic_extra__)
             
-            # TODO: Implement proper Vercel AI protocol streaming
-            # For now, send a simple response
-            response = {
-                "role": "assistant",
-                "content": "Chat streaming not yet fully implemented. Your message: " + 
-                          (messages[-1].get('content', '') if messages else ''),
-            }
+            # Get builtin tools (TODO: map from IDs)
+            builtin_tools = []
             
-            # Send as SSE event
-            event_data = f"data: {json.dumps(response)}\n\n"
-            self.write(event_data)
-            await self.flush()
+            # Use VercelAIAdapter to dispatch the request
+            # This returns a FastAPI StreamingResponse
+            response = await VercelAIAdapter.dispatch_request(
+                agent,
+                tornado_request,
+                model=extra_data.model,
+                builtin_tools=builtin_tools,
+            )
             
-            # Send done event
-            self.write("data: [DONE]\n\n")
-            await self.flush()
+            # Set headers from FastAPI response
+            for key, value in response.headers.items():
+                self.set_header(key, value)
+            
+            # Stream the response body
+            # FastAPI StreamingResponse has body_iterator
+            if hasattr(response, 'body_iterator'):
+                async for chunk in response.body_iterator:
+                    if isinstance(chunk, bytes):
+                        self.write(chunk)
+                    else:
+                        self.write(chunk.encode('utf-8') if isinstance(chunk, str) else chunk)
+                    await self.flush()
+            else:
+                # Fallback for non-streaming response
+                body = response.body
+                if isinstance(body, bytes):
+                    self.write(body)
+                else:
+                    self.write(body.encode('utf-8') if isinstance(body, str) else body)
+            
+            # Finish the response
+            self.finish()
             
         except Exception as e:
             self.log.error(f"Error in chat handler: {e}", exc_info=True)
-            self.set_status(500)
-            self.finish(json.dumps({"error": str(e)}))
+            if not self._finished:
+                self.set_status(500)
+                self.finish(json.dumps({"error": str(e)}))
     
     @tornado.web.authenticated
     async def options(self):

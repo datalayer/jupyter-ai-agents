@@ -1,4 +1,10 @@
-import React, { useState, useEffect, type FormEvent } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  type FormEvent
+} from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import {
   Conversation,
@@ -8,13 +14,40 @@ import {
 import { Loader } from './components/ai-elements/loader';
 import {
   PromptInput,
+  PromptInputButton,
+  PromptInputModelSelect,
+  PromptInputModelSelectContent,
+  PromptInputModelSelectItem,
+  PromptInputModelSelectTrigger,
+  PromptInputModelSelectValue,
   PromptInputSubmit,
-  PromptInputTextarea
+  PromptInputTextarea,
+  PromptInputToolbar,
+  PromptInputTools
 } from './components/ai-elements/prompt-input';
+import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger
+} from './components/ai-elements/sources';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from './components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from './components/ui/tooltip';
+import { Switch } from './components/ui/switch';
 import { Part } from './Part';
 import { useJupyterChat } from './hooks/useJupyterChat';
 import { useQuery } from '@tanstack/react-query';
 import { requestAPI } from './handler';
+import { getToolIcon } from './lib/tool-icons';
+import { Settings2Icon } from 'lucide-react';
 
 interface IModelConfig {
   id: string;
@@ -42,8 +75,9 @@ async function getModels() {
 export const ChatComponent: React.FC = () => {
   const [input, setInput] = useState('');
   const [model, setModel] = useState<string>('');
-  const [enabledTools] = useState<string[]>([]);
+  const [enabledTools, setEnabledTools] = useState<string[]>([]);
   const { messages, sendMessage, status, regenerate } = useJupyterChat();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const configQuery = useQuery({
     queryFn: getModels,
@@ -77,12 +111,49 @@ export const ChatComponent: React.FC = () => {
     });
   };
 
+  const availableTools = useMemo(() => {
+    if (!configQuery.data) {
+      return [];
+    }
+    const enabledToolIds =
+      configQuery.data.models.find(entry => entry.id === model)
+        ?.builtin_tools ?? [];
+    return (
+      configQuery.data.builtinTools?.filter(tool =>
+        enabledToolIds.includes(tool.id)
+      ) ?? []
+    );
+  }, [configQuery.data, model]);
+
   return (
-    <div className="jp-ai-chat-widget">
+    <>
       <Conversation className="h-full">
         <ConversationContent>
           {messages.map(message => (
             <div key={message.id}>
+              {message.role === 'assistant' &&
+                message.parts.filter(part => part.type === 'source-url')
+                  .length > 0 && (
+                  <Sources>
+                    <SourcesTrigger
+                      count={
+                        message.parts.filter(part => part.type === 'source-url')
+                          .length
+                      }
+                    />
+                    {message.parts
+                      .filter(part => part.type === 'source-url')
+                      .map((part, i) => (
+                        <SourcesContent key={`${message.id}-${i}`}>
+                          <Source
+                            key={`${message.id}-${i}`}
+                            href={part.url}
+                            title={part.url}
+                          />
+                        </SourcesContent>
+                      ))}
+                  </Sources>
+                )}
               {message.parts.map((part, index) => (
                 <Part
                   key={`${message.id}-${index}`}
@@ -101,17 +172,94 @@ export const ChatComponent: React.FC = () => {
         <ConversationScrollButton />
       </Conversation>
 
-      <PromptInput onSubmit={handleSubmit}>
-        <PromptInputTextarea
-          value={input}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-            setInput(e.target.value);
-          }}
-          placeholder="Ask me anything..."
-        />
-        <PromptInputSubmit disabled={status === 'submitted' || !input.trim()} />
-      </PromptInput>
-    </div>
+      <div className="sticky bottom-0 p-3">
+        <PromptInput onSubmit={handleSubmit}>
+          <PromptInputTextarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              setInput(e.target.value);
+            }}
+            placeholder="Ask me anything..."
+            autoFocus={true}
+          />
+          <PromptInputToolbar>
+            <PromptInputTools>
+              {availableTools.length > 0 && (
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <PromptInputButton variant="outline">
+                          <Settings2Icon className="size-4" />
+                        </PromptInputButton>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Tools</TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start">
+                    {availableTools.map(tool => (
+                      <div
+                        key={tool.id}
+                        className="flex items-center justify-between gap-3 px-2 py-1.5 cursor-pointer hover:bg-accent rounded-sm"
+                        onClick={() => {
+                          setEnabledTools(prev =>
+                            prev.includes(tool.id)
+                              ? prev.filter(id => id !== tool.id)
+                              : [...prev, tool.id]
+                          );
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          {getToolIcon(tool.id)}
+                          <span className="text-sm">{tool.name}</span>
+                        </div>
+                        <Switch
+                          checked={enabledTools.includes(tool.id)}
+                          onCheckedChange={checked => {
+                            setEnabledTools(prev =>
+                              checked
+                                ? [...prev, tool.id]
+                                : prev.filter(id => id !== tool.id)
+                            );
+                          }}
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              {configQuery.data && model && (
+                <PromptInputModelSelect
+                  onValueChange={value => {
+                    setModel(value);
+                  }}
+                  value={model}
+                >
+                  <PromptInputModelSelectTrigger>
+                    <PromptInputModelSelectValue />
+                  </PromptInputModelSelectTrigger>
+                  <PromptInputModelSelectContent>
+                    {configQuery.data.models.map(modelItem => (
+                      <PromptInputModelSelectItem
+                        key={modelItem.id}
+                        value={modelItem.id}
+                      >
+                        {modelItem.name}
+                      </PromptInputModelSelectItem>
+                    ))}
+                  </PromptInputModelSelectContent>
+                </PromptInputModelSelect>
+              )}
+            </PromptInputTools>
+            <PromptInputSubmit disabled={!input} status={status} />
+          </PromptInputToolbar>
+        </PromptInput>
+      </div>
+    </>
   );
 };
 
