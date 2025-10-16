@@ -8,7 +8,7 @@ from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 
 from jupyter_ai_agents.llm.utils import create_llm
-from jupyter_ai_agents.utils_nbmodel import (
+from jupyter_ai_agents.utils import (
     insert_execute_code_cell_tool,
     insert_markdown_cell_tool,
 )

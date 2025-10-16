@@ -149,9 +149,9 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             (url_path_join(self.name, "configure"), ConfigureHandler),
             (url_path_join(self.name, "agents"), AIAgentsHandler),
             (url_path_join(self.name, r"agents/(.+)$"), AIAgentsInstanceHandler),
-            (url_path_join(self.name, "v1", "chat"), ChatHandler),
-            (url_path_join(self.name, "v1", "mcp/servers"), MCPServersHandler),
-            (url_path_join(self.name, "v1", r"mcp/servers/([^/]+)"), MCPServerHandler),
+            (url_path_join("api", "chat"), ChatHandler),
+            (url_path_join("api", "mcp/servers"), MCPServersHandler),
+            (url_path_join("api", r"mcp/servers/([^/]+)"), MCPServerHandler),
         ]
         self.handlers.extend(handlers)
 
