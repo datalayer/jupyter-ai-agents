@@ -158,7 +158,7 @@ class JupyterAIAgentAskApp(JupyterAIAgentBaseApp):
             asyncio.get_event_loop().run_until_complete(self.notebook.start())
             asyncio.get_event_loop().run_until_complete(self.ask())
         except Exception as e:
-            logger.error("Exception", e)
+            logger.error("Exception: %s", e, exc_info=True)
         finally:
             asyncio.get_event_loop().run_until_complete(self.notebook.stop())
             self.kernel.stop()

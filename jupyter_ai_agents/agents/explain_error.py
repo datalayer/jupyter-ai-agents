@@ -8,13 +8,13 @@ from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 from langchain.agents import AgentExecutor, tool
 
-from jupyter_ai_agents.agents.base import RuntimeAgent
 from jupyter_ai_agents.agents.utils import create_ai_agent
 from jupyter_ai_agents.tools.tools import insert_execute_code_cell_tool
 from jupyter_ai_agents.utils import (
     retrieve_cells_content_error,
     retrieve_cells_content_until_first_error,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ def _create_agent(
         
         Notebook content: {cells_content_until_error}
         """
-        input = f"Error: {error}"
+        agent_input = f"Error: {str(error)}"
 
     else:
         cells_content_until_first_error, first_error = retrieve_cells_content_until_first_error(
@@ -65,12 +65,14 @@ def _create_agent(
         
         Notebook content: {cells_content_until_first_error}
         """
-        input = f"Error: {first_error}"
+        agent_input = f"Error: {str(first_error)}"
 
-    logger.debug("Prompt with content", system_prompt_final)
-    logger.debug("Input", input)
+    logger.debug("Prompt with content: %s", system_prompt_final)
+    logger.debug("Input: %s", agent_input)
 
-    return create_ai_agent(model_provider, model_name, system_prompt_final, tools)
+    ai_agent = create_ai_agent(model_provider, model_name, system_prompt_final, tools)
+    
+    return (ai_agent, agent_input)
 
 
 async def explain_error(
@@ -81,8 +83,8 @@ async def explain_error(
     current_cell_index: int,
 ) -> list:
     """Explain and correct an error in a notebook based on the prior cells."""
-    agent = _create_agent(notebook, kernel, model_provider, model_name, current_cell_index)
+    (agent, agent_input) = _create_agent(notebook, kernel, model_provider, model_name, current_cell_index)
     replies = []
-    async for reply in agent.astream({"input": input}):
+    async for reply in agent.astream({"input": agent_input}):
         replies.append(reply)
     return replies

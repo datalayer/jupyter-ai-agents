@@ -42,22 +42,22 @@ server: ## server
 	@exec echo
 	python -m uvicorn jupyter_ai_agents.server.main:main --reload --port 4400
 
-prompt:
+ai-agents-prompt:
 	jupyter-ai-agents prompt \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
 		--model-provider azure-openai \
 		--model-name gpt-4o-mini \
-		--path test.ipynb \
+		--path notebook.ipynb \
 		--input "Create a matplotlib example"
 
-explain-error:
+ai-agents-explain-error:
 	jupyter-ai-agents explain-error \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
 		--model-provider azure-openai \
 		--model-name gpt-4o-mini \
-		--path test.ipynb
+		--path notebook.ipynb
 
 publish-pypi: # publish the pypi package
 	git clean -fdx && \

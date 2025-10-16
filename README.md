@@ -68,7 +68,7 @@ pip install datalayer_pycrdt==0.12.17
 
 We put here a quick example for a Out-Kernel Stateless Agent via CLI helping your JupyterLab session.
 
-Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
+Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `notebook.ipynb`.
 
 ```bash
 # make jupyterlab
@@ -93,13 +93,13 @@ To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure d
 
 ```bash
 # Prompt agent example.
-# make prompt
+# make ai-agents-prompt
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --model-provider azure-openai \
   --model-name gpt-4o-mini \
-  --path test.ipynb \
+  --path notebook.ipynb \
   --input "Create a matplotlib example"
 ```
 
@@ -109,13 +109,13 @@ jupyter-ai-agents prompt \
 
 ```bash
 # Explain Error agent example.
-# make explain-error
+# make ai-agents-explain-error
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --model-provider azure-openai \
   --model-name gpt-4o-mini \
-  --path test.ipynb
+  --path notebook.ipynb
 ```
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
