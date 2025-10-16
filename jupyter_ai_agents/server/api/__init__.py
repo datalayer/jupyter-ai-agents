@@ -18,6 +18,8 @@ from fastapi import APIRouter, Request
 
 from jupyter_kernel_client import KernelClient
 
+from datalayer_core.client import DatalayerClient
+
 from jupyter_ai_agents.agents.prompt import PromptAgent
 from jupyter_ai_agents.models import AgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
@@ -74,10 +76,10 @@ async def _fetch_session_id(url: str, token: str | None = None) -> str:
 async def get_ai_agents_endpoint(request: Request = None):
     authorization = request.headers.get("Authorization", "")
     token = re.sub(r"^(B|b)earer\s+", "", authorization).strip()
-    whoami = WhoamiApp(token=token)
-    user = whoami.get_profile()
+    client = DatalayerClient(token=token)
+    user = client.get_profile()
     agents = request.state.agent_manager
-    user_agents = agents.get_user_agents(user["uid"])
+    user_agents = agents.get_user_agents(user.uid)
     return {
         "success": True,
         "message": "AI Agents spawned by the user.",
@@ -105,8 +107,8 @@ async def create_ai_agents_endpoint(agent_request: AgentRequestModel, request: R
         logger.info("Creating AI Agent for room [%s]…", room_id)
         authorization = request.headers.get("Authorization", "")
         token = re.sub(r"^(B|b)earer\s+", "", authorization).strip()
-        whoami = WhoamiApp(token=token)
-        user = whoami.get_profile()["profile"]
+        client = DatalayerClient(token=token)
+        user = client.get_profile()
         runtime = agent_request.runtime
         jupyter_ingress = runtime.ingress
         jupyter_token = runtime.token
@@ -123,13 +125,13 @@ async def create_ai_agents_endpoint(agent_request: AgentRequestModel, request: R
         ws_url = f"{DATALAYER_DOCUMENTS_WS_URL}/{room_id}?{qs}"
         prompt_agent = PromptAgent(
             websocket_url=ws_url,
-            username=user["uid"],
+            username=user.uid,
             path=room_id,
             runtime_client=KernelClient(
                 kernel_id=kernel_id,
                 server_url=jupyter_ingress,
                 token=jupyter_token,
-                username=user["uid"],
+                username=user.uid,
             ) if has_runtime else None,
             log=logger,
         )
