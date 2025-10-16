@@ -2,16 +2,17 @@
 #
 # BSD 3-Clause License
 
-from typing import List, Any, Dict
-from langchain.agents.agent import AgentExecutor
-from langchain_anthropic import ChatAnthropic
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
-from langchain_core.tools import BaseTool
 from dotenv import load_dotenv
+from typing import List
+
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import BaseTool
+from langchain.agents.agent import AgentExecutor
+from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
+from langchain_anthropic import ChatAnthropic
 
 
-def create_anthropic_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
+def create_anthropic_llm(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
     """Create an agent from a set of tools using Anthropic's Claude API.
     
     Args:
@@ -58,4 +59,4 @@ After using a tool, explain what the result means in a clear and helpful way.
         return_intermediate_steps=True  # Include intermediate steps in the output
     )
     
-    return agent_executor 
+    return agent_executor

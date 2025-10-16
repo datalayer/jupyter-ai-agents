@@ -2,7 +2,24 @@
 #
 # BSD 3-Clause License
 
-"""This module provides a base class AI agent to interact with collaborative Jupyter notebook.
+from __future__ import annotations
+
+import asyncio
+import os
+from datetime import datetime, timezone
+from enum import IntEnum
+from logging import Logger
+from typing import Any, Literal, TypedDict, cast
+
+from pycrdt import Awareness, Map
+
+from jupyter_nbmodel_client.client import REQUEST_TIMEOUT, NbModelClient
+from jupyter_nbmodel_client._version import VERSION
+
+
+"""
+
+This module provides a base class AI agent to interact with collaborative Jupyter notebook.
 
 The following json schema describes the data model used in cells and notebook metadata to communicate between user clients and an Jupyter AI Agent.
 
@@ -70,23 +87,7 @@ The following json schema describes the data model used in cells and notebook me
   }
 }
 ```
-
 """
-
-from __future__ import annotations
-
-import asyncio
-import os
-from datetime import datetime, timezone
-from enum import IntEnum
-from logging import Logger
-from typing import Any, Literal, TypedDict, cast
-
-from pycrdt import Awareness, Map
-
-from jupyter_nbmodel_client._version import VERSION
-from jupyter_nbmodel_client.client import REQUEST_TIMEOUT, NbModelClient
-
 
 def timestamp() -> int:
     """Return the current timestamp in milliseconds since epoch."""
@@ -95,7 +96,6 @@ def timestamp() -> int:
 
 class AIMessageType(IntEnum):
     """Type of AI agent message."""
-
     ERROR = -1
     """Error message."""
     ACKNOWLEDGE = 0
@@ -139,7 +139,7 @@ class PeerEvent(TypedDict):
 #         print_change(changes)
 
 
-class BaseNbModelAgent(NbModelClient):
+class NbModelAgent(NbModelClient):
     """Base class to react to user prompt and notebook changes based on CRDT changes.
 
     Notes:
@@ -312,6 +312,7 @@ class BaseNbModelAgent(NbModelClient):
                     parent_id=prompt_id,
                 )
 
+
     async def _process_doc_events(self) -> None:
         self._log.debug("Starting listening on document [%s] changes…", self.path)
         while True:
@@ -329,6 +330,7 @@ class BaseNbModelAgent(NbModelClient):
             else:
                 # Sleep to get a chance to propagate changes through the websocket
                 await asyncio.sleep(0)
+
 
     def _on_notebook_changes(
         self,
@@ -473,7 +475,6 @@ class BaseNbModelAgent(NbModelClient):
                                     )
                             # elif change["action"] == "delete":
                             #     ...
-
         # elif part == "meta":
         #     # FIXME handle notebook metadata
 

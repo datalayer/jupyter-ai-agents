@@ -39,12 +39,12 @@ dependencies = [
   "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
   "jupyterlab>=4.0.0,<5",
+  "mcp",
   "pydantic-ai-slim[anthropic,openai,cli]>=1.0.10",
   "pydantic-settings",
   "python-dotenv",
-  "sse-starlette>=3.0.2",
   "httpx>=0.25.0",
-  "tornado>=6.0",
+  "typer",
   "uvicorn",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
@@ -79,6 +79,12 @@ exclude = [".github", "binder"]
 [tool.hatch.build.hooks.version]
 path = "jupyter_ai_agents/_version.py"
 
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyter_ai_agents/labextension" = "share/jupyter/labextensions/@datalayer/jupyter-ai-agents"
+"install.json" = "share/jupyter/labextensions/@datalayer/jupyter-ai-agents/install.json"
+"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
+"jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
+
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
@@ -111,12 +117,6 @@ before-build-python = ["jlpm clean:all"]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
-
-[tool.hatch.build.targets.wheel.shared-data]
-"jupyter_ai_agents/labextension" = "share/jupyter/labextensions/@datalayer/jupyter-ai-agents"
-"install.json" = "share/jupyter/labextensions/@datalayer/jupyter-ai-agents/install.json"
-"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
-"jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
 [tool.pytest.ini_options]
 filterwarnings = [

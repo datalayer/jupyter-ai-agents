@@ -8,10 +8,11 @@ import typer
 import asyncio
 import os
 
-from jupyter_ai_agents.agents.prompt_agent import prompt as prompt_agent
-from jupyter_ai_agents.agents.explain_error import explain_error as explain_error_agent
 from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient, get_jupyter_notebook_websocket_url
+
+from jupyter_ai_agents.agents.prompt_agent import prompt as prompt_agent
+from jupyter_ai_agents.agents.explain_error_agent import explain_error as explain_error_agent
 
 
 app = typer.Typer(help="The Jupyter AI Agents application.")

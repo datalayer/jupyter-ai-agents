@@ -8,7 +8,7 @@ import asyncio
 import logging
 from collections import Counter
 
-from jupyter_ai_agents.agents.base_agent import RuntimeAgent
+from jupyter_ai_agents.agents.nbmodel_runtime_agent import NbModelRuntimeAgent
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ SPACER_AGENT = "DatalayerSpacer"
 DELAY_FOR_STOPPING_AGENT = 20 * 60
 
 
-async def _stop_agent(agent: RuntimeAgent, room: str) -> None:
+async def _stop_agent(agent: NbModelRuntimeAgent, room: str) -> None:
     try:
         if agent.runtime_client is not None:
             agent.runtime_client.stop()
@@ -34,7 +34,7 @@ class AIAgentsManager:
     """AI Agents manager."""
 
     def __init__(self) -> None:
-        self._agents: dict[str, RuntimeAgent] = {}
+        self._agents: dict[str, NbModelRuntimeAgent] = {}
         self._background_tasks: list[asyncio.Task] = []
         self._agents_to_stop: set[str] = set()
         self._to_stop_counter: Counter[str] = Counter()
@@ -46,7 +46,7 @@ class AIAgentsManager:
         return key in self._agents
 
 
-    def __getitem__(self, key: str) -> RuntimeAgent:
+    def __getitem__(self, key: str) -> NbModelRuntimeAgent:
         return self._agents[key]
 
 
@@ -103,7 +103,7 @@ class AIAgentsManager:
         return [k for k, a in self._agents.items() if a._username == user]
 
 
-    def track_agent(self, key: str, agent: RuntimeAgent) -> None:
+    def track_agent(self, key: str, agent: NbModelRuntimeAgent) -> None:
         """Add an agent and start it."""
         if self._stop_task.done():
             self._stop_task = asyncio.create_task(self._stop_lonely_agents())

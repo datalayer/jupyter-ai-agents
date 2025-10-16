@@ -2,13 +2,14 @@
 #
 # BSD 3-Clause License
 
+from dotenv import load_dotenv
+
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import AzureChatOpenAI
-from dotenv import load_dotenv
 
 
-def create_azure_openai_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
+def create_azure_openai_llm(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools and an Azure deployment"""
     
     load_dotenv()

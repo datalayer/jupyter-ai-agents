@@ -1,7 +1,7 @@
 """MCP (Model Context Protocol) tools integration."""
 
 import httpx
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from .models import MCPServer
 
 

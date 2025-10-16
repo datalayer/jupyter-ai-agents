@@ -2,14 +2,19 @@
 #
 # BSD 3-Clause License
 
-from jupyter_kernel_client import KernelClient
-from jupyter_nbmodel_client import NbModelClient
 from langchain.agents import AgentExecutor, tool
 
-from jupyter_ai_agents.agents.base_agent import RuntimeAgent
-from jupyter_ai_agents.llm.utils import create_ai_agent
-from jupyter_ai_agents.utils_nbmodel import insert_execute_code_cell_tool, insert_markdown_cell_tool
+from jupyter_kernel_client import KernelClient
+from jupyter_nbmodel_client import NbModelClient
+
+from jupyter_ai_agents.llm.utils import create_llm
+from jupyter_ai_agents.utils_nbmodel import (
+    insert_execute_code_cell_tool,
+    insert_markdown_cell_tool,
+)
 from jupyter_ai_agents.utils import retrieve_cells_content
+from jupyter_ai_agents.agents.nbmodel_runtime_agent import NbModelRuntimeAgent
+
 
 SYSTEM_PROMPT = """You are a powerful coding assistant.
 Create and execute code in a notebook based on user instructions.
@@ -64,7 +69,7 @@ def _create_agent(
     else:
         system_prompt_final = system_prompt_enriched
 
-    return create_ai_agent(model_provider, model_name, system_prompt_final, tools)
+    return create_llm(model_provider, model_name, system_prompt_final, tools)
 
 
 async def prompt(
@@ -85,7 +90,7 @@ async def prompt(
     return replies
 
 
-class PromptAgent(RuntimeAgent):
+class PromptAgent(NbModelRuntimeAgent):
     """AI Agent replying to user prompt."""
 
     model_provider = "azure-openai"

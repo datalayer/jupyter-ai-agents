@@ -2,13 +2,15 @@
 #
 # BSD 3-Clause License
 
-from langchain.agents import AgentExecutor
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import create_openai_tools_agent
 from dotenv import load_dotenv
 
-def create_openai_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import AgentExecutor
+from langchain.agents import create_openai_tools_agent
+from langchain_openai import ChatOpenAI
+
+
+def create_openai_llm(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools using OpenAI's API."""
     
     load_dotenv()

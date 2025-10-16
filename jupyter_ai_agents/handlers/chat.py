@@ -4,7 +4,7 @@ import json
 import tornado.web
 from jupyter_server.base.handlers import APIHandler
 
-from ..chat.models import FrontendConfig, AIModel, BuiltinTool
+from jupyter_ai_agents.chat.models import FrontendConfig, AIModel, BuiltinTool
 
 
 class ChatHandler(APIHandler):

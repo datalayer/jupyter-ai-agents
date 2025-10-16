@@ -9,15 +9,15 @@ import os
 from logging import Logger
 
 from jupyter_kernel_client import KernelClient
-from jupyter_ai_agents.agents.nbmodel_agent import BaseNbModelAgent
+from jupyter_ai_agents.agents.nbmodel_agent import NbModelAgent
 from jupyter_nbmodel_client.constants import REQUEST_TIMEOUT
 
 
 logger = logging.getLogger(__name__)
 
 
-class RuntimeAgent(BaseNbModelAgent):
-    """A base notebook agent connected to a runtime client."""
+class NbModelRuntimeAgent(NbModelAgent):
+    """A base nbmodel agent connected to a runtime client."""
 
     def __init__(
         self,
@@ -31,16 +31,19 @@ class RuntimeAgent(BaseNbModelAgent):
         super().__init__(websocket_url, path, username, timeout, log)
         self._runtime_client: KernelClient | None = runtime_client
 
+
     @property
     def runtime_client(self) -> KernelClient | None:
         """Runtime client"""
         return self._runtime_client
+
 
     @runtime_client.setter
     def runtime_client(self, client: KernelClient) -> None:
         if self._runtime_client:
             self._runtime_client.stop()
         self._runtime_client = client
+
 
     async def stop(self) -> None:
         await super().stop()

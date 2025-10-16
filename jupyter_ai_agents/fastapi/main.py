@@ -40,10 +40,7 @@ async def lifespan(app: FastAPI):
 
 
 def main():
-
     app = FastAPI(lifespan=lifespan)
-
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
@@ -53,7 +50,6 @@ def main():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
     app.include_router(
         router,
         prefix="/api/ai-agents",

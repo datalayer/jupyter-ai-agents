@@ -8,7 +8,7 @@ from langchain_github_copilot import ChatGitHubCopilot
 from dotenv import load_dotenv
 
 
-def create_github_copilot_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
+def create_github_copilot_llm(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools and a Github Copilot model"""
     
     load_dotenv()
