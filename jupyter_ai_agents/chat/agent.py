@@ -4,12 +4,12 @@ from typing import Any
 from pydantic_ai import Agent
 
 
-def create_chat_agent(model: str = "anthropic:claude-sonnet-4.0") -> Agent:
+def create_chat_agent(model: str = "anthropic:claude-sonnet-4-5") -> Agent:
     """
     Create the main chat agent for JupyterLab.
     
     Args:
-        model: The model identifier to use (default: Claude Sonnet 4.0)
+        model: The model identifier to use (default: Claude Sonnet 4-5)
     
     Returns:
         Configured Pydantic AI agent

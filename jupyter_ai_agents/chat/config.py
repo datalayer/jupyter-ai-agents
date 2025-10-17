@@ -34,7 +34,7 @@ class ChatConfig:
         """Create default configuration file."""
         default_config = {
             'mcp_servers': [],
-            'default_model': 'anthropic:claude-sonnet-4.0',
+            'default_model': 'anthropic:claude-sonnet-4-5',
             'enabled_tools': []
         }
         self.save_config(default_config)
@@ -67,7 +67,7 @@ class ChatConfig:
     def get_default_model(self) -> str:
         """Get the default model ID."""
         config = self.load_config()
-        return config.get('default_model', 'anthropic:claude-sonnet-4.0')
+        return config.get('default_model', 'anthropic:claude-sonnet-4-5')
     
     def set_default_model(self, model_id: str):
         """Set the default model ID."""

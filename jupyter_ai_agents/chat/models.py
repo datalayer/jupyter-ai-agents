@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 class AIModel(BaseModel):
     """Configuration for an AI model."""
     
-    id: str = Field(..., description="Model identifier (e.g., 'anthropic:claude-sonnet-4.0')")
+    id: str = Field(..., description="Model identifier (e.g., 'anthropic:claude-sonnet-4-5')")
     name: str = Field(..., description="Display name for the model")
     builtin_tools: List[str] = Field(default_factory=list, description="List of builtin tool IDs")
 

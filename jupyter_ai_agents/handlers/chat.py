@@ -152,7 +152,7 @@ class ConfigureHandler(APIHandler):
             # Define available models
             models = [
                 AIModel(
-                    id="anthropic:claude-sonnet-4.0",
+                    id="anthropic:claude-sonnet-4-5",
                     name="Claude Sonnet 4.0",
                     builtin_tools=["jupyter_execute", "jupyter_read", "jupyter_files"]
                 )

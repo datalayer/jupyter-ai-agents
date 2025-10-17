@@ -65,7 +65,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // Create and add chat widget to left sidebar
     const chatWidget = new ChatWidgetWithProvider();
-    labShell.add(chatWidget, 'left', { rank: 1000 });
+    labShell.add(chatWidget, 'right', { rank: 1000 });
 
     if (settingRegistry) {
       settingRegistry
