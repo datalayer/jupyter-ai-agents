@@ -2,13 +2,14 @@
 #
 # BSD 3-Clause License
 
-from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_github_copilot import ChatGitHubCopilot
 from dotenv import load_dotenv
 
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_github_copilot import ChatGitHubCopilot
+from langchain.agents import AgentExecutor, create_openai_tools_agent
 
-def create_github_copilot_llm(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
+
+def create_github_copilot_langchain_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools and a Github Copilot model"""
     
     load_dotenv()

@@ -26,11 +26,11 @@ class TestAnthropicIntegration(unittest.TestCase):
         """Test creating an Anthropic agent with tools."""
         # Import here to avoid import errors if dependencies aren't installed
         from langchain_core.tools import tool
-        from jupyter_ai_agents.llm import create_anthropic_llm
+        from jupyter_ai_agents.langchain import create_anthropic_langchain_agent
         
         # Setup mock ChatAnthropic
-        mock_llm = MagicMock()
-        mock_chat_anthropic.return_value = mock_llm
+        mock_langchain_agent = MagicMock()
+        mock_chat_anthropic.return_value = mock_langchain_agent
         
         # Define a simple test tool
         @tool
@@ -39,7 +39,7 @@ class TestAnthropicIntegration(unittest.TestCase):
             return f"Hello, {name}!"
         
         # Create the agent
-        agent = create_anthropic_llm(
+        agent = create_anthropic_langchain_agent(
             model_name="claude-3-haiku-20240307",
             system_prompt="You are a helpful assistant.",
             tools=[greet]
@@ -63,7 +63,7 @@ class TestAnthropicIntegration(unittest.TestCase):
     def test_simplified_tool_invocation(self, mock_chat_anthropic, mock_agent_invoke):
         """Test that tool invocation works correctly with mocked invoke."""
         from langchain_core.tools import tool
-        from jupyter_ai_agents.llm import create_anthropic_llm
+        from jupyter_ai_agents.langchain import create_anthropic_langchain_agent
         
         # Define a test tool
         @tool
@@ -76,11 +76,11 @@ class TestAnthropicIntegration(unittest.TestCase):
         mock_agent_invoke.return_value = {"output": mock_agent_output}
         
         # Setup mock LLM
-        mock_llm = MagicMock()
-        mock_chat_anthropic.return_value = mock_llm
+        mock_langchain_agent = MagicMock()
+        mock_chat_anthropic.return_value = mock_langchain_agent
         
         # Create the agent
-        agent = create_anthropic_llm(
+        agent = create_anthropic_langchain_agent(
             model_name="claude-3-haiku-20240307",
             system_prompt="You are a helpful assistant.",
             tools=[multiply]

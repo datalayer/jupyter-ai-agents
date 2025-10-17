@@ -7,7 +7,7 @@ from langchain.agents import AgentExecutor, tool
 from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 
-from jupyter_ai_agents.llm.utils import create_llm
+from jupyter_ai_agents.langchain.langchain_agents import create_langchain_agent
 from jupyter_ai_agents.utils import (
     insert_execute_code_cell_tool,
     insert_markdown_cell_tool,
@@ -69,7 +69,7 @@ def _create_agent(
     else:
         system_prompt_final = system_prompt_enriched
 
-    return create_llm(model_provider, model_name, system_prompt_final, tools)
+    return create_langchain_agent(model_provider, model_name, system_prompt_final, tools)
 
 
 async def prompt(

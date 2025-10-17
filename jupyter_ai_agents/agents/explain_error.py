@@ -8,12 +8,12 @@ from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 from langchain.agents import AgentExecutor, tool
 
-from jupyter_ai_agents.langchain.langchain_agents import create_langchain_agent
+from jupyter_ai_agents.langchain.langchains import create_langchain_agent
+from jupyter_ai_agents.utils import insert_execute_code_cell_tool
 from jupyter_ai_agents.utils import (
     retrieve_cells_content_error,
     retrieve_cells_content_until_first_error,
 )
-from jupyter_ai_agents.utils import insert_execute_code_cell_tool
 
 
 logger = logging.getLogger(__name__)

@@ -12,7 +12,7 @@ from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
 from langchain_core.tools import BaseTool
 
 
-def create_bedrock_llm(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
+def create_bedrock_langchain_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
     """Create an agent from a set of tools using Anthropic's Claude API.
     
     Args:

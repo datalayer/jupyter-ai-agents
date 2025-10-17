@@ -5,12 +5,11 @@
 from dotenv import load_dotenv
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor
-from langchain.agents import create_openai_tools_agent
+from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_openai import ChatOpenAI
 
 
-def create_openai_llm(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
+def create_openai_langchain_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
     """Create an agent from a set of tools using OpenAI's API."""
     
     load_dotenv()

@@ -7,12 +7,12 @@ from typing import List
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import BaseTool
+from langchain_anthropic import ChatAnthropic
 from langchain.agents.agent import AgentExecutor
 from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
-from langchain_anthropic import ChatAnthropic
 
 
-def create_anthropic_llm(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
+def create_anthropic_langchain_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
     """Create an agent from a set of tools using Anthropic's Claude API.
     
     Args:
