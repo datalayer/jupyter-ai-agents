@@ -93,7 +93,7 @@ To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure d
 
 ```bash
 # Prompt agent example.
-# make ai-agents-prompt
+# make jupyter-ai-agents-prompt
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
@@ -109,7 +109,7 @@ jupyter-ai-agents prompt \
 
 ```bash
 # Explain Error agent example.
-# make ai-agents-explain-error
+# make jupyter-ai-agents-explain-error
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \

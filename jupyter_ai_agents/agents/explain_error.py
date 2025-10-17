@@ -8,7 +8,7 @@ from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 from langchain.agents import AgentExecutor, tool
 
-from jupyter_ai_agents.langchain.langchains import create_langchain_agent
+from jupyter_ai_agents.langchains import create_langchain_agent
 from jupyter_ai_agents.utils import insert_execute_code_cell_tool
 from jupyter_ai_agents.utils import (
     retrieve_cells_content_error,

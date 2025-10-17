@@ -36,13 +36,13 @@ jupyterlab: ## jupyterlab
 		--ServerApp.root_dir ./dev/content \
 		--IdentityProvider.token=
 
-server: ## server
+example-fastapi: ## example-fastapi server
 	@exec echo
 	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
 	@exec echo
-	python -m uvicorn jupyter_ai_agents.fastapi.main:main --reload --port 4400
+	python -m uvicorn jupyter_ai_agents.examples.fastapi.main:main --reload --port 4400
 
-ai-agents-prompt:
+jupyter-ai-agents-prompt:
 	jupyter-ai-agents prompt \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
@@ -51,7 +51,7 @@ ai-agents-prompt:
 		--path notebook.ipynb \
 		--input "Create a matplotlib example"
 
-ai-agents-explain-error:
+jupyter-ai-agents-explain-error:
 	jupyter-ai-agents explain-error \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
