@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'

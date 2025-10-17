@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import { cn } from '@/lib/utils'
 import { type ComponentProps, memo } from 'react'
 import { Streamdown } from 'streamdown'

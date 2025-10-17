@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import { type ReactNode } from 'react';
 import { CodeIcon, GlobeIcon, ImagePlusIcon, WrenchIcon } from 'lucide-react';
 

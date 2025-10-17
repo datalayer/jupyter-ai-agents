@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'

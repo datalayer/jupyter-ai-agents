@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { cn } from '@/lib/utils'
 import { BookIcon, ChevronDownIcon } from 'lucide-react'

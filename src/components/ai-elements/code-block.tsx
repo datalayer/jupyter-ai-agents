@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { CheckIcon, CopyIcon } from 'lucide-react'

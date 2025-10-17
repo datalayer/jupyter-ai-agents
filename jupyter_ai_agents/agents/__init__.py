@@ -1,3 +1,7 @@
+# Copyright (c) 2023-2024 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 from .agent import create_chat_agent
 from .mcp import MCPToolManager
 from .config import ChatConfig

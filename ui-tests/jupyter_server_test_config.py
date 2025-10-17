@@ -1,3 +1,7 @@
+# Copyright (c) 2023-2024 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 """Server configuration for integration tests.
 
 !! Never use this configuration in production because it
