@@ -15,9 +15,9 @@ from jupyter_server.extension.application import ExtensionApp, ExtensionAppJinja
 from jupyter_ai_agents.handlers.index import IndexHandler
 from jupyter_ai_agents.handlers.config import ConfigHandler
 from jupyter_ai_agents.handlers.nbmodel import AINbModelAgentsHandler, AINbModelAgentsInstanceHandler
-from jupyter_ai_agents.handlers.chat import (
-    ChatHandler,
-    ConfigureHandler,
+from jupyter_ai_agents.handlers.chat import ChatHandler
+from jupyter_ai_agents.handlers.configure import ConfigureHandler
+from jupyter_ai_agents.handlers.mcp import (
     MCPServersHandler,
     MCPServerHandler,
 )
