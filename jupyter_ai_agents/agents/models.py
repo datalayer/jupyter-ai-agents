@@ -40,11 +40,3 @@ class FrontendConfig(BaseModel):
     models: List[AIModel] = Field(default_factory=list, description="Available AI models")
     builtin_tools: List[BuiltinTool] = Field(default_factory=list, description="Available builtin tools")
     mcp_servers: List[MCPServer] = Field(default_factory=list, description="Configured MCP servers")
-
-
-class ChatRequest(BaseModel):
-    """Chat request from frontend."""
-    
-    model: Optional[str] = Field(None, description="Model to use for this request")
-    builtin_tools: List[str] = Field(default_factory=list, description="Enabled builtin tools")
-    messages: List[dict] = Field(default_factory=list, description="Conversation messages")

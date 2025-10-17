@@ -4,19 +4,12 @@
 
 from langchain.agents import AgentExecutor
 
-from .azure_openai import create_azure_openai_langchain_agent
-from .github_copilot import create_github_copilot_langchain_agent
-from .openai import create_openai_langchain_agent
-from .anthropic import create_anthropic_langchain_agent
+from jupyter_ai_agents.langchains.anthropic import create_anthropic_langchain_agent
+from jupyter_ai_agents.langchains.azure_openai import create_azure_openai_langchain_agent
+from jupyter_ai_agents.langchains.bedrock import create_bedrock_langchain_agent
+from jupyter_ai_agents.langchains.github_copilot import create_github_copilot_langchain_agent
+from jupyter_ai_agents.langchains.openai import create_openai_langchain_agent
 
-__all__ = [
-    "create_langchain_agent",
-    'create_langchain_agent',
-    'create_azure_openai_langchain_agent',
-    'create_github_copilot_langchain_agent',
-    'create_openai_langchain_agent',
-    'create_anthropic_langchain_agent',
-]
 
 def create_langchain_agent(
     model_provider: str, model_name: str, system_prompt_final: str, tools: list
@@ -35,3 +28,14 @@ def create_langchain_agent(
     else:
         raise ValueError(f"Model provider {model_provider} is not supported.")
     return langchain_agent
+
+
+__all__ = [
+    "create_bedrock_langchain_agent",
+    "create_langchain_agent",
+    'create_anthropic_langchain_agent',
+    'create_azure_openai_langchain_agent',
+    'create_github_copilot_langchain_agent',
+    'create_langchain_agent',
+    'create_openai_langchain_agent',
+]
