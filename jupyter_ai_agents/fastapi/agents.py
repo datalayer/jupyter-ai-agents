@@ -8,7 +8,7 @@ import asyncio
 import logging
 from collections import Counter
 
-from jupyter_ai_agents.agents.nbmodel_runtime_agent import NbModelRuntimeAgent
+from jupyter_ai_agents.nbmodel.agent_runtime import NbModelRuntimeAgent
 
 
 logger = logging.getLogger(__name__)

@@ -8,7 +8,7 @@ from jupyter_server.base.handlers import APIHandler
 from pydantic import BaseModel
 from pydantic_ai.ui.vercel_ai import VercelAIAdapter
 
-from jupyter_ai_agents.chat.models import FrontendConfig, AIModel, BuiltinTool
+from jupyter_ai_agents.agents.models import FrontendConfig, AIModel, BuiltinTool
 
 
 class ChatRequestExtra(BaseModel, extra='ignore'):
@@ -221,7 +221,7 @@ class MCPServersHandler(APIHandler):
     async def post(self):
         """Add a new MCP server."""
         try:
-            from ..chat.models import MCPServer
+            from ..agents.models import MCPServer
             
             data = json.loads(self.request.body.decode('utf-8'))
             server = MCPServer(**data)
@@ -251,7 +251,7 @@ class MCPServerHandler(APIHandler):
     async def put(self, server_id: str):
         """Update MCP server."""
         try:
-            from ..chat.models import MCPServer
+            from ..agents.models import MCPServer
             
             data = json.loads(self.request.body.decode('utf-8'))
             server = MCPServer(**data)

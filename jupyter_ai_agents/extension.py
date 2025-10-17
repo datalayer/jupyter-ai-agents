@@ -21,9 +21,9 @@ from jupyter_ai_agents.handlers.chat import (
     MCPServersHandler,
     MCPServerHandler
 )
-from jupyter_ai_agents.chat.mcp_tools import MCPToolManager
-from jupyter_ai_agents.chat.config import ChatConfig
-from jupyter_ai_agents.chat.agent import create_chat_agent
+from jupyter_ai_agents.agents.mcp import MCPToolManager
+from jupyter_ai_agents.agents.config import ChatConfig
+from jupyter_ai_agents.agents.agent import create_chat_agent
 from jupyter_ai_agents.__version__ import __version__
 
 

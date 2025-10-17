@@ -16,12 +16,12 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Request
 
-from jupyter_kernel_client import KernelClient
-
 from datalayer_core.client import DatalayerClient
 
-from jupyter_ai_agents.agents.prompt_agent import PromptAgent
-from jupyter_ai_agents.agents.models import AgentRequestModel
+from jupyter_kernel_client import KernelClient
+
+from jupyter_ai_agents.nbmodel.prompt_agent import PromptAgent
+from jupyter_ai_agents.nbmodel.models import NbModelAgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
 
@@ -91,7 +91,7 @@ async def get_ai_agents_endpoint(request: Request = None):
 
 
 @router.post("/v1/agents", summary="Create a AI Agent")
-async def create_ai_agents_endpoint(agent_request: AgentRequestModel, request: Request = None) -> dict:
+async def create_ai_agents_endpoint(agent_request: NbModelAgentRequestModel, request: Request = None) -> dict:
     """Endpoint creating an AI Agent for a given room."""
     logger.info("Create AI Agents is requested", agent_request.model_dump())
     agent_manager = request.state.agent_manager

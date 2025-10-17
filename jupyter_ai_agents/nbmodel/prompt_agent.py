@@ -13,7 +13,7 @@ from jupyter_ai_agents.utils import (
     insert_markdown_cell_tool,
 )
 from jupyter_ai_agents.utils import retrieve_cells_content
-from jupyter_ai_agents.agents.nbmodel_runtime_agent import NbModelRuntimeAgent
+from jupyter_ai_agents.nbmodel.agent_runtime import NbModelRuntimeAgent
 
 
 SYSTEM_PROMPT = """You are a powerful coding assistant.

@@ -16,7 +16,6 @@ from pycrdt import Awareness, Map
 from jupyter_nbmodel_client.client import REQUEST_TIMEOUT, NbModelClient
 from jupyter_nbmodel_client._version import VERSION
 
-
 """
 
 This module provides a base class AI agent to interact with collaborative Jupyter notebook.
@@ -89,11 +88,6 @@ The following json schema describes the data model used in cells and notebook me
 ```
 """
 
-def timestamp() -> int:
-    """Return the current timestamp in milliseconds since epoch."""
-    return int(datetime.now(timezone.utc).timestamp() * 1000.0)
-
-
 class AIMessageType(IntEnum):
     """Type of AI agent message."""
     ERROR = -1
@@ -122,24 +116,29 @@ class PeerEvent(TypedDict):
     origin: Literal["local"] | str
     """Event origin; "local" if emitted by itself, the peer id otherwise."""
 
+"""
+def _debug_print_changes(part: str, changes: Any) -> None:
+    print(f"{part}")
+    def print_change(changes):
+        if isinstance(changes, MapEvent):
+            print(f"{type(changes.target)} {changes.target} {changes.keys} {changes.path}")
+        elif isinstance(changes, ArrayEvent):
+            print(f"{type(changes.target)} {changes.target} {changes.delta} {changes.path}")
+        else:
+            print(changes)
+    if isinstance(changes, list):
+        for c in changes:
+            print_change(c)
+    else:
+        print_change(changes)
+"""
 
-# def _debug_print_changes(part: str, changes: Any) -> None:
-#     print(f"{part}")
-#     def print_change(changes):
-#         if isinstance(changes, MapEvent):
-#             print(f"{type(changes.target)} {changes.target} {changes.keys} {changes.path}")
-#         elif isinstance(changes, ArrayEvent):
-#             print(f"{type(changes.target)} {changes.target} {changes.delta} {changes.path}")
-#         else:
-#             print(changes)
-#     if isinstance(changes, list):
-#         for c in changes:
-#             print_change(c)
-#     else:
-#         print_change(changes)
+def timestamp() -> int:
+    """Return the current timestamp in milliseconds since epoch."""
+    return int(datetime.now(timezone.utc).timestamp() * 1000.0)
 
 
-class NbModelAgent(NbModelClient):
+class NbModelBaseAgent(NbModelClient):
     """Base class to react to user prompt and notebook changes based on CRDT changes.
 
     Notes:

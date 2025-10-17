@@ -19,8 +19,8 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_kernel_client import KernelClient
 
 from jupyter_ai_agents.handlers.agents_manager import AIAgentsManager
-from jupyter_ai_agents.agents.prompt_agent import PromptAgent
-from jupyter_ai_agents.agents.models import AgentRequestModel
+from jupyter_ai_agents.nbmodel.prompt_agent import PromptAgent
+from jupyter_ai_agents.nbmodel.models import NbModelAgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
 
@@ -115,7 +115,7 @@ class AIAgentsHandler(APIHandler):
         if AI_AGENTS_MANAGER is None:
             AI_AGENTS_MANAGER = AIAgentsManager()
         request_body = json.loads(self.request.body)
-        agent_request = AgentRequestModel(**request_body)
+        agent_request = NbModelAgentRequestModel(**request_body)
         self.log.info("AI Agents create handler requested with [%s]", agent_request.model_dump())
         room_id = agent_request.room_id
         if room_id in AI_AGENTS_MANAGER:
