@@ -18,9 +18,9 @@ from jupyter_server.base.handlers import APIHandler
 
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agents.handlers.agents_manager import AIAgentsManager
 from jupyter_ai_agents.nbmodel.prompt_agent import PromptAgent
 from jupyter_ai_agents.nbmodel.models import NbModelAgentRequestModel
+from jupyter_ai_agents.nbmodel.agents_manager import AIAgentsManager
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
 
@@ -35,7 +35,7 @@ AI_AGENTS_MANAGER: AIAgentsManager | None = None
 # COLLABORATION_ROOMS = {}
 
 
-def prompt_ai_agent(room_id, jupyter_ingress, jupyter_token, kernel_id):
+def prompt_ai_nbmodel_agent(room_id, jupyter_ingress, jupyter_token, kernel_id):
     async def long_running_prompt():
         global AI_AGENTS_MANAGER
         room_ws_url = http_to_ws(url_path_join(jupyter_ingress, "/api/collaboration/room", room_id))
@@ -72,7 +72,7 @@ def prompt_ai_agent(room_id, jupyter_ingress, jupyter_token, kernel_id):
             logger.info("Future is completed with result [%s]", future.result())
 
 
-class AIAgentsInstanceHandler(APIHandler):
+class AINbModelAgentsInstanceHandler(APIHandler):
 
 #    @web.authenticated
     async def get(self, matched_part=None, *args, **kwargs):
@@ -97,7 +97,7 @@ class AIAgentsInstanceHandler(APIHandler):
         })
 
 
-class AIAgentsHandler(APIHandler):
+class AINbModelAgentsHandler(APIHandler):
 
 #    @web.authenticated
     async def get(self, *args, **kwargs):
@@ -132,7 +132,7 @@ class AIAgentsHandler(APIHandler):
             jupyter_token = runtime.token
             kernel_id = runtime.kernel_id
             # Start AI Agent in a ThreadPoolExecutor.
-            EXECUTOR.submit(prompt_ai_agent, room_id, jupyter_ingress, jupyter_token, kernel_id)
+            EXECUTOR.submit(prompt_ai_nbmodel_agent, room_id, jupyter_ingress, jupyter_token, kernel_id)
         res = json.dumps({
             "success": True,
             "message": f"AI Agent is started for room '{room_id}'.",
