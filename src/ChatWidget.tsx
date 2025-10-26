@@ -8,8 +8,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
-  useRef,
-  type FormEvent
+  useRef
 } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import {
@@ -21,6 +20,8 @@ import { Loader } from './components/ai-elements/loader';
 import {
   PromptInput,
   PromptInputButton,
+  PromptInputFooter,
+  type PromptInputMessage,
   PromptInputModelSelect,
   PromptInputModelSelectContent,
   PromptInputModelSelectItem,
@@ -28,7 +29,6 @@ import {
   PromptInputModelSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
-  PromptInputToolbar,
   PromptInputTools
 } from './components/ai-elements/prompt-input';
 import {
@@ -79,7 +79,6 @@ async function getModels() {
  * Main Chat component for JupyterLab sidebar
  */
 export const ChatComponent: React.FC = () => {
-  const [input, setInput] = useState('');
   const [model, setModel] = useState<string>('');
   const [enabledTools, setEnabledTools] = useState<string[]>([]);
   const { messages, sendMessage, status, regenerate } = useJupyterChat();
@@ -96,18 +95,16 @@ export const ChatComponent: React.FC = () => {
     }
   }, [configQuery.data]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (input.trim()) {
+  const handleSubmit = (message: PromptInputMessage) => {
+    if (message.text?.trim()) {
       sendMessage(
-        { text: input },
+        { text: message.text },
         {
           body: { model, builtinTools: enabledTools }
         }
       ).catch((error: unknown) => {
         console.error('Error sending message:', error);
       });
-      setInput('');
     }
   };
 
@@ -182,14 +179,10 @@ export const ChatComponent: React.FC = () => {
         <PromptInput onSubmit={handleSubmit}>
           <PromptInputTextarea
             ref={textareaRef}
-            value={input}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              setInput(e.target.value);
-            }}
             placeholder="Ask me anything..."
             autoFocus={true}
           />
-          <PromptInputToolbar>
+          <PromptInputFooter>
             <PromptInputTools>
               {availableTools.length > 0 && (
                 <DropdownMenu>
@@ -261,8 +254,8 @@ export const ChatComponent: React.FC = () => {
                 </PromptInputModelSelect>
               )}
             </PromptInputTools>
-            <PromptInputSubmit disabled={!input} status={status} />
-          </PromptInputToolbar>
+            <PromptInputSubmit status={status} />
+          </PromptInputFooter>
         </PromptInput>
       </div>
     </>

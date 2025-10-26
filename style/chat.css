@@ -1,31 +1,8 @@
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
-/**
- * AI Chat Widget Styles
- * Tailwind CSS with custom theme
- */
-
 @import 'tailwindcss';
 
-/* @import 'tw-animate-css';  */
-/* Add spin animation for loader */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
+@import 'tw-animate-css';
 
-/* Note: @source directive removed - webpack handles component scanning via module imports */
+@source "../node_modules/streamdown/dist/index.js";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -69,7 +46,6 @@
 }
 
 :root {
-  --spacing: 0.25rem;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
