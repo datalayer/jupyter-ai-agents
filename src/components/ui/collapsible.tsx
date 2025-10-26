@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023-2024 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 "use client"
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
