@@ -9,7 +9,7 @@ import os
 from logging import Logger
 
 from jupyter_kernel_client import KernelClient
-from jupyter_ai_agents.agents.langchain.agent_base import NbModelBaseAgent
+from jupyter_ai_agents.agents.langchain.base.agent_base import NbModelBaseAgent
 from jupyter_nbmodel_client.constants import REQUEST_TIMEOUT
 
 

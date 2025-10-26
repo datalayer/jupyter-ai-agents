@@ -18,7 +18,7 @@ from jupyter_kernel_client import KernelClient
 
 from jupyter_ai_agents.agents.langchain.prompt_agent import PromptAgent
 from jupyter_ai_agents.agents.langchain.models import NbModelAgentRequestModel
-from jupyter_ai_agents.agents.langchain.agents_manager import AIAgentsManager
+from jupyter_ai_agents.agents.langchain.manager.agents_manager import AIAgentsManager
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
 
@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 EXECUTOR = futures.ThreadPoolExecutor(8)
+
 
 AI_AGENTS_MANAGER: AIAgentsManager | None = None
 

@@ -7,11 +7,14 @@
 
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+
 from dotenv import load_dotenv
+from unittest.mock import patch, MagicMock
+
 
 # Load environment variables
 load_dotenv()
+
 
 class TestAnthropicIntegration(unittest.TestCase):
     """Test the integration of Anthropic provider with Jupyter AI Agents."""
@@ -97,4 +100,4 @@ class TestAnthropicIntegration(unittest.TestCase):
         mock_agent_invoke.assert_called_once()
 
 if __name__ == "__main__":
-    unittest.main() 
+    unittest.main()

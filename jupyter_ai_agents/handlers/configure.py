@@ -9,7 +9,11 @@ import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
 
-from jupyter_ai_agents.agents.pydantic.models import FrontendConfig, AIModel, BuiltinTool
+from jupyter_ai_agents.agents.pydantic.models import (
+    FrontendConfig,
+    AIModel,
+    BuiltinTool,
+)
 
 
 class ConfigureHandler(APIHandler):
@@ -26,10 +30,10 @@ class ConfigureHandler(APIHandler):
     async def get(self):
         """Return configuration for frontend."""
         try:
-            # Get MCP manager from settings
+            # Get MCP manager from settings.
             mcp_manager = self.settings.get('mcp_manager')
             
-            # Define available models
+            # Define available models.
             models = [
                 AIModel(
                     id="anthropic:claude-sonnet-4-5",
@@ -38,7 +42,7 @@ class ConfigureHandler(APIHandler):
                 )
             ]
             
-            # Define builtin tools
+            # Define builtin tools.
             builtin_tools = [
                 BuiltinTool(
                     id="jupyter_execute",
@@ -57,12 +61,12 @@ class ConfigureHandler(APIHandler):
                 )
             ]
             
-            # Get MCP servers
+            # Get MCP servers.
             mcp_servers = []
             if mcp_manager:
                 mcp_servers = mcp_manager.get_servers()
             
-            # Create response
+            # Create response.
             config = FrontendConfig(
                 models=models,
                 builtin_tools=builtin_tools,
