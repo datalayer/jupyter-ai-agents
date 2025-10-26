@@ -4,11 +4,12 @@
 
 import logging
 
-from jupyter_kernel_client import KernelClient
-from jupyter_nbmodel_client import NbModelClient
 from langchain.agents import AgentExecutor, tool
 
-from jupyter_ai_agents.langchains import create_langchain_agent
+from jupyter_kernel_client import KernelClient
+from jupyter_nbmodel_client import NbModelClient
+
+from jupyter_ai_agents.agents.langchain.providers import create_langchain_agent
 from jupyter_ai_agents.utils import (
     retrieve_cells_content_error,
     retrieve_cells_content_until_first_error,

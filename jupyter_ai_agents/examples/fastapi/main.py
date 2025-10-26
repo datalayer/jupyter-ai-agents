@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 shutdown = None
 
 
-logger.info('Starting AI Agent Server')
+logger.info('Starting Jupyter AI Agents Server')
 
 
 @contextlib.asynccontextmanager
@@ -43,7 +43,7 @@ def main():
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
-            "https://datalayer.io",
+            "https://datalayer.app",
         ],
         allow_credentials=True,
         allow_methods=["*"],

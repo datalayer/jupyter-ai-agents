@@ -5,6 +5,7 @@
 """Pydantic AI agent for JupyterLab chat."""
 
 from typing import Any
+
 from pydantic_ai import Agent
 
 

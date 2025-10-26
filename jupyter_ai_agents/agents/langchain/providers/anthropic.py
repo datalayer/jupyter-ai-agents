@@ -5,14 +5,14 @@
 from dotenv import load_dotenv
 from typing import List
 
-from langchain.agents.agent import AgentExecutor
-from langchain_aws import ChatBedrockConverse
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
 from langchain_core.tools import BaseTool
+from langchain.agents.agent import AgentExecutor
+from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
+from langchain_anthropic import ChatAnthropic
 
 
-def create_bedrock_langchain_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
+def create_anthropic_langchain_agent(model_name: str, system_prompt: str, tools: List[BaseTool]) -> AgentExecutor:
     """Create an agent from a set of tools using Anthropic's Claude API.
     
     Args:
@@ -27,7 +27,7 @@ def create_bedrock_langchain_agent(model_name: str, system_prompt: str, tools: L
     load_dotenv()
 
     # Create the Anthropic LLM
-    llm = ChatBedrockConverse(model_id=model_name)
+    llm = ChatAnthropic(model=model_name)
 
     # Create a prompt template for the agent with enhanced instructions
     enhanced_system_prompt = f"""

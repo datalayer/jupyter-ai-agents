@@ -7,7 +7,7 @@ import uuid
 from unittest.mock import AsyncMock
 
 from jupyter_nbmodel_client import NbModelClient
-from jupyter_ai_agents.nbmodel.agent_base import NbModelBaseAgent
+from jupyter_ai_agents.agents.langchain.agent_base import NbModelBaseAgent
 
 
 async def test_default_content(ws_server):

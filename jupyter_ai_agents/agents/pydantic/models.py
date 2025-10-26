@@ -5,6 +5,7 @@
 """Pydantic models for chat functionality."""
 
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 

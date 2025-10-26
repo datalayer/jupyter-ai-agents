@@ -5,16 +5,16 @@
 from dotenv import load_dotenv
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_github_copilot import ChatGitHubCopilot
 from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_openai import AzureChatOpenAI
 
 
-def create_github_copilot_langchain_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
-    """Create an agent from a set of tools and a Github Copilot model"""
+def create_azure_openai_langchain_agent(model_name: str, system_prompt: str, tools: list) -> AgentExecutor:
+    """Create an agent from a set of tools and an Azure deployment"""
     
     load_dotenv()
 
-    llm = ChatGitHubCopilot(model_name=model_name)
+    llm = AzureChatOpenAI(azure_deployment=model_name)
 
     prompt = ChatPromptTemplate.from_messages(
         [

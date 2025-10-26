@@ -9,7 +9,6 @@ import tornado
 from jupyter_ai_agents.handlers.base import BaseTemplateHandler
 
 
-# pylint: disable=W0223
 class IndexHandler(BaseTemplateHandler):
     """The handler for the index."""
 

@@ -5,13 +5,10 @@
 """Tornado handlers for chat API compatible with Vercel AI SDK."""
 
 import json
+
 import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
-from pydantic import BaseModel
-from pydantic_ai.ui.vercel_ai import VercelAIAdapter
-
-from jupyter_ai_agents.agents.models import FrontendConfig, AIModel, BuiltinTool
 
 
 class MCPServersHandler(APIHandler):
@@ -34,6 +31,7 @@ class MCPServersHandler(APIHandler):
             self.set_status(500)
             self.finish(json.dumps({"error": str(e)}))
     
+
     @tornado.web.authenticated
     async def post(self):
         """Add a new MCP server."""
@@ -90,6 +88,7 @@ class MCPServerHandler(APIHandler):
             self.set_status(500)
             self.finish(json.dumps({"error": str(e)}))
     
+
     @tornado.web.authenticated
     async def delete(self, server_id: str):
         """Delete MCP server."""

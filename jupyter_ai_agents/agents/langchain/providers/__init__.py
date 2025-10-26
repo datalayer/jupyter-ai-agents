@@ -4,11 +4,11 @@
 
 from langchain.agents import AgentExecutor
 
-from jupyter_ai_agents.langchains.anthropic import create_anthropic_langchain_agent
-from jupyter_ai_agents.langchains.azure_openai import create_azure_openai_langchain_agent
-from jupyter_ai_agents.langchains.bedrock import create_bedrock_langchain_agent
-from jupyter_ai_agents.langchains.github_copilot import create_github_copilot_langchain_agent
-from jupyter_ai_agents.langchains.openai import create_openai_langchain_agent
+from jupyter_ai_agents.agents.langchain.providers.anthropic import create_anthropic_langchain_agent
+from jupyter_ai_agents.agents.langchain.providers.azure_openai import create_azure_openai_langchain_agent
+from jupyter_ai_agents.agents.langchain.providers.bedrock import create_bedrock_langchain_agent
+from jupyter_ai_agents.agents.langchain.providers.github_copilot import create_github_copilot_langchain_agent
+from jupyter_ai_agents.agents.langchain.providers.openai import create_openai_langchain_agent
 
 
 def create_langchain_agent(

@@ -2,6 +2,6 @@
 #
 # BSD 3-Clause License
 
-"""Jupyter AI Agents."""
+"""Jupyter AI Agents version."""
 
 from ._version import __version__

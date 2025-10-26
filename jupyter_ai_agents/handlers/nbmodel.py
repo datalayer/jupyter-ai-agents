@@ -9,18 +9,16 @@ import logging
 
 from concurrent import futures
 from concurrent.futures import as_completed
-
 from anyio import create_task_group, sleep
 from anyio.from_thread import start_blocking_portal
 
 from jupyter_server.utils import url_path_join
 from jupyter_server.base.handlers import APIHandler
-
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agents.nbmodel.prompt_agent import PromptAgent
-from jupyter_ai_agents.nbmodel.models import NbModelAgentRequestModel
-from jupyter_ai_agents.nbmodel.agents_manager import AIAgentsManager
+from jupyter_ai_agents.agents.langchain.prompt_agent import PromptAgent
+from jupyter_ai_agents.agents.langchain.models import NbModelAgentRequestModel
+from jupyter_ai_agents.agents.langchain.agents_manager import AIAgentsManager
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
 
@@ -31,8 +29,6 @@ logger = logging.getLogger(__name__)
 EXECUTOR = futures.ThreadPoolExecutor(8)
 
 AI_AGENTS_MANAGER: AIAgentsManager | None = None
-
-# COLLABORATION_ROOMS = {}
 
 
 def prompt_ai_nbmodel_agent(room_id, jupyter_ingress, jupyter_token, kernel_id):

@@ -8,7 +8,6 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ILabShell } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -20,7 +19,6 @@ import { ChatRoot } from './ChatRoot';
 
 import sparklesSvgstr from '../style/icons/sparkles.svg';
 
-// Import styles
 import '../style/index.js';
 
 const sparklesIcon = new LabIcon({

@@ -8,10 +8,8 @@ import json
 import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
-from pydantic import BaseModel
-from pydantic_ai.ui.vercel_ai import VercelAIAdapter
 
-from jupyter_ai_agents.agents.models import FrontendConfig, AIModel, BuiltinTool
+from jupyter_ai_agents.agents.pydantic.models import FrontendConfig, AIModel, BuiltinTool
 
 
 class ConfigureHandler(APIHandler):

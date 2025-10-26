@@ -7,8 +7,8 @@ from langchain.agents import AgentExecutor, tool
 from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
 
-from jupyter_ai_agents.nbmodel.agent_runtime import NbModelRuntimeAgent
-from jupyter_ai_agents.langchains import create_langchain_agent
+from jupyter_ai_agents.agents.langchain.agent_base_runtime import NbModelBaseRuntimeAgent
+from jupyter_ai_agents.agents.langchain.providers import create_langchain_agent
 from jupyter_ai_agents.utils import (
     insert_execute_code_cell_tool,
     insert_markdown_cell_tool,
@@ -90,7 +90,7 @@ async def prompt(
     return replies
 
 
-class PromptAgent(NbModelRuntimeAgent):
+class PromptAgent(NbModelBaseRuntimeAgent):
     """AI Agent replying to user prompt."""
 
     model_provider = "azure-openai"

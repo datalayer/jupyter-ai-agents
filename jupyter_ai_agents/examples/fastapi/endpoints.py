@@ -20,8 +20,8 @@ from datalayer_core.client import DatalayerClient
 
 from jupyter_kernel_client import KernelClient
 
-from jupyter_ai_agents.nbmodel.prompt_agent import PromptAgent
-from jupyter_ai_agents.nbmodel.models import NbModelAgentRequestModel
+from jupyter_ai_agents.agents.langchain.prompt_agent import PromptAgent
+from jupyter_ai_agents.agents.langchain.models import NbModelAgentRequestModel
 from jupyter_ai_agents.utils import http_to_ws
 from jupyter_ai_agents import __version__
 

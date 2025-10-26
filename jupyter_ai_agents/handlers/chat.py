@@ -11,8 +11,6 @@ from jupyter_server.base.handlers import APIHandler
 from pydantic import BaseModel
 from pydantic_ai.ui.vercel_ai import VercelAIAdapter
 
-from jupyter_ai_agents.agents.models import FrontendConfig, AIModel, BuiltinTool
-
 
 class ChatRequestExtra(BaseModel, extra='ignore'):
     """Extra data from chat request."""
@@ -125,6 +123,7 @@ class ChatHandler(APIHandler):
                 self.set_status(500)
                 self.finish(json.dumps({"error": str(e)}))
     
+
     @tornado.web.authenticated
     async def options(self):
         """Handle OPTIONS request for CORS."""
