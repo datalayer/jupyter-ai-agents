@@ -32,26 +32,33 @@ const queryClient = new QueryClient({
  * Wrapped in Shadow DOM to isolate styles from JupyterLab
  */
 export const ChatRoot: React.FC = () => {
+  const [isDarkTheme, setIsDarkTheme] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkTheme = () => {
+      // JupyterLab has a data-jp-theme-name attribute on the documentElement
+      // that will be either 'JupyterLab Light' or 'JupyterLab Dark'
+      const themeName = document.documentElement.getAttribute('data-jp-theme-name');
+      setIsDarkTheme(themeName?.includes('Dark') ?? false);
+    };
+
+    // Check immediately
+    checkTheme();
+
+    // Set up an observer to watch for theme changes
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-jp-theme-name']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+  
   return (
-    <root.div>
-      <style>
-        {`
-          :host {
-            all: initial;
-            display: block;
-            height: 100%;
-            contain: content;
-          }
-          .jupyter-ai-chat-shadow-host {
-            height: 100%;
-            width: 100%;
-            background: var(--jp-layout-color1);
-            color: var(--jp-content-font-color1);
-          }
-        `}
-      </style>
-  <style>{shadowStyles}</style>
-      <div className="jupyter-ai-chat-shadow-host">
+    <root.div className={isDarkTheme ? 'dark' : ''}>
+      <style>{shadowStyles}</style>
+      <div className="datalayer-chatbot custom-scrollbar">
         <QueryClientProvider client={queryClient}>
           <ChatComponent />
         </QueryClientProvider>
