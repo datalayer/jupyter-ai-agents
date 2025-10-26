@@ -8,7 +8,7 @@
 
 @import 'tw-animate-css';
 
-@source "../node_modules/streamdown/dist/index.js";
+/* @source "../node_modules/streamdown/dist/index.js"; */
 
 @custom-variant dark (&:is(.dark *));
 
