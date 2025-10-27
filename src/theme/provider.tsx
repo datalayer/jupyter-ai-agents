@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024-2025 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 import React from 'react'
 import { type Theme, ThemeContext } from './context'
 import { useSystemTheme } from './hooks'

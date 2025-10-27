@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024-2025 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
 export { type Theme, ThemeContext, useTheme } from './context'
 export { useSystemTheme } from './hooks'
 export { ThemeProvider } from './provider'
