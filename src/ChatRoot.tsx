@@ -96,12 +96,30 @@ function createPortalManager({
     if (!document.head.querySelector(`style[${styleAttribute}]`)) {
       const styleElement = document.createElement('style');
       styleElement.setAttribute(styleAttribute, 'true');
-      // Add additional rules to override Lucide icon sizes
+      // Add additional rules to override Lucide icon sizes and fix Switch component
       const additionalStyles = `
         /* Force size-4 to override inline SVG attributes */
         .size-4 {
           width: 1rem !important;
           height: 1rem !important;
+        }
+        
+        /* Fix Switch component in portals */
+        [data-slot="switch"] {
+          height: 1.15rem !important;
+          width: 2rem !important;
+          border-radius: 9999px !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          flex-shrink: 0 !important;
+        }
+        
+        [data-slot="switch-thumb"] {
+          width: 1rem !important;
+          height: 1rem !important;
+          border-radius: 9999px !important;
+          display: block !important;
+          pointer-events: none !important;
         }
       `;
       styleElement.textContent = styles + additionalStyles;
