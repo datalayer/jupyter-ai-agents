@@ -92,6 +92,11 @@ export const ChatComponent: React.FC = () => {
   useEffect(() => {
     if (configQuery.data) {
       setModel(configQuery.data.models[0].id);
+      
+      // Enable all builtin tools by default
+      const allToolIds = configQuery.data.builtinTools?.map(tool => tool.id) || [];
+      setEnabledTools(allToolIds);
+      console.log('[ChatWidget] Enabled all tools by default:', allToolIds);
     }
   }, [configQuery.data]);
 

@@ -7,20 +7,31 @@
 from typing import Any
 
 from pydantic_ai import Agent
+from pydantic_ai.mcp import MCPServerStreamableHTTP
 
 
-def create_chat_agent(model: str = "anthropic:claude-sonnet-4-5") -> Agent:
+def create_chat_agent(
+    model: str = "anthropic:claude-sonnet-4-5",
+    mcp_server: MCPServerStreamableHTTP | None = None,
+) -> Agent:
     """
     Create the main chat agent for JupyterLab.
     
     Args:
         model: The model identifier to use (default: Claude Sonnet 4-5)
+        mcp_server: Optional MCP server connection for Jupyter tools
     
     Returns:
         Configured Pydantic AI agent
     """
+    # Create toolsets list
+    toolsets = []
+    if mcp_server:
+        toolsets.append(mcp_server)
+    
     agent = Agent(
         model,
+        toolsets=toolsets,
         instructions="""You are a helpful AI assistant integrated into JupyterLab.
         
 You can help users with:
@@ -36,8 +47,8 @@ When users ask you to execute code or work with notebooks, use the available too
 Always be clear, concise, and provide working code examples when appropriate.""",
     )
     
-    # Register built-in Jupyter tools
-    register_jupyter_tools(agent)
+    # Note: Built-in Jupyter tools are now provided via MCP server
+    # No need to register them manually
     
     return agent
 

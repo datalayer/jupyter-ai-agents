@@ -28,6 +28,7 @@ from jupyter_ai_agents.handlers.mcp import (
 from jupyter_ai_agents.agents.pydantic.mcp import MCPToolManager
 from jupyter_ai_agents.agents.pydantic.chat.config import ChatConfig
 from jupyter_ai_agents.agents.pydantic.chat.agent import create_chat_agent
+from jupyter_ai_agents.tools import create_mcp_server
 from jupyter_ai_agents.__version__ import __version__
 
 
@@ -103,27 +104,39 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             # Create configuration manager
             config = ChatConfig()
             
-            # Create chat agent with default model
+            # Get Jupyter server connection details
+            base_url = self.serverapp.connection_url
+            token = self.serverapp.token
+            self.log.info(f"Jupyter server URL: {base_url}")
+            
+            # Create MCP server connection to jupyter-mcp-server
+            self.log.info("Creating MCP server connection to jupyter-mcp-server...")
+            mcp_server = create_mcp_server(base_url, token)
+            self.log.info("MCP server connection created")
+            
+            # Create chat agent with MCP server toolset
             default_model = config.get_default_model()
             self.log.info(f"Creating chat agent with model: {default_model}")
-            agent = create_chat_agent(model=default_model)
+            agent = create_chat_agent(model=default_model, mcp_server=mcp_server)
+            self.log.info("Chat agent created with MCP tools")
             
-            # Create MCP tool manager
+            # Create MCP tool manager for additional MCP servers
             mcp_manager = MCPToolManager()
             
-            # Load MCP servers from configuration
+            # Load additional MCP servers from configuration
             saved_servers = config.load_mcp_servers()
             for server in saved_servers:
-                self.log.info(f"Loading MCP server: {server.name} ({server.url})")
+                self.log.info(f"Loading additional MCP server: {server.name} ({server.url})")
                 mcp_manager.add_server(server)
             
-            # Register MCP tools with agent
+            # Register additional MCP tools with agent
             mcp_manager.register_with_agent(agent)
             
             # Store in settings for handlers to access
             self.settings['chat_agent'] = agent
             self.settings['mcp_manager'] = mcp_manager
             self.settings['chat_config'] = config
+            self.settings['jupyter_mcp_server'] = mcp_server  # Store for cleanup
             
             self.log.info("Jupyter AI Agents extension initialized successfully")
             

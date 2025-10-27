@@ -2,10 +2,14 @@
 #
 # BSD 3-Clause License
 
-"""Tools integration for Jupyter AI Agents."""
+"""Tools integration for Jupyter AI Agents using MCP (Model Context Protocol)."""
 
 import logging
 from typing import Any
+from urllib.parse import urljoin
+
+import httpx
+from pydantic_ai.mcp import MCPServerStreamableHTTP
 
 logger = logging.getLogger(__name__)
 
@@ -35,97 +39,120 @@ def generate_name_from_id(tool_id: str) -> str:
     return name
 
 
+def create_mcp_server(
+    base_url: str,
+    token: str | None = None,
+) -> MCPServerStreamableHTTP:
+    """
+    Create an MCP server connection to jupyter-mcp-server.
+    
+    The jupyter-mcp-server runs on the same Jupyter server and exposes
+    tools via the MCP protocol over HTTP.
+    
+    Args:
+        base_url: Jupyter server base URL (e.g., "http://localhost:8888")
+        token: Authentication token for Jupyter server
+        
+    Returns:
+        MCPServerStreamableHTTP instance connected to jupyter-mcp-server
+    """
+    # Construct the MCP endpoint URL
+    # jupyter-mcp-server typically runs at /mcp endpoint
+    mcp_url = urljoin(base_url.rstrip('/') + '/', 'mcp')
+    
+    logger.info(f"Creating MCP server connection to {mcp_url}")
+    
+    # Create HTTP client with authentication if token is provided
+    if token:
+        http_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(30.0),
+            headers={"Authorization": f"token {token}"}
+        )
+        server = MCPServerStreamableHTTP(mcp_url, http_client=http_client)
+    else:
+        server = MCPServerStreamableHTTP(mcp_url)
+    
+    logger.info("MCP server connection created successfully")
+    return server
+
+
+async def get_available_tools_from_mcp(
+    base_url: str,
+    token: str | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Get available tools from jupyter-mcp-server via MCP protocol.
+    
+    This replaces the previous jupyter-mcp-tools direct query approach.
+    Now we connect to the MCP server using pydantic-ai's MCP client
+    and query tools through the standard MCP protocol.
+    
+    Args:
+        base_url: Jupyter server base URL
+        token: Authentication token for Jupyter server
+        
+    Returns:
+        List of tool dictionaries with name, description, and inputSchema
+    """
+    try:
+        server = create_mcp_server(base_url, token)
+        
+        # Use the MCP server as a context manager to connect and disconnect
+        async with server:
+            # List all available tools from the MCP server
+            logger.info("Listing tools from MCP server...")
+            tools = await server.list_tools()
+            
+            logger.info(f"MCP server returned {len(tools)} tools")
+            
+            # Convert MCP tool definitions to our internal format
+            converted_tools = []
+            for tool in tools:
+                tool_dict = {
+                    "name": tool.name,
+                    "description": tool.description or "",
+                }
+                
+                # Include inputSchema if available
+                if hasattr(tool, 'inputSchema') and tool.inputSchema:
+                    tool_dict["inputSchema"] = tool.inputSchema
+                else:
+                    tool_dict["inputSchema"] = {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                    }
+                
+                converted_tools.append(tool_dict)
+                logger.debug(f"Converted tool: {tool.name}")
+            
+            logger.info(f"Successfully retrieved {len(converted_tools)} tools from MCP server")
+            return converted_tools
+            
+    except Exception as e:
+        logger.error(f"Error connecting to MCP server at {base_url}: {e}", exc_info=True)
+        return []
+
+
+# Alias for backward compatibility
 async def get_available_tools(
     base_url: str,
     token: str | None = None,
     enabled_only: bool = True,
 ) -> list[dict[str, Any]]:
     """
-    Get available tools from jupyter-mcp-tools extension.
+    Get available tools (backward compatible wrapper).
     
     Args:
         base_url: Jupyter server base URL
         token: Authentication token for Jupyter server
-        enabled_only: Whether to return only enabled tools
+        enabled_only: Ignored (kept for backward compatibility)
         
     Returns:
-        List of tool dictionaries with name, description, and inputSchema
+        List of tool dictionaries
     """
-    try:
-        from jupyter_mcp_tools import get_tools
-        
-        logger.info(f"Querying jupyter-mcp-tools at {base_url}, enabled_only={enabled_only}")
-        
-        # Define specific tools we want to load
-        allowed_tools = [
-            "docmanager_open",
-            "docmanager_new-untitled",
-            "notebook_insert-cell-above",
-            "notebook_insert-cell-below",
-        ]
-        
-        # Query for specific tools (comma-separated list)
-        search_query = ",".join(allowed_tools)
-        logger.info(f"Querying jupyter-mcp-tools with specific tools: {search_query}")
-        
-        tools_data = await get_tools(
-            base_url=base_url,
-            token=token,
-            query=search_query,
-            enabled_only=enabled_only
-        )
-        
-        logger.info(f"Query returned {len(tools_data)} tools: {[t.get('id') for t in tools_data]}")
-        
-        # If no tools found with enabled_only=True, try with enabled_only=False
-        if not tools_data and enabled_only:
-            logger.info("No enabled tools found, trying with enabled_only=False")
-            tools_data = await get_tools(
-                base_url=base_url,
-                token=token,
-                query=search_query,
-                enabled_only=False
-            )
-            logger.info(f"Query with enabled_only=False returned {len(tools_data)} tools")
-        
-        # Convert jupyter-mcp-tools format to pydantic-ai compatible format
-        converted_tools = []
-        for tool_data in tools_data:
-            tool_name = tool_data.get('id', '')
-            logger.debug(f"Processing tool: {tool_name}, data: {tool_data}")
-            
-            # Create tool dictionary with MCP protocol fields
-            tool_dict = {
-                "name": tool_name,
-                "description": tool_data.get('caption', tool_data.get('label', '')),
-            }
-            
-            # Convert parameters to inputSchema
-            params = tool_data.get('parameters', {})
-            if params:
-                tool_dict["inputSchema"] = {
-                    "type": "object",
-                    "properties": params.get('properties', {}),
-                    "required": params.get('required', []),
-                }
-            else:
-                tool_dict["inputSchema"] = {
-                    "type": "object",
-                    "properties": {},
-                    "required": [],
-                }
-            
-            converted_tools.append(tool_dict)
-        
-        logger.info(f"Successfully converted {len(converted_tools)} tools from jupyter-mcp-tools")
-        return converted_tools
-        
-    except ImportError as e:
-        logger.warning(f"jupyter-mcp-tools not installed: {e}", exc_info=True)
-        return []
-    except Exception as e:
-        logger.error(f"Error querying jupyter-mcp-tools: {e}", exc_info=True)
-        return []
+    # Note: enabled_only is ignored as MCP server manages this internally
+    return await get_available_tools_from_mcp(base_url, token)
 
 
 def tools_to_builtin_list(tools: list[dict[str, Any]]) -> list[str]:
