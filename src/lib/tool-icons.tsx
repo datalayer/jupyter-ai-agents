@@ -7,11 +7,11 @@
 import { type ReactNode } from 'react';
 import { CodeIcon, GlobeIcon, ImagePlusIcon, WrenchIcon } from 'lucide-react';
 
-export function getToolIcon(toolId: string, className = 'size-4') {
+export function getToolIcon(toolId: string, size: number = 16) {
   const iconMap: Record<string, ReactNode> = {
-    web_search: <GlobeIcon className={className} />,
-    code_execution: <CodeIcon className={className} />,
-    image_generation: <ImagePlusIcon className={className} />,
+    web_search: <GlobeIcon size={size} />,
+    code_execution: <CodeIcon size={size} />,
+    image_generation: <ImagePlusIcon size={size} />,
   }
-  return iconMap[toolId] ?? <WrenchIcon className={className} />
+  return iconMap[toolId] ?? <WrenchIcon size={size} />
 }

@@ -91,6 +91,25 @@ function createPortalManager({
   let currentTheme: ThemeMode = 'light';
   const styleAttribute = 'data-datalayer-portal-styles';
 
+  const ensureGlobalStyles = () => {
+    // Inject styles into document head for portals that are children of body
+    if (!document.head.querySelector(`style[${styleAttribute}]`)) {
+      const styleElement = document.createElement('style');
+      styleElement.setAttribute(styleAttribute, 'true');
+      // Add additional rules to override Lucide icon sizes
+      const additionalStyles = `
+        /* Force size-4 to override inline SVG attributes */
+        .size-4 {
+          width: 1rem !important;
+          height: 1rem !important;
+        }
+      `;
+      styleElement.textContent = styles + additionalStyles;
+      document.head.appendChild(styleElement);
+      console.log('[ChatRoot] Injected global styles into document head');
+    }
+  };
+
   const ensureRoot = () => {
     if (rootElement && document.body.contains(rootElement)) {
       return rootElement;
@@ -104,12 +123,8 @@ function createPortalManager({
       document.body.appendChild(rootElement);
     }
 
-    if (!rootElement.querySelector(`style[${styleAttribute}]`)) {
-      const styleElement = document.createElement('style');
-      styleElement.setAttribute(styleAttribute, 'true');
-      styleElement.textContent = styles;
-      rootElement.insertBefore(styleElement, rootElement.firstChild);
-    }
+    // Also ensure global styles are injected
+    ensureGlobalStyles();
 
     return rootElement;
   };

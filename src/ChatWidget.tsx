@@ -203,7 +203,7 @@ export const ChatComponent: React.FC = () => {
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
                         <PromptInputButton variant="outline">
-                          <Settings2Icon className="size-4" />
+                          <Settings2Icon size={16} />
                         </PromptInputButton>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
