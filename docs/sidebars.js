@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 /**
  * Creating a sidebar enables you to:
  - create an ordered group of docs

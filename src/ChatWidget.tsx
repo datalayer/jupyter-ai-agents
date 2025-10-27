@@ -4,12 +4,6 @@
  * BSD 3-Clause License
  */
 
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 import React, {
   useState,
   useEffect,
@@ -126,7 +120,7 @@ export const ChatComponent: React.FC = () => {
       return [];
     }
     const selectedModel = configQuery.data.models.find(entry => entry.id === model);
-    // Support both snake_case and camelCase
+
     const enabledToolIds = selectedModel?.builtinTools ?? [];
     
     // If model doesn't specify tools, show all builtin tools
@@ -213,9 +207,9 @@ export const ChatComponent: React.FC = () => {
                         </PromptInputButton>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Tools</TooltipContent>
+                    <TooltipContent side="top">Tools</TooltipContent>
                   </Tooltip>
-                  <DropdownMenuContent align="start">
+                  <DropdownMenuContent align="start" side="top">
                     {availableTools.map(tool => (
                       <div
                         key={tool.id}

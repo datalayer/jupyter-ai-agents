@@ -4,12 +4,6 @@
  * BSD 3-Clause License
  */
 
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 import * as React from "react"
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 

@@ -4,12 +4,6 @@
  * BSD 3-Clause License
  */
 
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import root from 'react-shadow';
@@ -165,6 +159,14 @@ function createPortalManager({
       return;
     }
 
+    console.log('[ChatRoot] Handling portal element:', {
+      slot,
+      type,
+      element,
+      computedTransform: element.style.transform,
+      parentTransform: element.parentElement?.style.transform
+    });
+
     ensureRoot();
     const container = findPortalContainer(element);
     const nodes = new Set<HTMLElement>();
@@ -176,6 +178,118 @@ function createPortalManager({
     nodes.forEach(node => {
       themedElements.add(node);
       applyTheme(node, { toggleDarkClass: true });
+    });
+    
+    // Fix positioning issue: Radix calculates wrong positions across Shadow DOM boundary
+    // The transform is on the wrapper element (parentElement), not the content element
+    const wrapper = element.parentElement;
+    if (wrapper && wrapper.style.transform.includes('-200%')) {
+      // Find the trigger button in shadow DOM
+      const sourceElement = getSourceElement();
+      const shadowRoot = sourceElement?.shadowRoot;
+      if (shadowRoot) {
+        let trigger: Element | null = null;
+        let triggerSelector: string = '';
+        
+        if (type === 'tooltip') {
+          // Tooltip trigger
+          triggerSelector = '[data-slot="tooltip-trigger"]';
+          trigger = shadowRoot.querySelector(triggerSelector);
+        } else if (type === 'dropdown') {
+          // For dropdown, try multiple selectors since it might use asChild
+          // Try: dropdown trigger, or button with aria-haspopup, or data-state=open
+          const possibleSelectors = [
+            '[data-slot="dropdown-menu-trigger"]',
+            'button[aria-haspopup="menu"]',
+            'button[aria-expanded="true"]',
+            '[role="button"][aria-haspopup="menu"]'
+          ];
+          
+          for (const selector of possibleSelectors) {
+            trigger = shadowRoot.querySelector(selector);
+            if (trigger) {
+              triggerSelector = selector;
+              break;
+            }
+          }
+          
+          if (!trigger) {
+            console.log('[ChatRoot] Could not find dropdown trigger with any selector:', possibleSelectors);
+          }
+        } else {
+          triggerSelector = '[data-state="open"]';
+          trigger = shadowRoot.querySelector(triggerSelector);
+        }
+        
+        if (trigger) {
+          const triggerRect = trigger.getBoundingClientRect();
+          
+          // For tooltip, we need to position it above the trigger
+          // For dropdown, position it below
+          let newX = triggerRect.left;
+          let newY: number;
+          
+          if (type === 'tooltip') {
+            // Get tooltip dimensions to position above
+            const tooltipHeight = element.offsetHeight || 40; // fallback height
+            newY = triggerRect.top - tooltipHeight - 5; // 5px gap
+            // Center horizontally
+            const tooltipWidth = element.offsetWidth || 100;
+            newX = triggerRect.left + (triggerRect.width - tooltipWidth) / 2;
+          } else if (type === 'dropdown') {
+            // Check if dropdown should be above (side="top") or below
+            const side = element.getAttribute('data-side');
+            if (side === 'top') {
+              // Position above
+              const dropdownHeight = element.offsetHeight || 200;
+              newY = triggerRect.top - dropdownHeight - 5;
+            } else {
+              // Position below (default)
+              newY = triggerRect.bottom + 5;
+            }
+          } else {
+            // Default: below
+            newY = triggerRect.bottom + 5;
+          }
+          
+          wrapper.style.transform = `translate(${newX}px, ${newY}px)`;
+          wrapper.style.position = 'fixed';
+          wrapper.style.top = '0';
+          wrapper.style.left = '0';
+          
+          console.log('[ChatRoot] Fixed positioning:', {
+            slot,
+            type,
+            triggerRect: {
+              top: triggerRect.top,
+              bottom: triggerRect.bottom,
+              left: triggerRect.left,
+              right: triggerRect.right,
+              width: triggerRect.width,
+              height: triggerRect.height
+            },
+            elementDimensions: { width: element.offsetWidth, height: element.offsetHeight },
+            calculatedPosition: { x: newX, y: newY },
+            oldTransform: 'translate(0px, -200%)',
+            newTransform: wrapper.style.transform,
+            wrapperStyles: {
+              position: wrapper.style.position,
+              top: wrapper.style.top,
+              left: wrapper.style.left
+            }
+          });
+        } else {
+          console.log('[ChatRoot] Could not find trigger:', { triggerSelector, shadowRoot });
+        }
+      } else {
+        console.log('[ChatRoot] No shadow root found:', { sourceElement });
+      }
+    }
+    
+    console.log('[ChatRoot] Applied theme to portal:', {
+      slot,
+      finalTransform: element.style.transform,
+      finalParentTransform: element.parentElement?.style.transform
     });
   };
 

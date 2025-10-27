@@ -4,12 +4,6 @@
  * BSD 3-Clause License
  */
 
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 import { Message, MessageContent } from './components/ai-elements/message';
 
 import { Actions, Action } from './components/ai-elements/actions';

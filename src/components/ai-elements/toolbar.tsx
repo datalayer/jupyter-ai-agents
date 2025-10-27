@@ -4,12 +4,6 @@
  * BSD 3-Clause License
  */
 
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 import { cn } from "@/lib/utils";
 import { NodeToolbar, Position } from "@xyflow/react";
 import type { ComponentProps } from "react";

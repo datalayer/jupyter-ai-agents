@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: '🪐 ✨ Jupyter AI Agents documentation',
