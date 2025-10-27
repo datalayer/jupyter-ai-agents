@@ -64,7 +64,7 @@ import { Settings2Icon } from 'lucide-react';
 interface IModelConfig {
   id: string;
   name: string;
-  builtin_tools: string[];
+  builtinTools?: string[];  // Support both naming conventions
 }
 
 interface IBuiltinTool {
@@ -122,16 +122,29 @@ export const ChatComponent: React.FC = () => {
 
   const availableTools = useMemo(() => {
     if (!configQuery.data) {
+      console.log('[ChatWidget] availableTools: no config data');
       return [];
     }
-    const enabledToolIds =
-      configQuery.data.models.find(entry => entry.id === model)
-        ?.builtin_tools ?? [];
-    return (
-      configQuery.data.builtinTools?.filter(tool =>
-        enabledToolIds.includes(tool.id)
-      ) ?? []
-    );
+    const selectedModel = configQuery.data.models.find(entry => entry.id === model);
+    // Support both snake_case and camelCase
+    const enabledToolIds = selectedModel?.builtinTools ?? [];
+    
+    // If model doesn't specify tools, show all builtin tools
+    const tools = enabledToolIds.length > 0
+      ? (configQuery.data.builtinTools?.filter(tool =>
+          enabledToolIds.includes(tool.id)
+        ) ?? [])
+      : (configQuery.data.builtinTools ?? []);
+    
+    console.log('[ChatWidget] availableTools calculated:', {
+      model,
+      selectedModel,
+      enabledToolIds,
+      builtinTools: configQuery.data.builtinTools,
+      filteredTools: tools
+    });
+    
+    return tools;
   }, [configQuery.data, model]);
 
   return (
