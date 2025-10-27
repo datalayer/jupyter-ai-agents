@@ -32,6 +32,7 @@ dependencies = [
   "fastapi",
   "httpx>=0.25.0",
   "jupyter_kernel_client",
+  "jupyter_mcp_tools",
   "jupyter_mcp_server",
   "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
@@ -42,7 +43,7 @@ dependencies = [
   "langchain-github-copilot",
   "langchain-openai",
   "mcp",
-  "pydantic-ai-slim[anthropic,openai,cli,mcp]>=1.0.10",
+  "pydantic-ai-slim[anthropic,openai,cli,mcp] @ git+https://github.com/pydantic/pydantic-ai.git@vercel-ai-chat",
   "pydantic-settings",
   "python-dotenv",
   "tornado",
@@ -76,6 +77,9 @@ path = "jupyter_ai_agents/_version.py"
 
 [tool.hatch.metadata.hooks.nodejs]
 fields = ["description", "authors", "urls", "keywords"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.sdist]
 artifacts = ["jupyter_ai_agents/labextension"]
