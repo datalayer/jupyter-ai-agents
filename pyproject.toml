@@ -2,10 +2,6 @@
 #
 # BSD 3-Clause License
 
-# Copyright (c) 2023-2024 Datalayer, Inc.
-#
-# BSD 3-Clause License
-
 [build-system]
 requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0.3.2"]
 build-backend = "hatchling.build"
@@ -36,6 +32,7 @@ dependencies = [
   "fastapi",
   "httpx>=0.25.0",
   "jupyter_kernel_client",
+  "jupyter_mcp_tools",
   "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
   "jupyterlab>=4.0.0,<5",

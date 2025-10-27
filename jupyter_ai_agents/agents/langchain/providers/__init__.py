@@ -2,10 +2,6 @@
 #
 # BSD 3-Clause License
 
-# Copyright (c) 2023-2024 Datalayer, Inc.
-#
-# BSD 3-Clause License
-
 from langchain.agents import AgentExecutor
 
 from jupyter_ai_agents.agents.langchain.providers.anthropic import create_anthropic_langchain_agent

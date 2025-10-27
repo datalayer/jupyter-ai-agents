@@ -2,18 +2,19 @@
 #
 # BSD 3-Clause License
 
-# Copyright (c) 2023-2024 Datalayer, Inc.
-#
-# BSD 3-Clause License
-
 """Tornado handlers for chat API compatible with Vercel AI SDK."""
 
 import json
+import logging
 import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
 from pydantic import BaseModel
 from pydantic_ai.ui.vercel_ai import VercelAIAdapter
+
+from jupyter_ai_agents.tools import get_available_tools, tools_to_builtin_list
+
+logger = logging.getLogger(__name__)
 
 
 class ChatRequestExtra(BaseModel, extra='ignore'):
@@ -85,8 +86,36 @@ class ChatHandler(APIHandler):
             request_data = await VercelAIAdapter.validate_request(tornado_request)
             extra_data = ChatRequestExtra.model_validate(request_data.__pydantic_extra__)
             
-            # Get builtin tools (TODO: map from IDs)
-            builtin_tools = []
+            # Get Jupyter server connection details
+            serverapp = self.settings.get('serverapp')
+            if serverapp:
+                base_url = serverapp.connection_url
+                token = serverapp.token
+                logger.info(f"Using Jupyter ServerApp connection URL: {base_url}")
+            else:
+                # Fallback to localhost
+                base_url = "http://localhost:8888"
+                token = None
+                logger.warning("ServerApp not found in settings, using localhost")
+            
+            # Fetch available tools from jupyter-mcp-tools
+            available_tools = await get_available_tools(
+                base_url=base_url,
+                token=token,
+                enabled_only=True
+            )
+            logger.info(f"Fetched {len(available_tools)} tools from jupyter-mcp-tools")
+            
+            # Filter to user-requested tools if specified
+            if extra_data.builtin_tools:
+                requested_tool_names = set(extra_data.builtin_tools)
+                builtin_tools = [
+                    tool for tool in available_tools 
+                    if tool.get('name') in requested_tool_names
+                ]
+                logger.info(f"Filtered to {len(builtin_tools)} requested tools")
+            else:
+                builtin_tools = available_tools
             
             # Use VercelAIAdapter to dispatch the request
             # This returns a FastAPI StreamingResponse

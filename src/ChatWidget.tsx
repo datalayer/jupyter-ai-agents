@@ -224,7 +224,9 @@ export const ChatComponent: React.FC = () => {
                       >
                         <div className="flex items-center gap-2">
                           {getToolIcon(tool.id)}
-                          <span className="text-sm">{tool.name}</span>
+                          <span className="text-sm" title={tool.name}>
+                            {tool.name.length > 20 ? tool.name.substring(0, 20) + '...' : tool.name}
+                          </span>
                         </div>
                         <Switch
                           checked={enabledTools.includes(tool.id)}
