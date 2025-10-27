@@ -4,12 +4,6 @@
   ~ BSD 3-Clause License
 -->
 
-<!--
-  ~ Copyright (c) 2023-2024 Datalayer, Inc.
-  ~
-  ~ BSD 3-Clause License
--->
-
 [![Datalayer](https://assets.datalayer.tech/datalayer-25.svg)](https://datalayer.io)
 
 [![Become a Sponsor](https://img.shields.io/static/v1?label=Become%20a%20Sponsor&message=%E2%9D%A4&logo=GitHub&style=flat&color=1ABC9C)](https://github.com/sponsors/datalayer)
@@ -21,7 +15,17 @@
 
 *The Jupyter AI Agents are equipped with tools like 'execute', 'insert_cell', and more, to transform your Jupyter Notebooks into an intelligent, interactive workspace!*
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+![Jupyter AI Agents Chat 1](https://assets.datalayer.tech/jupyter-ai-agents/jupyter-ai-agents-chat-1.png)
+
+![Jupyter AI Agents Chat 1](https://assets.datalayer.tech/jupyter-ai-agents/jupyter-ai-agents-chat-2.png)
+
+![Jupyter AI Agents CLI](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+
+Jupyter AI Agents empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to the Jupyter notebook events.
+
+This Agent is **innovative** as it is designed to **operate on the entire Notebook**, not just at the cell level, enabling more comprehensive and seamless modifications.
+
+The Agent can also run separetely from the Jupyter server as the communication is achieved through RTC via the [Jupyter NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client) and the [Jupyter Kernel Client](https://github.com/datalayer/jupyter-kernel-client).
 
 ```
 Jupyter AI Agents <---> JupyterLab
@@ -30,14 +34,6 @@ Jupyter AI Agents <---> JupyterLab
        |
 Jupyter Clients
 ```
-
-Jupyter AI Agents empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to the Jupyter notebook events.
-
-This agent is **innovative** as it is designed to **operate on the entire Notebook**, not just at the cell level, enabling more comprehensive and seamless modifications.
-
-The agent can also run separetely from the Jupyter server as the communication is achieved through RTC via the [Jupyter NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client) and the [Jupyter Kernel Client](https://github.com/datalayer/jupyter-kernel-client).
-
-The [LangChain Agent Framework](https://python.langchain.com/v0.1/docs/modules/agents/how_to/custom_agent) is used to manage the interactions between the AI model and the tools.
 
 This library is documented on https://jupyter-ai-agents.datalayer.tech.
 
