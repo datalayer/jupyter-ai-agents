@@ -1,0 +1,10 @@
+/*
+ * Copyright (c) 2024-2025 Datalayer, Inc.
+ *
+ * BSD 3-Clause License
+ */
+
+declare module '*.svg' {
+  const value: string; // @ts-ignore
+  export default value;
+}

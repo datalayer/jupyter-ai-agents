@@ -1,14 +1,8 @@
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: '🪐 ✨ Jupyter AI Agents documentation',
   tagline: 'Tansform your Notebooks into an interactive, AI-powered workspace that adapts to your needs!',
-  url: 'https://datalayer.io',
+  url: 'https://datalayer.ai',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -80,10 +74,16 @@ module.exports = {
           label: 'Models',
         },
         {
-          href: 'https://www.linkedin.com/company/datalayer',
+          href: 'https://discord.gg/YQFwvmSSuR',
           position: 'right',
-          className: 'header-linkedin-link',
-          'aria-label': 'LinkedIn',
+          className: 'header-discord-link',
+          'aria-label': 'Discord',
+        },
+        {
+          href: 'https://github.com/datalayer/jupyter-mcp-server',
+          position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub',
         },
         {
           href: 'https://bsky.app/profile/datalayer.ai',
@@ -92,16 +92,34 @@ module.exports = {
           'aria-label': 'Bluesky',
         },
         {
-          href: 'https://github.com/datalayer/jupyter-ai-agents',
+          href: 'https://x.com/DatalayerIO',
           position: 'right',
-          className: 'header-github-link',
-          'aria-label': 'GitHub',
+          className: 'header-x-link',
+          'aria-label': 'X',
         },
         {
-          href: 'https://datalayer.io',
+          href: 'https://www.linkedin.com/company/datalayer',
+          position: 'right',
+          className: 'header-linkedin-link',
+          'aria-label': 'LinkedIn',
+        },
+        {
+          href: 'https://tiktok.com/@datalayerio',
+          position: 'right',
+          className: 'header-tiktok-link',
+          'aria-label': 'TikTok',
+        },
+        {
+          href: 'https://www.youtube.com/@datalayer',
+          position: 'right',
+          className: 'header-youtube-link',
+          'aria-label': 'YouTube',
+        },
+        {
+          href: 'https://datalayer.ai',
           position: 'right',
           className: 'header-datalayer-io-link',
-          'aria-label': 'Datalayer IO',
+          'aria-label': 'Datalayer',
         },
       ],
     },
@@ -113,7 +131,7 @@ module.exports = {
           items: [
             {
               label: 'Jupyter AI Agents',
-              to: '/docs',
+              to: '/',
             },
           ],
         },
@@ -139,15 +157,11 @@ module.exports = {
           items: [
             {
               label: 'Datalayer',
-              href: 'https://datalayer.io',
+              href: 'https://datalayer.ai',
             },
             {
               label: 'Datalayer Docs',
               href: 'https://docs.datalayer.app',
-            },
-            {
-              label: 'Datalayer Tech',
-              href: 'https://datalayer.tech',
             },
             {
               label: 'Datalayer Guide',
@@ -168,6 +182,8 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
+          routeBasePath: '/',
+          docItemComponent: '@theme/CustomDocItem',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/datalayer/jupyter-ai-agents/edit/main/',
         },

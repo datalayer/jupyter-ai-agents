@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2023-2024 Datalayer, Inc.
+  ~ Copyright (c) 2024-2025 Datalayer, Inc.
   ~
   ~ BSD 3-Clause License
 -->
@@ -15,7 +15,17 @@
 
 *The Jupyter AI Agents are equipped with tools like 'execute', 'insert_cell', and more, to transform your Jupyter Notebooks into an intelligent, interactive workspace!*
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+![Jupyter AI Agents Chat 1](https://assets.datalayer.tech/jupyter-ai-agents/jupyter-ai-agents-chat-1.png)
+
+![Jupyter AI Agents Chat 1](https://assets.datalayer.tech/jupyter-ai-agents/jupyter-ai-agents-chat-2.png)
+
+![Jupyter AI Agents CLI](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+
+Jupyter AI Agents empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to the Jupyter notebook events.
+
+This Agent is **innovative** as it is designed to **operate on the entire Notebook**, not just at the cell level, enabling more comprehensive and seamless modifications.
+
+The Agent can also run separetely from the Jupyter server as the communication is achieved through RTC via the [Jupyter NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client) and the [Jupyter Kernel Client](https://github.com/datalayer/jupyter-kernel-client).
 
 ```
 Jupyter AI Agents <---> JupyterLab
@@ -24,14 +34,6 @@ Jupyter AI Agents <---> JupyterLab
        |
 Jupyter Clients
 ```
-
-Jupyter AI Agents empowers **AI** models to **interact** with and **modify Jupyter Notebooks**. The agent is equipped with tools such as adding code cells, inserting markdown cells, executing code, enabling it to modify the notebook comprehensively based on user instructions or by reacting to the Jupyter notebook events.
-
-This agent is **innovative** as it is designed to **operate on the entire Notebook**, not just at the cell level, enabling more comprehensive and seamless modifications.
-
-The agent can also run separetely from the Jupyter server as the communication is achieved through RTC via the [Jupyter NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client) and the [Jupyter Kernel Client](https://github.com/datalayer/jupyter-kernel-client).
-
-The [LangChain Agent Framework](https://python.langchain.com/v0.1/docs/modules/agents/how_to/custom_agent) is used to manage the interactions between the AI model and the tools.
 
 This library is documented on https://jupyter-ai-agents.datalayer.tech.
 
@@ -68,7 +70,7 @@ pip install datalayer_pycrdt==0.12.17
 
 We put here a quick example for a Out-Kernel Stateless Agent via CLI helping your JupyterLab session.
 
-Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `test.ipynb`.
+Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `notebook.ipynb`.
 
 ```bash
 # make jupyterlab
@@ -93,13 +95,13 @@ To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure d
 
 ```bash
 # Prompt agent example.
-# make prompt
+# make jupyter-ai-agents-prompt
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --model-provider azure-openai \
   --model-name gpt-4o-mini \
-  --path test.ipynb \
+  --path notebook.ipynb \
   --input "Create a matplotlib example"
 ```
 
@@ -109,13 +111,13 @@ jupyter-ai-agents prompt \
 
 ```bash
 # Explain Error agent example.
-# make explain-error
+# make jupyter-ai-agents-explain-error
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
   --model-provider azure-openai \
   --model-name gpt-4o-mini \
-  --path test.ipynb
+  --path notebook.ipynb
 ```
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)

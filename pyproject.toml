@@ -1,20 +1,21 @@
-# Copyright (c) 2023-2024 Datalayer, Inc.
+# Copyright (c) 2024-2025 Datalayer, Inc.
 #
 # BSD 3-Clause License
 
 [build-system]
-requires = ["hatchling~=1.21"]
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0.3.2"]
 build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_ai_agents"
-authors = [{ name = "Datalayer", email = "info@datalayer.io" }]
-dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
-keywords = ["Jupyter"]
 classifiers = [
     "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
     "Intended Audience :: Science/Research",
@@ -28,19 +29,28 @@ classifiers = [
 dependencies = [
   "anyio",
   "datalayer_core",
-  "langchain",
-  "langchain-openai",
-  "langchain-github-copilot",
-  "langchain-anthropic",
-  "langchain-aws",
   "fastapi",
+  "httpx>=0.25.0",
   "jupyter_kernel_client",
+  "jupyter_mcp_tools",
+  "jupyter_mcp_server",
   "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
+  "jupyterlab>=4.0.0,<5",
+  "langchain",
+  "langchain-anthropic",
+  "langchain-aws",
+  "langchain-github-copilot",
+  "langchain-openai",
+  "mcp",
+  "pydantic-ai-slim[anthropic,openai,cli,mcp] @ git+https://github.com/pydantic/pydantic-ai.git@vercel-ai-chat",
   "pydantic-settings",
   "python-dotenv",
+  "tornado",
+  "typer",
   "uvicorn",
 ]
+dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]
 example = ["jupyter-server-ydoc"]
@@ -56,15 +66,63 @@ jupyter-ai-agents-console = "jupyter_ai_agents.cli.consoleapp:main"
 [project.license]
 file = "LICENSE"
 
-[project.urls]
-Home = "https://github.com/datalayer/jupyter-ai-agents"
+[project.entry-points."jupyterlab.extensions"]
+jupyter-ai-agents = "jupyter_ai_agents.extension"
 
 [tool.hatch.version]
-path = "jupyter_ai_agents/__version__.py"
+source = "nodejs"
+
+[tool.hatch.build.hooks.version]
+path = "jupyter_ai_agents/_version.py"
+
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "authors", "urls", "keywords"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["jupyter_ai_agents/labextension"]
+exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
+"jupyter_ai_agents/labextension" = "share/jupyter/labextensions/@datalayer/jupyter-ai-agents"
+"install.json" = "share/jupyter/labextensions/@datalayer/jupyter-ai-agents/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.5"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "jupyter_ai_agents/labextension/static/style.js",
+    "jupyter_ai_agents/labextension/package.json",
+]
+skip-if-exists = ["jupyter_ai_agents/labextension/static/style.js"]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "install:extension"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "jupyter_ai_agents/labextension"
+
+[tool.jupyter-releaser.options]
+version_cmd = "hatch version"
+
+[tool.jupyter-releaser.hooks]
+before-build-npm = [
+    "python -m pip install 'jupyterlab>=4.0.0,<5'",
+    "jlpm",
+    "jlpm build:prod"
+]
+before-build-python = ["jlpm clean:all"]
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
 
 [tool.pytest.ini_options]
 filterwarnings = [

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2023-2024 Datalayer, Inc.
+# Copyright (c) 2024-2025 Datalayer, Inc.
 #
 # BSD 3-Clause License
 
@@ -7,11 +7,14 @@
 
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+
 from dotenv import load_dotenv
+from unittest.mock import patch, MagicMock
+
 
 # Load environment variables
 load_dotenv()
+
 
 class TestAnthropicIntegration(unittest.TestCase):
     """Test the integration of Anthropic provider with Jupyter AI Agents."""
@@ -26,11 +29,11 @@ class TestAnthropicIntegration(unittest.TestCase):
         """Test creating an Anthropic agent with tools."""
         # Import here to avoid import errors if dependencies aren't installed
         from langchain_core.tools import tool
-        from jupyter_ai_agents.providers import create_anthropic_agent
+        from jupyter_ai_agents.agents.langchain import create_anthropic_langchain_agent
         
         # Setup mock ChatAnthropic
-        mock_llm = MagicMock()
-        mock_chat_anthropic.return_value = mock_llm
+        mock_langchain_agent = MagicMock()
+        mock_chat_anthropic.return_value = mock_langchain_agent
         
         # Define a simple test tool
         @tool
@@ -39,7 +42,7 @@ class TestAnthropicIntegration(unittest.TestCase):
             return f"Hello, {name}!"
         
         # Create the agent
-        agent = create_anthropic_agent(
+        agent = create_anthropic_langchain_agent(
             model_name="claude-3-haiku-20240307",
             system_prompt="You are a helpful assistant.",
             tools=[greet]
@@ -63,7 +66,7 @@ class TestAnthropicIntegration(unittest.TestCase):
     def test_simplified_tool_invocation(self, mock_chat_anthropic, mock_agent_invoke):
         """Test that tool invocation works correctly with mocked invoke."""
         from langchain_core.tools import tool
-        from jupyter_ai_agents.providers import create_anthropic_agent
+        from jupyter_ai_agents.agents.langchain import create_anthropic_langchain_agent
         
         # Define a test tool
         @tool
@@ -76,11 +79,11 @@ class TestAnthropicIntegration(unittest.TestCase):
         mock_agent_invoke.return_value = {"output": mock_agent_output}
         
         # Setup mock LLM
-        mock_llm = MagicMock()
-        mock_chat_anthropic.return_value = mock_llm
+        mock_langchain_agent = MagicMock()
+        mock_chat_anthropic.return_value = mock_langchain_agent
         
         # Create the agent
-        agent = create_anthropic_agent(
+        agent = create_anthropic_langchain_agent(
             model_name="claude-3-haiku-20240307",
             system_prompt="You are a helpful assistant.",
             tools=[multiply]
@@ -97,4 +100,4 @@ class TestAnthropicIntegration(unittest.TestCase):
         mock_agent_invoke.assert_called_once()
 
 if __name__ == "__main__":
-    unittest.main() 
+    unittest.main()

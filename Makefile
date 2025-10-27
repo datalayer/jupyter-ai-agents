@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Datalayer, Inc.
+# Copyright (c) 2024-2025 Datalayer, Inc.
 #
 # BSD 3-Clause License
 
@@ -28,36 +28,36 @@ build:
 clean: ## clean
 	git clean -fdx
 
+#	pip uninstall -y pycrdt datalayer_pycrdt
+#	pip install datalayer_pycrdt
 jupyterlab: ## jupyterlab
-	pip uninstall -y pycrdt datalayer_pycrdt
-	pip install datalayer_pycrdt
 	jupyter lab \
 		--port 8888 \
 		--ServerApp.root_dir ./dev/content \
 		--IdentityProvider.token=
 
-server: ## server
+example-fastapi: ## example-fastapi server
 	@exec echo
 	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
 	@exec echo
-	python -m uvicorn jupyter_ai_agents.server.main:main --reload --port 4400
+	python -m uvicorn jupyter_ai_agents.examples.fastapi.main:main --reload --port 4400
 
-prompt:
+jupyter-ai-agents-prompt:
 	jupyter-ai-agents prompt \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
 		--model-provider azure-openai \
 		--model-name gpt-4o-mini \
-		--path test.ipynb \
+		--path notebook.ipynb \
 		--input "Create a matplotlib example"
 
-explain-error:
+jupyter-ai-agents-explain-error:
 	jupyter-ai-agents explain-error \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
 		--model-provider azure-openai \
 		--model-name gpt-4o-mini \
-		--path test.ipynb
+		--path notebook.ipynb
 
 publish-pypi: # publish the pypi package
 	git clean -fdx && \

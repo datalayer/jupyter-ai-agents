@@ -1,6 +1,18 @@
 *.egg-info/
 .ipynb_checkpoints
 
+node_modules
+lib
+dist
+build
+package-lock.json
+**/.jupyter_ystore.db
+tsconfig.tsbuildinfo
+jupyter_ai_agents/labextension
+
+# Version file is handled by hatchling
+jupyter_ai_agents/_version.py
+
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python
 
@@ -109,6 +121,7 @@ dmypy.json
 
 # Include
 !**/.*ignore
+!src/**/lib
 !**/.*rc
 !**/.*rc.js
 !**/.*rc.json

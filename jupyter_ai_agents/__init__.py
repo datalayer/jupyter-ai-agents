@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Datalayer, Inc.
+# Copyright (c) 2024-2025 Datalayer, Inc.
 #
 # BSD 3-Clause License
 
@@ -7,10 +7,17 @@
 from typing import Any, Dict, List
 
 from jupyter_ai_agents.__version__ import __version__
-from jupyter_ai_agents.serverapplication import JupyterAIAgentsExtensionApp
+from jupyter_ai_agents.extension import JupyterAIAgentsExtensionApp
 
 
 __all__ = []
+
+
+def _jupyter_labextension_paths():
+    return [{
+        "src": "labextension",
+        "dest": "@datalayer/jupyter-ai-agents"
+    }]
 
 
 def _jupyter_server_extension_points() -> List[Dict[str, Any]]:

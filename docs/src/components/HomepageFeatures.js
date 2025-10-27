@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2023-2024 Datalayer, Inc.
- *
- * BSD 3-Clause License
- */
-
 import React from 'react';
 import clsx from 'clsx';
 import styles from './HomepageFeatures.module.css';
