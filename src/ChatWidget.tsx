@@ -52,7 +52,6 @@ import { Part } from './Part';
 import { useJupyterChat } from './hooks/useJupyterChat';
 import { useQuery } from '@tanstack/react-query';
 import { requestAPI } from './handler';
-import { getToolIcon } from './lib/tool-icons';
 import { Settings2Icon } from 'lucide-react';
 
 interface IModelConfig {
@@ -218,33 +217,14 @@ export const ChatComponent: React.FC = () => {
                     {availableTools.map(tool => (
                       <div
                         key={tool.id}
-                        className="flex items-center justify-between gap-3 px-2 py-1.5 cursor-pointer hover:bg-accent rounded-sm"
-                        onClick={() => {
-                          setEnabledTools(prev =>
-                            prev.includes(tool.id)
-                              ? prev.filter(id => id !== tool.id)
-                              : [...prev, tool.id]
-                          );
-                        }}
+                        className="flex items-center justify-between gap-3 px-2 py-1.5 rounded-sm"
                       >
-                        <div className="flex items-center gap-2">
-                          {getToolIcon(tool.id)}
-                          <span className="text-sm" title={tool.name}>
-                            {tool.name.length > 20 ? tool.name.substring(0, 20) + '...' : tool.name}
-                          </span>
-                        </div>
+                        <span className="text-sm" title={tool.name}>
+                          {tool.name.length > 20 ? tool.name.substring(0, 20) + '...' : tool.name}
+                        </span>
                         <Switch
-                          checked={enabledTools.includes(tool.id)}
-                          onCheckedChange={checked => {
-                            setEnabledTools(prev =>
-                              checked
-                                ? [...prev, tool.id]
-                                : prev.filter(id => id !== tool.id)
-                            );
-                          }}
-                          onClick={e => {
-                            e.stopPropagation();
-                          }}
+                          checked={true}
+                          disabled={true}
                         />
                       </div>
                     ))}

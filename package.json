@@ -7,7 +7,9 @@
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension",
-    "mcp"
+    "mcp",
+    "agents",
+    "ai-agents"
   ],
   "homepage": "https://github.com/datalayer/jupyter-ai-agents",
   "bugs": {
