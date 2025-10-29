@@ -9,50 +9,52 @@ import logging
 import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
-from pydantic import BaseModel
 from pydantic_ai.ui.vercel_ai import VercelAIAdapter
+from starlette.requests import Request
+from starlette.datastructures import Headers
 
 logger = logging.getLogger(__name__)
 
 
-class ChatRequestExtra(BaseModel, extra='ignore'):
-    """Extra data from chat request."""
-    model: str | None = None
-    builtin_tools: list[str] = []
-
-
-class TornadoRequestAdapter:
-    """Adapter to make Tornado request compatible with Vercel AI adapter."""
+class TornadoRequestAdapter(Request):
+    """Adapter to make Tornado request compatible with Starlette Request interface."""
     
     def __init__(self, handler):
+        """
+        Initialize the adapter with a Tornado handler.
+        
+        Args:
+            handler: The Tornado RequestHandler instance
+        """
         self.handler = handler
-        self._body = None
+        self._body_cache = None
+        
+        # Create a minimal scope for Starlette Request
+        scope = {
+            'type': 'http',
+            'method': handler.request.method,
+            'path': handler.request.path,
+            'query_string': handler.request.query.encode('utf-8'),
+            'headers': [(k.lower().encode(), v.encode()) for k, v in handler.request.headers.items()],
+            'server': (handler.request.host.split(':')[0], int(handler.request.host.split(':')[1]) if ':' in handler.request.host else 80),
+        }
+        
+        # Initialize the parent Starlette Request
+        # We need to provide a receive callable
+        async def receive():
+            return {
+                'type': 'http.request',
+                'body': handler.request.body,
+                'more_body': False,
+            }
+        
+        super().__init__(scope, receive)
     
-    @property
-    def url(self):
-        """Get request URL."""
-        return self.handler.request.uri
-    
-    @property
-    def method(self):
-        """Get request method."""
-        return self.handler.request.method
-    
-    async def body(self):
+    async def body(self) -> bytes:
         """Get request body as bytes."""
-        if self._body is None:
-            self._body = self.handler.request.body
-        return self._body
-    
-    async def json(self):
-        """Get request body as JSON."""
-        body = await self.body()
-        return json.loads(body.decode('utf-8'))
-    
-    @property
-    def headers(self):
-        """Get request headers."""
-        return dict(self.handler.request.headers)
+        if self._body_cache is None:
+            self._body_cache = self.handler.request.body
+        return self._body_cache
 
 
 class ChatHandler(APIHandler):
@@ -77,23 +79,26 @@ class ChatHandler(APIHandler):
                 self.finish(json.dumps({"error": "Chat agent not initialized"}))
                 return
             
-            # Create request adapter
+            # Create request adapter (Starlette-compatible)
             tornado_request = TornadoRequestAdapter(self)
             
-            # Validate request using Vercel AI adapter
-            request_data = await VercelAIAdapter.validate_request(tornado_request)
-            extra_data = ChatRequestExtra.model_validate(request_data.__pydantic_extra__)
+            # Parse request body to extract model if specified
+            try:
+                body = await tornado_request.json()
+                model = body.get('model') if isinstance(body, dict) else None
+            except:
+                model = None
             
             # Get builtin tools (empty list - tools metadata is only for UI display)
             # The actual pydantic-ai tools are registered in the agent itself
             builtin_tools = []
             
-            # Use VercelAIAdapter to dispatch the request
-            # This returns a FastAPI StreamingResponse
+            # Use VercelAIAdapter.dispatch_request (new API)
+            # This is now a classmethod that takes the request and agent directly
             response = await VercelAIAdapter.dispatch_request(
-                agent,
                 tornado_request,
-                model=extra_data.model,
+                agent=agent,
+                model=model,
                 builtin_tools=builtin_tools,
             )
             
