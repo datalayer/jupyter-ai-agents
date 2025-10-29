@@ -26,7 +26,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-#   "pydantic-ai-slim[anthropic,openai,cli,mcp] @ git+https://github.com/pydantic/pydantic-ai.git@vercel-ai-chat#egg=pydantic-ai-slim",
 dependencies = [
   "anyio",
   "datalayer_core",
