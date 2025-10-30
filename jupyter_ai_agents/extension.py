@@ -100,11 +100,6 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
 
         self.log.info("Initializing Jupyter AI Agents extension...")
         
-        # Initialize cleanup tracking
-        self._http_client = None
-        self._mcp_server = None
-        self._agent = None
-        
         try:
             # Create configuration manager
             config = ChatConfig()
@@ -116,16 +111,13 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             
             # Create MCP server connection to jupyter-mcp-server
             self.log.info("Creating MCP server connection to jupyter-mcp-server...")
-            mcp_server, http_client = create_mcp_server(base_url, token)
-            self._mcp_server = mcp_server
-            self._http_client = http_client  # Keep reference for cleanup
+            mcp_server = create_mcp_server(base_url, token)
             self.log.info("MCP server connection created")
             
             # Create chat agent with MCP server toolset
             default_model = config.get_default_model()
             self.log.info(f"Creating chat agent with model: {default_model}")
             agent = create_chat_agent(model=default_model, mcp_server=mcp_server)
-            self._agent = agent  # Keep reference for cleanup
             self.log.info("Chat agent created with MCP tools")
             
             # Create MCP tool manager for additional MCP servers
@@ -181,50 +173,6 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         self.handlers.extend(handlers)
 
         self.log.info(f"Registered {len(handlers)} HTTP handlers")
-
-    
-    def stop_extension(self):
-        """Clean up resources when extension is stopped."""
-        import asyncio
-        
-        self.log.info("Stopping Jupyter AI Agents extension...")
-        
-        # Close MCP manager clients first
-        mcp_manager = self.settings.get('mcp_manager')
-        if mcp_manager:
-            self.log.info("Closing MCP manager clients...")
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    loop.create_task(mcp_manager.close_all())
-                else:
-                    asyncio.run(mcp_manager.close_all())
-                self.log.info("MCP manager clients closed successfully")
-            except RuntimeError as e:
-                self.log.warning(f"Could not close MCP manager clients: {e}")
-            except Exception as e:
-                self.log.error(f"Error closing MCP manager clients: {e}", exc_info=True)
-        
-        # Close the HTTP client to free connections
-        if self._http_client:
-            self.log.info("Closing HTTP client connections...")
-            try:
-                # Try to close using existing event loop
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # Schedule cleanup as a task
-                    loop.create_task(self._http_client.aclose())
-                else:
-                    # Run in new event loop
-                    asyncio.run(self._http_client.aclose())
-                self.log.info("HTTP client closed successfully")
-            except RuntimeError as e:
-                # Event loop may be closed already
-                self.log.warning(f"Could not close HTTP client: {e}")
-            except Exception as e:
-                self.log.error(f"Error closing HTTP client: {e}", exc_info=True)
-        
-        self.log.info("Jupyter AI Agents extension stopped")
 
 
 # -----------------------------------------------------------------------------

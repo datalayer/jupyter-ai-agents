@@ -43,6 +43,8 @@ To install Jupyter AI Agents, run the following command.
 
 ```bash
 pip install jupyter_ai_agents
+pip uninstall -y pycrdt datalayer_pycrdt
+pip install datalayer_pycrdt==0.12.17
 ```
 
 Or clone this repository and install it from source.

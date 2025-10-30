@@ -33,9 +33,9 @@ class MCPClient:
             http2=False,  # Disable HTTP/2 for better compatibility
             follow_redirects=True,
             limits=httpx.Limits(
-                max_keepalive_connections=10,
-                max_connections=20,
-                keepalive_expiry=30.0  # Keep connections alive
+                max_keepalive_connections=5,  # Reduced to avoid exhaustion
+                max_connections=10,  # Reduced to avoid exhaustion
+                keepalive_expiry=60.0  # Longer keepalive
             )
         )
     

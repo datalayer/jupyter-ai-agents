@@ -34,6 +34,8 @@ dependencies = [
   "jupyter_kernel_client",
   "jupyter_mcp_tools",
   "jupyter_mcp_server",
+  "jupyter-collaboration==4.0.2",
+  "datalayer_pycrdt==0.12.17",
   "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
   "jupyterlab>=4.0.0,<5",
