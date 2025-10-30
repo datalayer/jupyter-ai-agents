@@ -21,7 +21,23 @@ class MCPClient:
             server_url: URL of the MCP server
         """
         self.server_url = server_url.rstrip('/')
-        self.client = httpx.AsyncClient(timeout=30.0)
+        # Create a long-lived HTTP client with appropriate settings
+        # matching the settings used in tools.py for consistency
+        self.client = httpx.AsyncClient(
+            timeout=httpx.Timeout(
+                connect=10.0,
+                read=300.0,  # Long timeout for LLM responses
+                write=10.0,
+                pool=5.0
+            ),
+            http2=False,  # Disable HTTP/2 for better compatibility
+            follow_redirects=True,
+            limits=httpx.Limits(
+                max_keepalive_connections=10,
+                max_connections=20,
+                keepalive_expiry=30.0  # Keep connections alive
+            )
+        )
     
     async def list_tools(self) -> List[Dict[str, Any]]:
         """

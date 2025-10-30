@@ -42,7 +42,7 @@ def generate_name_from_id(tool_id: str) -> str:
 def create_mcp_server(
     base_url: str,
     token: str | None = None,
-) -> MCPServerStreamableHTTP:
+) -> tuple[MCPServerStreamableHTTP, httpx.AsyncClient | None]:
     """
     Create an MCP server connection to jupyter-mcp-server.
     
@@ -54,7 +54,9 @@ def create_mcp_server(
         token: Authentication token for Jupyter server
         
     Returns:
-        MCPServerStreamableHTTP instance connected to jupyter-mcp-server
+        Tuple of (MCPServerStreamableHTTP instance, httpx.AsyncClient or None)
+        The http_client must be kept alive for the lifetime of the server
+        and should be properly closed when no longer needed.
     """
     # Construct the MCP endpoint URL
     # jupyter-mcp-server typically runs at /mcp endpoint
@@ -64,16 +66,31 @@ def create_mcp_server(
     
     # Create HTTP client with authentication if token is provided
     if token:
+        # Create a long-lived HTTP client with appropriate settings
+        # This client must be kept alive for the entire session
         http_client = httpx.AsyncClient(
-            timeout=httpx.Timeout(30.0),
-            headers={"Authorization": f"token {token}"}
+            timeout=httpx.Timeout(
+                connect=10.0,
+                read=300.0,  # Long timeout for LLM responses
+                write=10.0,
+                pool=5.0
+            ),
+            headers={"Authorization": f"token {token}"},
+            http2=False,  # Disable HTTP/2 for better compatibility
+            follow_redirects=True,
+            limits=httpx.Limits(
+                max_keepalive_connections=10,
+                max_connections=20,
+                keepalive_expiry=30.0  # Keep connections alive
+            )
         )
         server = MCPServerStreamableHTTP(mcp_url, http_client=http_client)
+        logger.info("MCP server connection created successfully with authenticated client")
+        return server, http_client
     else:
         server = MCPServerStreamableHTTP(mcp_url)
-    
-    logger.info("MCP server connection created successfully")
-    return server
+        logger.info("MCP server connection created successfully without authentication")
+        return server, None
 
 
 async def get_available_tools_from_mcp(
@@ -94,8 +111,9 @@ async def get_available_tools_from_mcp(
     Returns:
         List of tool dictionaries with name, description, and inputSchema
     """
+    http_client = None
     try:
-        server = create_mcp_server(base_url, token)
+        server, http_client = create_mcp_server(base_url, token)
         
         # Use the MCP server as a context manager to connect and disconnect
         async with server:
@@ -132,6 +150,10 @@ async def get_available_tools_from_mcp(
     except Exception as e:
         logger.error(f"Error connecting to MCP server at {base_url}: {e}", exc_info=True)
         return []
+    finally:
+        # Clean up the HTTP client after this one-time query
+        if http_client:
+            await http_client.aclose()
 
 
 # Alias for backward compatibility
