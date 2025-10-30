@@ -4,6 +4,10 @@
  * BSD 3-Clause License
  */
 
+.jp-LabShell {
+  height: 100vh !important;
+}
+
 /* Theme variables */
 :host {
   /* Base sizing and colors */
