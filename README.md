@@ -158,7 +158,7 @@ Create and execute code based on user instructions:
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model "openai:gpt-4o" \
+  --model "anthropic:claude-sonnet-4-0" \
   --path notebook.ipynb \
   --input "Create a matplotlib example"
 
@@ -182,12 +182,31 @@ Analyze and fix notebook errors:
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model "openai:gpt-4o" \
+  --model "anthropic:claude-sonnet-4-0" \
   --path notebook.ipynb \
   --current-cell-index 5
 ```
 
-![Jupyter AI Agents - Exaplain Erorr](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
+![Jupyter AI Agents - Explain Error](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
+
+### Interactive Mode
+
+Start an interactive chat session with the AI agent:
+
+```bash
+jupyter-ai-agents interactive \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0" \
+  --path notebook.ipynb
+```
+
+The interactive mode uses pydantic-ai's built-in CLI interface, providing features like:
+- `/exit`: Exit the session
+- `/markdown`: Show last response in markdown format
+- `/multiline`: Toggle multiline input mode
+- `/cp`: Copy last response to clipboard
+>>>>>>> d73a709 (redme: lint)
 
 ### REPL Mode (Recommended for Interactive Use)
 
@@ -197,7 +216,7 @@ For a more flexible interactive experience with direct access to all Jupyter MCP
 jupyter-ai-agents repl \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model "openai:gpt-4o"
+  --model "anthropic:claude-sonnet-4-0"
 ```
 
 In REPL mode, you can directly ask the AI to:
