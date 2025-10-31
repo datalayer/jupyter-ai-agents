@@ -75,7 +75,6 @@ You can also use Jupyter AI Agents through the command line interface for automa
 
 ![Jupyter AI Agents CLI](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
-
 ### Basic Installation
 
 To install Jupyter AI Agents, run the following command:
@@ -110,15 +109,7 @@ pip install datalayer_pycrdt==0.12.17
 ```
 ### Examples
 
-We put here quick examples for Out-Kernel Stateless Agents via CLI helping your JupyterLab session.
-
-### CLI with Pydantic AI and MCP (Recommended)
-
-The new **pydantic-ai based CLI** uses the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) to communicate with Jupyter via the `jupyter-mcp-server`. This is the recommended approach as it:
-- Uses modern pydantic-ai agents
-- Leverages MCP for tool integration
-- Communicates directly with Jupyter server (no nbmodel client needed)
-- Supports interactive mode with pydantic-ai's built-in CLI
+Jupyter AI Agents provides CLI commands to help your JupyterLab session using **Pydantic AI agents** with **Model Context Protocol (MCP)** for tool integration.
 
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `notebook.ipynb`.
 
@@ -129,109 +120,121 @@ jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 
 Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
 
-The following takes you through an example with OpenAI. Make sure you have your API key set:
+Make sure you have your API key set:
 
 ```bash
 export OPENAI_API_KEY='your-api-key-here'
+# Or for other providers:
+# export ANTHROPIC_API_KEY='your-api-key-here'
+# export AZURE_OPENAI_API_KEY='your-api-key-here'
+# etc.
 ```
 
-**Prompt Agent (Pydantic AI)**
+### Model Specification
 
-Create and execute code based on user instructions using the pydantic-ai agent:
+You can specify the model in two ways:
+
+1. **Using `--model` with full string** (recommended):
+   ```bash
+   --model "openai:gpt-4o"
+   --model "anthropic:claude-sonnet-4-0"
+   --model "azure-openai:deployment-name"
+   ```
+
+2. **Using `--model-provider` and `--model-name`**:
+   ```bash
+   --model-provider openai --model-name gpt-4o
+   --model-provider anthropic --model-name claude-sonnet-4-0
+   ```
+
+Supported providers: `openai`, `anthropic`, `azure-openai`, `github-copilot`, `google`, `bedrock`, `groq`, `mistral`, `cohere`
+
+### Prompt Agent
+
+Create and execute code based on user instructions:
 
 ```bash
-# Pydantic AI Prompt agent example
-jupyter-ai-agents-pydantic prompt \
+# Using full model string (recommended)
+jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model-provider openai \
-  --model-name gpt-4o \
+  --model "openai:gpt-4o" \
   --path notebook.ipynb \
   --input "Create a matplotlib example"
-```
 
-**Explain Error Agent (Pydantic AI)**
-
-Analyze and fix notebook errors using the pydantic-ai agent:
-
-```bash
-# Pydantic AI Explain Error agent example
-jupyter-ai-agents-pydantic explain-error \
+# Using provider and model name
+jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model-provider openai \
-  --model-name gpt-4o \
+  --model-provider anthropic \
+  --model-name claude-sonnet-4-0 \
+  --path notebook.ipynb \
+  --input "Create a pandas dataframe with sample data and plot it"
+```
+
+![Jupyter AI Agents - Prompt](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+
+### Explain Error Agent
+
+Analyze and fix notebook errors:
+
+```bash
+jupyter-ai-agents explain-error \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "openai:gpt-4o" \
   --path notebook.ipynb \
   --current-cell-index 5
 ```
 
-**Interactive Mode (Pydantic AI)**
+![Jupyter AI Agents - Exaplain Erorr](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
-Start an interactive chat session with the AI agent:
+### REPL Mode (Recommended for Interactive Use)
+
+For a more flexible interactive experience with direct access to all Jupyter MCP tools, use the REPL mode:
 
 ```bash
-# Interactive mode with pydantic-ai CLI
-jupyter-ai-agents-pydantic interactive \
+jupyter-ai-agents repl \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model-provider openai \
-  --model-name gpt-4o \
-  --path notebook.ipynb
+  --model "openai:gpt-4o"
 ```
 
-The interactive mode uses pydantic-ai's built-in CLI interface, providing features like:
+In REPL mode, you can directly ask the AI to:
+- List notebooks in directories
+- Read and analyze notebook contents
+- Execute code in cells
+- Insert new cells
+- Modify existing cells
+- Install Python packages
+
+Example REPL interactions:
+
+```
+> List all notebooks in the current directory
+> Create a new notebook called analysis.ipynb
+> In analysis.ipynb, create a cell that imports pandas and loads data.csv
+> Execute the cell and show me the first 5 rows
+> Add a matplotlib plot showing the distribution of the 'age' column
+```
+
+The REPL provides all the special commands:
 - `/exit`: Exit the session
 - `/markdown`: Show last response in markdown format
-- `/multiline`: Toggle multiline input mode
+- `/multiline`: Toggle multiline input mode (use Ctrl+D to submit)
 - `/cp`: Copy last response to clipboard
 
-### CLI with LangChain (Legacy)
-
-The original LangChain-based CLI uses Real-Time Collaboration (RTC) to communicate with notebooks. While still supported, we recommend using the pydantic-ai based CLI above.
-
-The following takes you through an example with the Azure OpenAI provider. Read the [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials and make sure you define them in the following `.env` file.
+You can also use a custom system prompt:
 
 ```bash
-cat << EOF >>.env
-OPENAI_API_VERSION="..."
-AZURE_OPENAI_ENDPOINT="..."
-AZURE_OPENAI_API_KEY="..."
-EOF
-```
-
-**Prompt Agent (LangChain)**
-
-To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure deployment name based on your setup).
-
-```bash
-# Prompt agent example.
-# make jupyter-ai-agents-prompt
-jupyter-ai-agents prompt \
+jupyter-ai-agents repl \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model-provider azure-openai \
-  --model-name gpt-4o-mini \
-  --path notebook.ipynb \
-  --input "Create a matplotlib example"
+  --model "anthropic:claude-sonnet-4-0" \
+  --system-prompt "You are a data science expert specializing in pandas and matplotlib."
 ```
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
-
-**Explain Error Agent (LangChain)**
-
-```bash
-# Explain Error agent example.
-# make jupyter-ai-agents-explain-error
-jupyter-ai-agents explain-error \
-  --url http://localhost:8888 \
-  --token MY_TOKEN \
-  --model-provider azure-openai \
-  --model-name gpt-4o-mini \
-  --path notebook.ipynb
-```
-
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
-
+## Uninstall
 
 ### About the Technology
 
