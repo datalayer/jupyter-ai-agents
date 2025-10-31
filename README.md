@@ -21,7 +21,7 @@ Experience seamless AI-powered assistance directly within JupyterLab through our
 
 ![Jupyter AI Agents Chat 1](https://assets.datalayer.tech/jupyter-ai-agents/jupyter-ai-agents-chat-1.png)
 
-The chat interface is built using [Pydantic AI](https://github.com/pydantic/pydantic-ai) for robust AI agent orchestration and [Vercel AI UI](https://github.com/vercel/ai) for the user interface components.
+The chat interface is built using [Pydantic AI](https://github.com/pydantic/pydantic-ai) for robust AI agent orchestration and [Vercel AI Elements](https://github.com/vercel/ai-elements) for the user interface components.
 
 ### MCP Server Integration
 
