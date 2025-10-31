@@ -63,7 +63,8 @@ typing = ["mypy>=0.990"]
 [project.scripts]
 jaa = "jupyter_ai_agents.cli.app:main"
 jupyter-ai-agents = "jupyter_ai_agents.cli.app:main"
-jupyter-ai-agents-console = "jupyter_ai_agents.cli.consoleapp:main"
+jupyter-ai-agents-console = "jupyter_ai_agents.cli.console_app:main"
+jupyter-ai-agents-pydantic = "jupyter_ai_agents.cli.pydantic_app:main"
 
 [project.license]
 file = "LICENSE"

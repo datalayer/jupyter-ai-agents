@@ -110,7 +110,15 @@ pip install datalayer_pycrdt==0.12.17
 ```
 ### Examples
 
-We put here a quick example for a Out-Kernel Stateless Agent via CLI helping your JupyterLab session.
+We put here quick examples for Out-Kernel Stateless Agents via CLI helping your JupyterLab session.
+
+### CLI with Pydantic AI and MCP (Recommended)
+
+The new **pydantic-ai based CLI** uses the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) to communicate with Jupyter via the `jupyter-mcp-server`. This is the recommended approach as it:
+- Uses modern pydantic-ai agents
+- Leverages MCP for tool integration
+- Communicates directly with Jupyter server (no nbmodel client needed)
+- Supports interactive mode with pydantic-ai's built-in CLI
 
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `notebook.ipynb`.
 
@@ -120,6 +128,66 @@ jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 ```
 
 Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
+
+The following takes you through an example with OpenAI. Make sure you have your API key set:
+
+```bash
+export OPENAI_API_KEY='your-api-key-here'
+```
+
+**Prompt Agent (Pydantic AI)**
+
+Create and execute code based on user instructions using the pydantic-ai agent:
+
+```bash
+# Pydantic AI Prompt agent example
+jupyter-ai-agents-pydantic prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider openai \
+  --model-name gpt-4o \
+  --path notebook.ipynb \
+  --input "Create a matplotlib example"
+```
+
+**Explain Error Agent (Pydantic AI)**
+
+Analyze and fix notebook errors using the pydantic-ai agent:
+
+```bash
+# Pydantic AI Explain Error agent example
+jupyter-ai-agents-pydantic explain-error \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider openai \
+  --model-name gpt-4o \
+  --path notebook.ipynb \
+  --current-cell-index 5
+```
+
+**Interactive Mode (Pydantic AI)**
+
+Start an interactive chat session with the AI agent:
+
+```bash
+# Interactive mode with pydantic-ai CLI
+jupyter-ai-agents-pydantic interactive \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider openai \
+  --model-name gpt-4o \
+  --path notebook.ipynb
+```
+
+The interactive mode uses pydantic-ai's built-in CLI interface, providing features like:
+- `/exit`: Exit the session
+- `/markdown`: Show last response in markdown format
+- `/multiline`: Toggle multiline input mode
+- `/cp`: Copy last response to clipboard
+
+### CLI with LangChain (Legacy)
+
+The original LangChain-based CLI uses Real-Time Collaboration (RTC) to communicate with notebooks. While still supported, we recommend using the pydantic-ai based CLI above.
 
 The following takes you through an example with the Azure OpenAI provider. Read the [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials and make sure you define them in the following `.env` file.
 
@@ -131,7 +199,7 @@ AZURE_OPENAI_API_KEY="..."
 EOF
 ```
 
-**Prompt Agent**
+**Prompt Agent (LangChain)**
 
 To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure deployment name based on your setup).
 
@@ -149,7 +217,7 @@ jupyter-ai-agents prompt \
 
 ![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
-**Explain Error Agent**
+**Explain Error Agent (LangChain)**
 
 ```bash
 # Explain Error agent example.
