@@ -120,14 +120,43 @@ jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 
 Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
 
-Make sure you have your API key set:
+### API Keys Configuration
 
+Set the appropriate API key for your chosen provider:
+
+**OpenAI:**
 ```bash
 export OPENAI_API_KEY='your-api-key-here'
-# Or for other providers:
-# export ANTHROPIC_API_KEY='your-api-key-here'
-# export AZURE_OPENAI_API_KEY='your-api-key-here'
-# etc.
+```
+
+**Anthropic:**
+```bash
+export ANTHROPIC_API_KEY='your-api-key-here'
+```
+
+**Azure OpenAI:**
+```bash
+export AZURE_OPENAI_API_KEY='your-api-key-here'
+export AZURE_OPENAI_ENDPOINT='https://your-resource.openai.azure.com'
+export AZURE_OPENAI_API_VERSION='2024-08-01-preview'  # optional
+```
+
+**Important for Azure OpenAI:** 
+- The `AZURE_OPENAI_ENDPOINT` should be just the base URL (e.g., `https://your-resource.openai.azure.com`)
+- Do NOT include `/openai/deployments/...` or query parameters in the endpoint
+- The deployment name is specified via the `--model-name` parameter
+- See `.env.azure.example` for a complete configuration template
+
+**Other providers:**
+```bash
+export GOOGLE_API_KEY='your-api-key-here'        # For Google/Gemini
+export COHERE_API_KEY='your-api-key-here'        # For Cohere
+export GROQ_API_KEY='your-api-key-here'          # For Groq
+export MISTRAL_API_KEY='your-api-key-here'       # For Mistral
+# AWS credentials for Bedrock
+export AWS_ACCESS_KEY_ID='your-key'
+export AWS_SECRET_ACCESS_KEY='your-secret'
+export AWS_REGION='us-east-1'
 ```
 
 ### Model Specification
@@ -149,6 +178,7 @@ You can specify the model in two ways:
 
 Supported providers: `openai`, `anthropic`, `azure-openai`, `github-copilot`, `google`, `bedrock`, `groq`, `mistral`, `cohere`
 
+<<<<<<< HEAD
 ### Prompt Agent
 
 Create and execute code based on user instructions:
@@ -189,6 +219,8 @@ jupyter-ai-agents explain-error \
 
 ![Jupyter AI Agents - Explain Error](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
+=======
+>>>>>>> e8fdf4c (azure)
 ### Interactive Mode
 
 Start an interactive chat session with the AI agent:
@@ -251,6 +283,42 @@ jupyter-ai-agents repl \
   --token MY_TOKEN \
   --model "anthropic:claude-sonnet-4-0" \
   --system-prompt "You are a data science expert specializing in pandas and matplotlib."
+```
+
+### Prompt Agent
+
+Create and execute code based on user instructions:
+
+```bash
+# Using full model string (recommended)
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0" \
+  --path notebook.ipynb \
+  --input "Create a matplotlib example"
+
+# Using provider and model name
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider anthropic \
+  --model-name claude-sonnet-4-0 \
+  --path notebook.ipynb \
+  --input "Create a pandas dataframe with sample data and plot it"
+```
+
+### Explain Error Agent
+
+Analyze and fix notebook errors:
+
+```bash
+jupyter-ai-agents explain-error \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0" \
+  --path notebook.ipynb \
+  --current-cell-index 5
 ```
 
 ## Uninstall

@@ -59,6 +59,7 @@ def create_prompt_agent(
     model: str,
     mcp_server: MCPServerStreamableHTTP,
     notebook_context: dict[str, Any] | None = None,
+    max_tool_calls: int = 10,
 ) -> Agent[PromptAgentDeps, str]:
     """
     Create the Prompt Agent for handling user instructions.
@@ -67,6 +68,7 @@ def create_prompt_agent(
         model: Model identifier (e.g., 'anthropic:claude-sonnet-4-0', 'openai:gpt-4o')
         mcp_server: MCP server connection to jupyter-mcp-server
         notebook_context: Optional context about the notebook
+        max_tool_calls: Maximum number of tool calls to make (default: 10)
     
     Returns:
         Configured Pydantic AI agent
@@ -81,6 +83,9 @@ def create_prompt_agent(
         if notebook_context.get('current_cell_index', -1) != -1:
             system_prompt += f"\n\nUser instruction was given at cell index: {notebook_context['current_cell_index']}"
     
+    # Add reminder to be efficient
+    system_prompt += "\n\nBe efficient: Complete the task in as few steps as possible. Don't over-verify or re-check unnecessarily."
+    
     # Create agent with MCP toolset
     agent = Agent(
         model,
@@ -89,7 +94,7 @@ def create_prompt_agent(
         system_prompt=system_prompt,
     )
     
-    logger.info(f"Created prompt agent with model {model}")
+    logger.info(f"Created prompt agent with model {model} (max_tool_calls={max_tool_calls})")
     
     return agent
 
@@ -98,6 +103,7 @@ async def run_prompt_agent(
     agent: Agent[PromptAgentDeps, str],
     user_input: str,
     notebook_context: dict[str, Any] | None = None,
+    max_tool_calls: int = 10,
 ) -> str:
     """
     Run the prompt agent with user input.
@@ -106,16 +112,25 @@ async def run_prompt_agent(
         agent: The configured prompt agent
         user_input: User's instruction/prompt
         notebook_context: Optional notebook context
+        max_tool_calls: Maximum number of tool calls to prevent excessive API usage
     
     Returns:
         Agent's response
     """
+    from pydantic_ai import UsageLimits
+    
     deps = PromptAgentDeps(notebook_context)
     
-    logger.info(f"Running prompt agent with input: {user_input[:50]}...")
+    logger.info(f"Running prompt agent with input: {user_input[:50]}... (max_tool_calls={max_tool_calls})")
     
     try:
-        result = await agent.run(user_input, deps=deps)
+        # Create usage limits to prevent excessive API calls
+        usage_limits = UsageLimits(
+            tool_calls_limit=max_tool_calls,
+            request_limit=max_tool_calls + 5,  # Allow a few extra requests for the conversation
+        )
+        
+        result = await agent.run(user_input, deps=deps, usage_limits=usage_limits)
         logger.info("Prompt agent completed successfully")
         return result.data
     except Exception as e:

@@ -42,7 +42,18 @@ example-fastapi: ## example-fastapi server
 	@exec echo
 	python -m uvicorn jupyter_ai_agents.examples.fastapi.main:main --reload --port 4400
 
-jupyter-ai-agents-prompt:
+repl:
+	jupyter-ai-agents repl \
+		--url http://localhost:8888 \
+		--token MY_TOKEN \
+		--model-provider azure-openai \
+		--model-name gpt-4o-mini
+
+prompt:
+	# Note: For Azure OpenAI, ensure these environment variables are set:
+	# - AZURE_OPENAI_API_KEY
+	# - AZURE_OPENAI_ENDPOINT (base URL, e.g., https://your-resource.openai.azure.com)
+	# - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
 	jupyter-ai-agents prompt \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
@@ -51,7 +62,7 @@ jupyter-ai-agents-prompt:
 		--path notebook.ipynb \
 		--input "Create a matplotlib example"
 
-jupyter-ai-agents-explain-error:
+explain-error:
 	jupyter-ai-agents explain-error \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \

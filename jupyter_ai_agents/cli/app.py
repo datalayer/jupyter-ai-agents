@@ -47,14 +47,27 @@ def get_model_string(model_provider: str, model_name: str) -> str:
         model_name: Model/deployment name
     
     Returns:
-        Model string in format 'provider:model'
+        Model string in format 'provider:model' 
+        For Azure OpenAI, returns the model name and sets provider via create_model_with_provider()
+    
+    Note:
+        For Azure OpenAI, the returned string is just the model name.
+        The Azure provider configuration is handled separately via OpenAIModel(provider='azure').
+        Required env vars for Azure:
+        - AZURE_OPENAI_API_KEY
+        - AZURE_OPENAI_ENDPOINT (base URL only, e.g., https://your-resource.openai.azure.com)
+        - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
     """
-    # Map provider names to pydantic-ai format
+    # For Azure OpenAI, we return just the model name
+    # The provider will be set to 'azure' when creating the OpenAIModel
+    if model_provider.lower() == 'azure-openai':
+        return model_name
+    
+    # Map provider names to pydantic-ai format for other providers
     provider_map = {
-        'azure-openai': 'openai',  # Azure OpenAI uses openai provider
         'openai': 'openai',
         'anthropic': 'anthropic',
-        'github-copilot': 'openai',  # GitHub Copilot uses OpenAI models
+        'github-copilot': 'openai',      # GitHub Copilot uses OpenAI models
         'bedrock': 'bedrock',
         'google': 'google',
         'gemini': 'google',
@@ -63,8 +76,31 @@ def get_model_string(model_provider: str, model_name: str) -> str:
         'cohere': 'cohere',
     }
     
-    provider = provider_map.get(model_provider, model_provider)
+    provider = provider_map.get(model_provider.lower(), model_provider)
     return f"{provider}:{model_name}"
+
+
+def create_model_with_provider(model_provider: str, model_name: str):
+    """
+    Create a pydantic-ai model object with the appropriate provider configuration.
+    
+    This is necessary for providers like Azure OpenAI that need special initialization.
+    
+    Args:
+        model_provider: Provider name
+        model_name: Model/deployment name
+        
+    Returns:
+        Model object or string for pydantic-ai Agent
+    """
+    if model_provider.lower() == 'azure-openai':
+        from pydantic_ai.models.openai import OpenAIModel
+        # For Azure OpenAI, create OpenAIModel with provider='azure'
+        # Environment variables AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT must be set
+        return OpenAIModel(model_name, provider='azure')
+    else:
+        # For other providers, use the standard string format
+        return get_model_string(model_provider, model_name)
 
 
 @app.command()
@@ -84,6 +120,7 @@ def prompt(
     model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
     current_cell_index: int = typer.Option(-1, help="Index of the cell where the prompt is asked."),
     full_context: bool = typer.Option(False, help="Flag to provide full notebook context to the AI model."),
+    max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
     verbose: bool = typer.Option(False, help="Enable verbose logging."),
 ):
     """
@@ -123,13 +160,18 @@ def prompt(
             logger.info(f"Connecting to Jupyter server at {url}")
             mcp_server = create_mcp_server(url, token)
             
-            # Determine model string
+            # Determine model - use model object for special providers like Azure
             if model:
-                model_str = model
-                logger.info(f"Using explicit model: {model_str}")
+                # User provided full model string
+                model_obj = model
+                logger.info(f"Using explicit model: {model_obj}")
             else:
-                model_str = get_model_string(model_provider, model_name)
-                logger.info(f"Using model: {model_str} (from {model_provider} + {model_name})")
+                # Create model object with provider-specific configuration
+                model_obj = create_model_with_provider(model_provider, model_name)
+                if isinstance(model_obj, str):
+                    logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
+                else:
+                    logger.info(f"Using {model_provider} model: {model_name}")
             
             # Prepare notebook context
             notebook_context = {
@@ -140,10 +182,10 @@ def prompt(
             
             # Create and run agent
             logger.info("Creating prompt agent...")
-            agent = create_prompt_agent(model_str, mcp_server, notebook_context)
+            agent = create_prompt_agent(model_obj, mcp_server, notebook_context, max_tool_calls=max_tool_calls)
             
             logger.info("Running prompt agent...")
-            result = await run_prompt_agent(agent, input, notebook_context)
+            result = await run_prompt_agent(agent, input, notebook_context, max_tool_calls=max_tool_calls)
             
             # Print result
             typer.echo("\n" + "="*60)
@@ -212,13 +254,16 @@ def explain_error(
             logger.info(f"Connecting to Jupyter server at {url}")
             mcp_server = create_mcp_server(url, token)
             
-            # Determine model string
+            # Determine model - use model object for special providers like Azure
             if model:
-                model_str = model
-                logger.info(f"Using explicit model: {model_str}")
+                model_obj = model
+                logger.info(f"Using explicit model: {model_obj}")
             else:
-                model_str = get_model_string(model_provider, model_name)
-                logger.info(f"Using model: {model_str} (from {model_provider} + {model_name})")
+                model_obj = create_model_with_provider(model_provider, model_name)
+                if isinstance(model_obj, str):
+                    logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
+                else:
+                    logger.info(f"Using {model_provider} model: {model_name}")
             
             # In a real implementation, we would:
             # 1. Fetch notebook content from server
@@ -232,7 +277,7 @@ def explain_error(
             
             logger.info("Creating explain error agent...")
             agent = create_explain_error_agent(
-                model_str,
+                model_obj,
                 mcp_server,
                 notebook_content=notebook_content,
                 error_cell_index=current_cell_index,
@@ -275,6 +320,7 @@ def interactive(
         help="Model provider: 'openai', 'anthropic', 'azure-openai', 'github-copilot', 'google', 'bedrock', 'groq', 'mistral', 'cohere'."
     ),
     model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
+    max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
 ):
     """
     Start an interactive session with the AI agent (Pydantic AI only).
@@ -314,24 +360,27 @@ def interactive(
             logger.info(f"Connecting to Jupyter server at {url}")
             mcp_server = create_mcp_server(url, token)
             
-            # Determine model string
+            # Determine model - use model object for special providers like Azure
             if model:
-                model_str = model
-                logger.info(f"Using explicit model: {model_str}")
+                model_obj = model
+                logger.info(f"Using explicit model: {model_obj}")
             else:
-                model_str = get_model_string(model_provider, model_name)
-                logger.info(f"Using model: {model_str} (from {model_provider} + {model_name})")
+                model_obj = create_model_with_provider(model_provider, model_name)
+                if isinstance(model_obj, str):
+                    logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
+                else:
+                    logger.info(f"Using {model_provider} model: {model_name}")
             
             # Create agent
             notebook_context = {'notebook_path': path}
-            agent = create_prompt_agent(model_str, mcp_server, notebook_context)
+            agent = create_prompt_agent(model_obj, mcp_server, notebook_context, max_tool_calls=max_tool_calls)
             
             typer.echo("="*60)
             typer.echo("Jupyter AI Agents - Interactive Mode")
             typer.echo("="*60)
             typer.echo(f"Connected to: {url}")
             typer.echo(f"Notebook: {path}")
-            typer.echo(f"Model: {model_str}")
+            typer.echo(f"Model: {model_provider}:{model_name}" if not model else f"Model: {model}")
             typer.echo("="*60)
             typer.echo("Type your instructions. Use /exit to quit.\n")
             

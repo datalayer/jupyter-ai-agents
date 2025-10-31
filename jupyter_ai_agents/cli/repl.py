@@ -20,13 +20,25 @@ app = typer.Typer(help="Interactive REPL with Jupyter MCP tools")
 
 
 def get_model_string(provider: str, model_name: str) -> str:
-    """Convert provider and model name to pydantic-ai model string format."""
+    """
+    Convert provider and model name to pydantic-ai model string format.
+    
+    Note:
+        For Azure OpenAI, returns just the model name.
+        Required env vars for Azure:
+        - AZURE_OPENAI_API_KEY
+        - AZURE_OPENAI_ENDPOINT (base URL only, e.g., https://your-resource.openai.azure.com)
+        - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
+    """
+    # For Azure OpenAI, return just the model name
+    if provider.lower() == 'azure-openai':
+        return model_name
+    
     # Map common providers to pydantic-ai format
     provider_map = {
-        "azure-openai": "azure-openai",
-        "openai": "openai",
+        "openai": "openai",              # Regular OpenAI - requires OPENAI_API_KEY
         "anthropic": "anthropic",
-        "github-copilot": "openai",  # GitHub Copilot uses OpenAI-compatible API
+        "github-copilot": "openai",      # GitHub Copilot uses OpenAI-compatible API
         "google": "google",
         "gemini": "google",
         "bedrock": "bedrock",
@@ -37,6 +49,24 @@ def get_model_string(provider: str, model_name: str) -> str:
     
     mapped_provider = provider_map.get(provider.lower(), provider)
     return f"{mapped_provider}:{model_name}"
+
+
+def create_model_with_provider(provider: str, model_name: str):
+    """
+    Create a pydantic-ai model object with the appropriate provider configuration.
+    
+    Args:
+        provider: Provider name
+        model_name: Model/deployment name
+        
+    Returns:
+        Model object or string for pydantic-ai Agent
+    """
+    if provider.lower() == 'azure-openai':
+        from pydantic_ai.models.openai import OpenAIModel
+        return OpenAIModel(model_name, provider='azure')
+    else:
+        return get_model_string(provider, model_name)
 
 
 @app.command()
@@ -110,17 +140,83 @@ def repl(
         try:
             from pydantic_ai import Agent
             
-            # Determine model string
+            # Determine model - use model object for special providers like Azure
             if model:
-                model_str = model
-                logger.info(f"Using explicit model: {model_str}")
+                model_obj = model
+                logger.info(f"Using explicit model: {model_obj}")
             else:
-                model_str = get_model_string(model_provider, model_name)
-                logger.info(f"Using model: {model_str} (from {model_provider} + {model_name})")
+                model_obj = create_model_with_provider(model_provider, model_name)
+                if isinstance(model_obj, str):
+                    logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
+                else:
+                    logger.info(f"Using {model_provider} model: {model_name}")
             
             # Create MCP server connection
             logger.info(f"Connecting to Jupyter server at {url}")
             mcp_server = create_mcp_server(url, token)
+            
+            # List available tools from the MCP server
+            async def list_tools():
+                """List all tools available from the jupyter-mcp-server"""
+                try:
+                    from mcp import ClientSession
+                    from mcp.client.streamable_http import streamable_http_client
+                    
+                    # Get the MCP URL from server configuration
+                    mcp_url = f"{url.rstrip('/')}/mcp"
+                    
+                    typer.echo("\n🔧 Available Jupyter MCP Tools:")
+                    typer.echo(f"   Connecting to: {mcp_url}")
+                    
+                    # Create headers for authentication if token is provided
+                    headers = {}
+                    if token:
+                        headers["Authorization"] = f"token {token}"
+                    
+                    # Connect using streamable HTTP client
+                    async with streamable_http_client(mcp_url, headers=headers) as (read, write):
+                        async with ClientSession(read, write) as session:
+                            # Initialize the session
+                            await session.initialize()
+                            
+                            # List tools
+                            tools_result = await session.list_tools()
+                            tools = tools_result.tools
+                            
+                            typer.echo(f"\n   Found {len(tools)} tools:\n")
+                            
+                            for tool in tools:
+                                name = tool.name
+                                description = getattr(tool, 'description', '')
+                                params = []
+                                
+                                if hasattr(tool, 'inputSchema') and tool.inputSchema:
+                                    schema = tool.inputSchema
+                                    if isinstance(schema, dict) and "properties" in schema:
+                                        props = schema["properties"]
+                                        for param_name, param_info in props.items():
+                                            param_type = param_info.get("type", "any")
+                                            params.append(f"{param_name}: {param_type}")
+                                
+                                param_str = f"({', '.join(params)})" if params else "()"
+                                
+                                # Display tool with description
+                                typer.echo(f"   • {name}{param_str}")
+                                if description:
+                                    # Indent description
+                                    desc_lines = description.split('\n')
+                                    for line in desc_lines:
+                                        if line.strip():
+                                            typer.echo(f"     {line.strip()}")
+                                typer.echo()
+                            
+                except Exception as e:
+                    logger.warning(f"Could not list tools: {e}")
+                    typer.echo(f"\n⚠️  Could not list tools: {e}")
+                    typer.echo("   The agent will still work with available tools\n")
+            
+            # List tools before starting the agent
+            await list_tools()
             
             # Create default system prompt if not provided
             if system_prompt is None:
@@ -149,18 +245,20 @@ Always confirm before making destructive changes.
             # Create agent with MCP toolset
             logger.info("Creating agent with Jupyter MCP tools...")
             agent = Agent(
-                model_str,
+                model_obj,
                 toolsets=[mcp_server],
                 system_prompt=instructions,
             )
             
             # Display welcome message
-            typer.echo("\n" + "="*70)
+            typer.echo("="*70)
             typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
             typer.echo("="*70)
-            typer.echo(f"Model: {model_str}")
+            if isinstance(model_obj, str):
+                typer.echo(f"Model: {model_obj}")
+            else:
+                typer.echo(f"Model: {model_provider}:{model_name}")
             typer.echo(f"Jupyter Server: {url}")
-            typer.echo(f"MCP Tools: jupyter-mcp-server (connected)")
             typer.echo("="*70)
             typer.echo("\nSpecial commands:")
             typer.echo("  /exit       - Exit the session")
