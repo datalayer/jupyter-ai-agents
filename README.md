@@ -47,13 +47,7 @@ Currently, we support **Anthropic Claude Sonnet 4.0** as the AI model. To get st
 
 3. **Launch JupyterLab with the required configuration:**
    ```bash
-   jupyter lab \
-     --JupyterMCPServerExtensionApp.document_url local \
-     --JupyterMCPServerExtensionApp.runtime_url local \
-     --JupyterMCPServerExtensionApp.start_new_runtime True \
-     --ServerApp.disable_check_xsrf True \
-     --IdentityProvider.token MY_TOKEN \
-     --port 4040
+   jupyter lab
    ```
 
 4. **Access the chat interface** through the right panel in JupyterLab.
