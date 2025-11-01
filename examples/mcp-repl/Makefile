@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 .PHONY: help install mcp1 mcp2 repl1 repl2 clean
 
 # Default target

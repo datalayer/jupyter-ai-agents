@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 .PHONY: help jupyterlab repl clean
 
 # Default target
