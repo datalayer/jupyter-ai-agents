@@ -70,6 +70,7 @@ def create_explain_error_agent(
     notebook_content: str = "",
     error_info: dict[str, Any] | None = None,
     error_cell_index: int = -1,
+    max_tool_calls: int = 10,
 ) -> Agent[ExplainErrorAgentDeps, str]:
     """
     Create the Explain Error Agent for analyzing and fixing errors.
@@ -80,6 +81,7 @@ def create_explain_error_agent(
         notebook_content: Content of notebook cells leading up to the error
         error_info: Information about the error
         error_cell_index: Index of the cell where error occurred
+        max_tool_calls: Maximum number of tool calls to make (default: 10)
     
     Returns:
         Configured Pydantic AI agent
@@ -93,6 +95,9 @@ def create_explain_error_agent(
     if error_cell_index != -1:
         system_prompt += f"\n\nError occurred at cell index: {error_cell_index}"
     
+    # Add reminder to be efficient
+    system_prompt += "\n\nBe efficient: Fix the error in as few steps as possible."
+    
     # Create agent with MCP toolset
     agent = Agent(
         model,
@@ -101,7 +106,7 @@ def create_explain_error_agent(
         system_prompt=system_prompt,
     )
     
-    logger.info(f"Created explain error agent with model {model}")
+    logger.info(f"Created explain error agent with model {model} (max_tool_calls={max_tool_calls})")
     
     return agent
 
@@ -112,6 +117,7 @@ async def run_explain_error_agent(
     notebook_content: str = "",
     error_info: dict[str, Any] | None = None,
     error_cell_index: int = -1,
+    max_tool_calls: int = 10,
 ) -> str:
     """
     Run the explain error agent to analyze and fix an error.
@@ -122,22 +128,40 @@ async def run_explain_error_agent(
         notebook_content: Content of notebook cells
         error_info: Additional error information
         error_cell_index: Index where error occurred
+        max_tool_calls: Maximum number of tool calls to prevent excessive API usage
     
     Returns:
         Agent's response with explanation and fix
     """
+    import asyncio
+    from pydantic_ai import UsageLimits
+    
     deps = ExplainErrorAgentDeps(
         notebook_content=notebook_content,
         error_info=error_info,
         error_cell_index=error_cell_index,
     )
     
-    logger.info(f"Running explain error agent for error: {error_description[:50]}...")
+    logger.info(f"Running explain error agent for error: {error_description[:50]}... (max_tool_calls={max_tool_calls})")
     
     try:
-        result = await agent.run(error_description, deps=deps)
+        # Create usage limits to prevent excessive API calls
+        # Use strict limits: fewer requests to avoid rate limiting
+        usage_limits = UsageLimits(
+            tool_calls_limit=max_tool_calls,
+            request_limit=3,  # Strict limit: max 3 API requests to avoid rate limiting
+        )
+        
+        # Add timeout to prevent hanging on retries
+        result = await asyncio.wait_for(
+            agent.run(error_description, deps=deps, usage_limits=usage_limits),
+            timeout=120.0  # 2 minute timeout
+        )
         logger.info("Explain error agent completed successfully")
-        return result.data
+        return result.response
+    except asyncio.TimeoutError:
+        logger.error("Explain error agent timed out after 120 seconds")
+        return "Error: Operation timed out. The agent may have hit rate limits or is taking too long."
     except Exception as e:
         logger.error(f"Error running explain error agent: {e}", exc_info=True)
         return f"Error: {str(e)}"

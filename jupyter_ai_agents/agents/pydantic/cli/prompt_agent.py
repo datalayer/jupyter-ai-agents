@@ -7,7 +7,7 @@
 import logging
 from typing import Any
 
-from pydantic_ai import Agent, RunContext
+from pydantic_ai import Agent
 from pydantic_ai.mcp import MCPServerStreamableHTTP
 
 from jupyter_ai_agents.tools import create_mcp_server
@@ -104,6 +104,7 @@ async def run_prompt_agent(
     user_input: str,
     notebook_context: dict[str, Any] | None = None,
     max_tool_calls: int = 10,
+    max_requests: int = 2,
 ) -> str:
     """
     Run the prompt agent with user input.
@@ -113,26 +114,51 @@ async def run_prompt_agent(
         user_input: User's instruction/prompt
         notebook_context: Optional notebook context
         max_tool_calls: Maximum number of tool calls to prevent excessive API usage
+    max_requests: Maximum number of API requests (default: 4, lower if needed for strict rate limits)
     
     Returns:
         Agent's response
     """
-    from pydantic_ai import UsageLimits
+    import asyncio
+    from pydantic_ai import UsageLimitExceeded, UsageLimits
     
     deps = PromptAgentDeps(notebook_context)
     
-    logger.info(f"Running prompt agent with input: {user_input[:50]}... (max_tool_calls={max_tool_calls})")
+    logger.info(f"Running prompt agent with input: {user_input[:50]}... (max_tool_calls={max_tool_calls}, max_requests={max_requests})")
+    
+    # Warn about low limits
+    if max_requests <= 2:
+        logger.warning(
+            f"Using very conservative request limit ({max_requests}). "
+            "This may result in incomplete responses. "
+            "Increase --max-requests if your Azure tier allows."
+        )
     
     try:
         # Create usage limits to prevent excessive API calls
+        # Use strict limits to avoid rate limiting
         usage_limits = UsageLimits(
             tool_calls_limit=max_tool_calls,
-            request_limit=max_tool_calls + 5,  # Allow a few extra requests for the conversation
+            request_limit=max_requests,  # Strict limit to avoid rate limiting
         )
         
-        result = await agent.run(user_input, deps=deps, usage_limits=usage_limits)
+        # Add timeout to prevent hanging on retries
+        result = await asyncio.wait_for(
+            agent.run(user_input, deps=deps, usage_limits=usage_limits),
+            timeout=120.0  # 2 minute timeout
+        )
         logger.info("Prompt agent completed successfully")
-        return result.data
+        return result.response
+    except asyncio.TimeoutError:
+        logger.error("Prompt agent timed out after 120 seconds")
+        return "Error: Operation timed out. The agent may have hit rate limits or is taking too long."
+    except UsageLimitExceeded as e:
+        logger.error(f"Prompt agent hit usage limits: {e}")
+        return (
+            "Error: Reached the configured usage limits.\n"
+            f"Increase --max-requests (currently {max_requests}) or --max-tool-calls (currently {max_tool_calls}) "
+            "if your model provider allows more usage."
+        )
     except Exception as e:
         logger.error(f"Error running prompt agent: {e}", exc_info=True)
         return f"Error: {str(e)}"

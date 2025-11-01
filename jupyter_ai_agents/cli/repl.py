@@ -12,11 +12,21 @@ from typing import Optional
 
 import typer
 
-from jupyter_ai_agents.tools import create_mcp_server
+from jupyter_ai_agents.tools import create_mcp_server, get_available_tools_from_mcp
 
 logger = logging.getLogger(__name__)
 
 app = typer.Typer(help="Interactive REPL with Jupyter MCP tools")
+
+
+def enable_verbose_logging():
+    """Enable verbose logging for debugging API calls and retries."""
+    logging.getLogger().setLevel(logging.DEBUG)
+    # Enable detailed HTTP logging to see retry reasons
+    logging.getLogger("httpx").setLevel(logging.DEBUG)
+    logging.getLogger("anthropic").setLevel(logging.DEBUG)
+    logging.getLogger("openai").setLevel(logging.DEBUG)
+    logger.debug("Verbose logging enabled - will show detailed HTTP requests, responses, and retry reasons")
 
 
 def get_model_string(provider: str, model_name: str) -> str:
@@ -134,7 +144,7 @@ def repl(
         > Execute the cell and show me the first 5 rows
     """
     if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        enable_verbose_logging()
     
     async def _run():
         try:
@@ -159,57 +169,34 @@ def repl(
             async def list_tools():
                 """List all tools available from the jupyter-mcp-server"""
                 try:
-                    from mcp import ClientSession
-                    from mcp.client.streamable_http import streamable_http_client
-                    
-                    # Get the MCP URL from server configuration
-                    mcp_url = f"{url.rstrip('/')}/mcp"
-                    
                     typer.echo("\n🔧 Available Jupyter MCP Tools:")
-                    typer.echo(f"   Connecting to: {mcp_url}")
-                    
-                    # Create headers for authentication if token is provided
-                    headers = {}
-                    if token:
-                        headers["Authorization"] = f"token {token}"
-                    
-                    # Connect using streamable HTTP client
-                    async with streamable_http_client(mcp_url, headers=headers) as (read, write):
-                        async with ClientSession(read, write) as session:
-                            # Initialize the session
-                            await session.initialize()
-                            
-                            # List tools
-                            tools_result = await session.list_tools()
-                            tools = tools_result.tools
-                            
-                            typer.echo(f"\n   Found {len(tools)} tools:\n")
-                            
-                            for tool in tools:
-                                name = tool.name
-                                description = getattr(tool, 'description', '')
-                                params = []
-                                
-                                if hasattr(tool, 'inputSchema') and tool.inputSchema:
-                                    schema = tool.inputSchema
-                                    if isinstance(schema, dict) and "properties" in schema:
-                                        props = schema["properties"]
-                                        for param_name, param_info in props.items():
-                                            param_type = param_info.get("type", "any")
-                                            params.append(f"{param_name}: {param_type}")
-                                
-                                param_str = f"({', '.join(params)})" if params else "()"
-                                
-                                # Display tool with description
-                                typer.echo(f"   • {name}{param_str}")
-                                if description:
-                                    # Indent description
-                                    desc_lines = description.split('\n')
-                                    for line in desc_lines:
-                                        if line.strip():
-                                            typer.echo(f"     {line.strip()}")
-                                typer.echo()
-                            
+                    typer.echo(f"   Connecting to: {url.rstrip('/')}/mcp")
+
+                    tools = await get_available_tools_from_mcp(url, token)
+
+                    if not tools:
+                        typer.echo("\n   No tools reported by the MCP server.\n")
+                        return
+
+                    typer.echo(f"\n   Found {len(tools)} tools:\n")
+
+                    for tool in tools:
+                        name = tool.get("name", "<unknown>")
+                        description = tool.get("description", "")
+                        schema = tool.get("inputSchema", {}) or {}
+
+                        params = []
+                        if isinstance(schema, dict) and "properties" in schema:
+                            for param_name, param_info in schema["properties"].items():
+                                param_type = param_info.get("type", "any")
+                                params.append(f"{param_name}: {param_type}")
+
+                        param_str = f"({', '.join(params)})" if params else "()"
+                        
+                        # One-line format: name(params) - first line of description
+                        desc_first_line = description.split('\n')[0] if description else ""
+                        typer.echo(f"   • {name}{param_str} - {desc_first_line}")
+
                 except Exception as e:
                     logger.warning(f"Could not list tools: {e}")
                     typer.echo(f"\n⚠️  Could not list tools: {e}")
@@ -275,6 +262,10 @@ Always confirm before making destructive changes.
             
         except KeyboardInterrupt:
             typer.echo("\n\nSession interrupted by user.")
+        except asyncio.CancelledError:
+            # Handle cancellation from Ctrl+C during SDK retries
+            logger.info("REPL session cancelled")
+            typer.echo("\n\nSession cancelled.")
         except Exception as e:
             logger.error(f"Error in REPL: {e}", exc_info=True)
             typer.echo(f"\nError: {str(e)}", err=True)

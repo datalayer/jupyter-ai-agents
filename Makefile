@@ -46,29 +46,32 @@ repl:
 	jupyter-ai-agents repl \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model-provider azure-openai \
-		--model-name gpt-4o-mini
+		--model-provider anthropic \
+		--model-name claude-sonnet-4-0
 
+# Note: For Azure OpenAI, ensure these environment variables are set:
+# - AZURE_OPENAI_API_KEY
+# - AZURE_OPENAI_ENDPOINT (base URL, e.g., https://your-resource.openai.azure.com)
+# - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
+# Adjust --max-requests based on your Azure tier (CLI default: 4; lower if you hit rate limits)
 prompt:
-	# Note: For Azure OpenAI, ensure these environment variables are set:
-	# - AZURE_OPENAI_API_KEY
-	# - AZURE_OPENAI_ENDPOINT (base URL, e.g., https://your-resource.openai.azure.com)
-	# - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
 	jupyter-ai-agents prompt \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model-provider azure-openai \
-		--model-name gpt-4o-mini \
+		--model anthropic:claude-sonnet-4-0 \
 		--path notebook.ipynb \
+		--max-requests 4 \
+		--max-tool-calls 10 \
 		--input "Create a matplotlib example"
 
 explain-error:
 	jupyter-ai-agents explain-error \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model-provider azure-openai \
-		--model-name gpt-4o-mini \
-		--path notebook.ipynb
+		--model anthropic:claude-sonnet-4-0 \
+		--path notebook.ipynb \
+		--max-requests 4 \
+		--max-tool-calls 10
 
 publish-pypi: # publish the pypi package
 	git clean -fdx && \

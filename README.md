@@ -178,7 +178,6 @@ You can specify the model in two ways:
 
 Supported providers: `openai`, `anthropic`, `azure-openai`, `github-copilot`, `google`, `bedrock`, `groq`, `mistral`, `cohere`
 
-<<<<<<< HEAD
 ### Prompt Agent
 
 Create and execute code based on user instructions:
@@ -243,6 +242,11 @@ The interactive mode uses pydantic-ai's built-in CLI interface, providing featur
 ### REPL Mode (Recommended for Interactive Use)
 
 For a more flexible interactive experience with direct access to all Jupyter MCP tools, use the REPL mode:
+=======
+### REPL Mode (Interactive)
+
+For an interactive experience with direct access to all Jupyter MCP tools, use the REPL mode:
+>>>>>>> fea7651 (repl)
 
 ```bash
 jupyter-ai-agents repl \
@@ -269,7 +273,7 @@ Example REPL interactions:
 > Add a matplotlib plot showing the distribution of the 'age' column
 ```
 
-The REPL provides all the special commands:
+The REPL provides special commands:
 - `/exit`: Exit the session
 - `/markdown`: Show last response in markdown format
 - `/multiline`: Toggle multiline input mode (use Ctrl+D to submit)

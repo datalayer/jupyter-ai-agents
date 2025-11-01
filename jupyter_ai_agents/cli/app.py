@@ -32,6 +32,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def enable_verbose_logging():
+    """Enable verbose logging for debugging API calls and retries."""
+    logging.getLogger().setLevel(logging.DEBUG)
+    # Enable detailed HTTP logging to see retry reasons
+    logging.getLogger("httpx").setLevel(logging.DEBUG)
+    logging.getLogger("anthropic").setLevel(logging.DEBUG)
+    logging.getLogger("openai").setLevel(logging.DEBUG)
+    logger.debug("Verbose logging enabled - will show detailed HTTP requests, responses, and retry reasons")
+
 app = typer.Typer(help="Jupyter AI Agents - AI-powered notebook manipulation with Pydantic AI and MCP.")
 
 # Register repl command
@@ -121,6 +130,7 @@ def prompt(
     current_cell_index: int = typer.Option(-1, help="Index of the cell where the prompt is asked."),
     full_context: bool = typer.Option(False, help="Flag to provide full notebook context to the AI model."),
     max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
+    max_requests: int = typer.Option(4, help="Maximum number of API requests per run (defaults to 4; lower for strict rate limits)."),
     verbose: bool = typer.Option(False, help="Enable verbose logging."),
 ):
     """
@@ -152,7 +162,7 @@ def prompt(
             --input "Create a matplotlib example"
     """
     if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        enable_verbose_logging()
     
     async def _run():
         try:
@@ -185,7 +195,7 @@ def prompt(
             agent = create_prompt_agent(model_obj, mcp_server, notebook_context, max_tool_calls=max_tool_calls)
             
             logger.info("Running prompt agent...")
-            result = await run_prompt_agent(agent, input, notebook_context, max_tool_calls=max_tool_calls)
+            result = await run_prompt_agent(agent, input, notebook_context, max_tool_calls=max_tool_calls, max_requests=max_requests)
             
             # Print result
             typer.echo("\n" + "="*60)
@@ -216,6 +226,7 @@ def explain_error(
     ),
     model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
     current_cell_index: int = typer.Option(-1, help="Index of the cell with the error (-1 for first error)."),
+    max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
     verbose: bool = typer.Option(False, help="Enable verbose logging."),
 ):
     """
@@ -246,7 +257,7 @@ def explain_error(
             --model-name gpt-4o
     """
     if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        enable_verbose_logging()
     
     async def _run():
         try:
@@ -281,6 +292,7 @@ def explain_error(
                 mcp_server,
                 notebook_content=notebook_content,
                 error_cell_index=current_cell_index,
+                max_tool_calls=max_tool_calls,
             )
             
             logger.info("Running explain error agent...")
@@ -289,6 +301,7 @@ def explain_error(
                 error_description,
                 notebook_content=notebook_content,
                 error_cell_index=current_cell_index,
+                max_tool_calls=max_tool_calls,
             )
             
             # Print result
@@ -300,95 +313,6 @@ def explain_error(
             
         except Exception as e:
             logger.error(f"Error running explain error agent: {e}", exc_info=True)
-            typer.echo(f"Error: {str(e)}", err=True)
-            raise typer.Exit(code=1)
-    
-    asyncio.run(_run())
-
-
-@app.command()
-def interactive(
-    url: str = typer.Option("http://localhost:8888", help="URL to the Jupyter Server."),
-    token: str = typer.Option("", help="Jupyter Server token."),
-    path: str = typer.Option("", help="Jupyter Notebook path."),
-    model: str = typer.Option(
-        None,
-        help="Full model string (e.g., 'openai:gpt-4o', 'anthropic:claude-sonnet-4-0'). If not provided, uses --model-provider and --model-name."
-    ),
-    model_provider: str = typer.Option(
-        "openai",
-        help="Model provider: 'openai', 'anthropic', 'azure-openai', 'github-copilot', 'google', 'bedrock', 'groq', 'mistral', 'cohere'."
-    ),
-    model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
-    max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
-):
-    """
-    Start an interactive session with the AI agent (Pydantic AI only).
-    
-    Uses pydantic-ai's built-in CLI interface for a conversational experience
-    with the notebook. This mode is only available with the Pydantic AI backend.
-    
-    You can specify the model in two ways:
-    1. Using --model with full string: --model "openai:gpt-4o"
-    2. Using --model-provider and --model-name: --model-provider openai --model-name gpt-4o
-    
-    Special commands:
-    - /exit: Exit the session
-    - /markdown: Show last response in markdown format
-    - /multiline: Toggle multiline input mode (use Ctrl+D to submit)
-    - /cp: Copy last response to clipboard
-    
-    Examples:
-        # Using full model string
-        jupyter-ai-agents interactive \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
-            --path notebook.ipynb \\
-            --model "anthropic:claude-sonnet-4-0"
-        
-        # Using provider and name
-        jupyter-ai-agents interactive \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
-            --path notebook.ipynb \\
-            --model-provider openai \\
-            --model-name gpt-4o
-    """
-    async def _run():
-        try:
-            # Create MCP server connection
-            logger.info(f"Connecting to Jupyter server at {url}")
-            mcp_server = create_mcp_server(url, token)
-            
-            # Determine model - use model object for special providers like Azure
-            if model:
-                model_obj = model
-                logger.info(f"Using explicit model: {model_obj}")
-            else:
-                model_obj = create_model_with_provider(model_provider, model_name)
-                if isinstance(model_obj, str):
-                    logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
-                else:
-                    logger.info(f"Using {model_provider} model: {model_name}")
-            
-            # Create agent
-            notebook_context = {'notebook_path': path}
-            agent = create_prompt_agent(model_obj, mcp_server, notebook_context, max_tool_calls=max_tool_calls)
-            
-            typer.echo("="*60)
-            typer.echo("Jupyter AI Agents - Interactive Mode")
-            typer.echo("="*60)
-            typer.echo(f"Connected to: {url}")
-            typer.echo(f"Notebook: {path}")
-            typer.echo(f"Model: {model_provider}:{model_name}" if not model else f"Model: {model}")
-            typer.echo("="*60)
-            typer.echo("Type your instructions. Use /exit to quit.\n")
-            
-            # Use pydantic-ai's CLI
-            await agent.to_cli()
-            
-        except Exception as e:
-            logger.error(f"Error in interactive mode: {e}", exc_info=True)
             typer.echo(f"Error: {str(e)}", err=True)
             raise typer.Exit(code=1)
     
