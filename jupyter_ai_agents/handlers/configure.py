@@ -10,7 +10,7 @@ import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
 
-from jupyter_ai_agents.agents.pydantic.models import (
+from jupyter_ai_agents.agents.models import (
     FrontendConfig,
     AIModel,
     BuiltinTool,

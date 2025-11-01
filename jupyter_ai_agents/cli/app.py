@@ -12,11 +12,11 @@ import logging
 import httpx
 
 # Pydantic AI agents
-from jupyter_ai_agents.agents.pydantic.cli.prompt_agent import (
+from jupyter_ai_agents.agents.cli.prompt_agent import (
     create_prompt_agent,
     run_prompt_agent,
 )
-from jupyter_ai_agents.agents.pydantic.cli.explain_error_agent import (
+from jupyter_ai_agents.agents.cli.explain_error_agent import (
     create_explain_error_agent,
     run_explain_error_agent,
 )
@@ -415,41 +415,62 @@ def repl(
         from pydantic_ai import Agent
         
         # Determine model - handle azure-openai:deployment format or use provider+name
+        model_display_name = None  # Track the display name for welcome message
+        
         if model:
             # Check if model string is in azure-openai:deployment format
             if model.startswith('azure-openai:'):
                 from pydantic_ai.models.openai import OpenAIChatModel
                 from pydantic_ai.providers import infer_provider
                 from pydantic_ai.providers.openai import OpenAIProvider
+                from openai.lib.azure import AsyncAzureOpenAI
                 
                 deployment_name = model.split(':', 1)[1]
                 http_timeout = httpx.Timeout(timeout, connect=30.0)
                 
-                # Create custom provider with timeout
-                http_client = httpx.AsyncClient(timeout=http_timeout, follow_redirects=True)
-                
-                # Infer Azure provider first to get proper configuration
+                # Infer Azure provider first to get proper configuration (API key, API version, etc.)
                 azure_provider_base = infer_provider('azure')
                 
-                # Create new provider with same base_url but custom http_client
-                azure_provider = OpenAIProvider(
-                    base_url=str(azure_provider_base.client.base_url),
-                    http_client=http_client
+                # Extract base URL - remove /openai suffix since AsyncAzureOpenAI adds it
+                base_url = str(azure_provider_base.client.base_url)
+                # base_url is like: https://xxx.openai.azure.com/openai/
+                # AsyncAzureOpenAI expects: https://xxx.openai.azure.com (it adds /openai automatically)
+                azure_endpoint = base_url.rstrip('/').rsplit('/openai', 1)[0]
+                
+                logger.info(f"Azure OpenAI endpoint: {azure_endpoint}")
+                logger.info(f"Azure OpenAI API version: {azure_provider_base.client.default_query}")
+                logger.info(f"Azure OpenAI timeout: {http_timeout}")
+                
+                # Create Azure OpenAI client with custom timeout
+                azure_client = AsyncAzureOpenAI(
+                    azure_endpoint=azure_endpoint,
+                    azure_deployment=deployment_name,
+                    api_version=azure_provider_base.client.default_query.get('api-version'),
+                    api_key=azure_provider_base.client.api_key,
+                    timeout=http_timeout,
                 )
+                
+                # Create provider with the configured client
+                from pydantic_ai.providers.openai import OpenAIProvider
+                azure_provider = OpenAIProvider(openai_client=azure_client)
                 
                 model_obj = OpenAIChatModel(
                     deployment_name, 
                     provider=azure_provider
                 )
-                logger.info(f"Using Azure OpenAI deployment: {deployment_name} (timeout: {timeout}s, connect: 30s)")
+                model_display_name = model  # azure-openai:deployment-name
+                logger.info(f"Using Azure OpenAI deployment: {deployment_name}")
             else:
                 model_obj = model
+                model_display_name = model
                 logger.info(f"Using explicit model: {model_obj}")
         else:
             model_obj = create_model_with_provider(model_provider, model_name, timeout)
             if isinstance(model_obj, str):
+                model_display_name = model_obj
                 logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
             else:
+                model_display_name = f"{model_provider}:{model_name}"
                 logger.info(f"Using {model_provider} model: {model_name} (timeout: {timeout}s)")
         
         # Create MCP server connection(s)
@@ -489,10 +510,7 @@ Be proactive in suggesting what you can do with the available tools.
         typer.echo("="*70)
         typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
         typer.echo("="*70)
-        if isinstance(model_obj, str):
-            typer.echo(f"Model: {model_obj}")
-        else:
-            typer.echo(f"Model: {model_provider}:{model_name}")
+        typer.echo(f"Model: {model_display_name}")
         
         server_urls = [s.strip() for s in mcp_servers.split(',')]
         typer.echo(f"MCP Servers: {len(server_urls)} connected")

@@ -79,33 +79,39 @@ def create_model_with_provider(
     """
     # Create httpx timeout configuration with generous connect timeout
     # connect timeout is separate from read/write timeout
+    import httpx
     http_timeout = httpx.Timeout(timeout, connect=30.0)
     
     logger.info(f"Creating model with timeout: {timeout}s (read/write), connect: 30.0s")
     
-    if model_provider.lower() == 'azure-openai':
+    if model_provider == 'azure-openai' or model_provider == 'azure':
         from pydantic_ai.models.openai import OpenAIChatModel
         from pydantic_ai.providers import infer_provider
-        
-        # For Azure OpenAI, create OpenAIChatModel with custom http_client via provider
-        # Environment variables AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT must be set
-        # First infer the Azure provider to get base_url, then pass custom http_client
-        http_client = httpx.AsyncClient(timeout=http_timeout, follow_redirects=True)
-        
-        # Infer Azure provider first to get proper configuration
+        from openai import AsyncAzureOpenAI
         from pydantic_ai.providers.openai import OpenAIProvider
-        azure_provider_base = infer_provider('azure')
         
-        # Create new provider with same base_url but custom http_client
-        azure_provider = OpenAIProvider(
-            base_url=str(azure_provider_base.client.base_url),
-            http_client=http_client
+        # Infer Azure provider to get configuration
+        azure_provider = infer_provider('azure')
+        
+        # Extract base URL - remove /openai suffix since AsyncAzureOpenAI adds it
+        base_url = str(azure_provider.client.base_url)
+        # base_url is like: https://xxx.openai.azure.com/openai/
+        # AsyncAzureOpenAI expects: https://xxx.openai.azure.com (it adds /openai automatically)
+        azure_endpoint = base_url.rstrip('/').rsplit('/openai', 1)[0]
+        
+        # Create AsyncAzureOpenAI client with custom timeout
+        azure_client = AsyncAzureOpenAI(
+            azure_endpoint=azure_endpoint,
+            azure_deployment=model_name,
+            api_version=azure_provider.client.default_query.get('api-version'),
+            api_key=azure_provider.client.api_key,
+            timeout=http_timeout,
         )
         
-        return OpenAIChatModel(
-            model_name, 
-            provider=azure_provider
-        )
+        # Wrap in OpenAIProvider
+        azure_provider_with_timeout = OpenAIProvider(openai_client=azure_client)
+        
+        return OpenAIChatModel(model_name, provider=azure_provider_with_timeout)
     elif model_provider.lower() == 'anthropic':
         from pydantic_ai.models.anthropic import AnthropicModel
         from anthropic import AsyncAnthropic

@@ -2,7 +2,7 @@
 #
 # BSD 3-Clause License
 
-"""Pydantic AI agent for JupyterLab chat."""
+"""AI agent for JupyterLab chat."""
 
 from typing import Any
 

@@ -208,7 +208,7 @@ You can also use the agents programmatically:
 
 ```python
 import asyncio
-from jupyter_ai_agents.agents.pydantic.cli.prompt_agent import (
+from jupyter_ai_agents.agents.cli.prompt_agent import (
     create_prompt_agent,
     run_prompt_agent,
 )
