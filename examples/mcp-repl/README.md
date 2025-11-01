@@ -8,7 +8,7 @@
 
 [![Become a Sponsor](https://img.shields.io/static/v1?label=Become%20a%20Sponsor&message=%E2%9D%A4&logo=GitHub&style=flat&color=1ABC9C)](https://github.com/sponsors/datalayer)
 
-# Simple MCP Server Examples
+# MCP Repl Examples
 
 This directory contains two simple MCP servers that demonstrate how to create and use MCP servers with jupyter-ai-agents.
 
