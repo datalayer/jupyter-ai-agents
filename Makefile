@@ -42,22 +42,35 @@ example-fastapi: ## example-fastapi server
 	@exec echo
 	python -m uvicorn jupyter_ai_agents.examples.fastapi.main:main --reload --port 4400
 
-jupyter-ai-agents-prompt:
-	jupyter-ai-agents prompt \
+repl:
+	jupyter-ai-agents repl \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model-provider azure-openai \
-		--model-name gpt-4o-mini \
+		--model azure-openai:gpt-4o-mini
+
+# Note: For Azure OpenAI, ensure these environment variables are set:
+# - AZURE_OPENAI_API_KEY
+# - AZURE_OPENAI_ENDPOINT (base URL, e.g., https://your-resource.openai.azure.com)
+# - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
+# Adjust --max-requests based on your Azure tier (CLI default: 4; lower if you hit rate limits)
+prompt:
+	jupyter-ai-agents prompt \
+		--verbose \
+		--mcp-servers http://localhost:8888/mcp \
+		--model anthropic:claude-sonnet-4-20250514 \
 		--path notebook.ipynb \
+		--max-requests 20 \
+		--max-tool-calls 10 \
 		--input "Create a matplotlib example"
 
-jupyter-ai-agents-explain-error:
+explain-error:
 	jupyter-ai-agents explain-error \
-		--url http://localhost:8888 \
-		--token MY_TOKEN \
-		--model-provider azure-openai \
-		--model-name gpt-4o-mini \
-		--path notebook.ipynb
+		--verbose \
+		--mcp-servers http://localhost:8888/mcp \
+		--model anthropic:claude-sonnet-4-20250514 \
+		--path notebook.ipynb \
+		--max-requests 20 \
+		--max-tool-calls 10
 
 publish-pypi: # publish the pypi package
 	git clean -fdx && \

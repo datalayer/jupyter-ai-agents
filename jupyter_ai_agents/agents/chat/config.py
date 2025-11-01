@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import List, Optional
 
-from jupyter_ai_agents.agents.pydantic.models import MCPServer
+from jupyter_ai_agents.agents.models import MCPServer
 
 
 class ChatConfig:

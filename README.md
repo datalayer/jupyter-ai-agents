@@ -4,7 +4,7 @@
   ~ BSD 3-Clause License
 -->
 
-[![Datalayer](https://assets.datalayer.tech/datalayer-25.svg)](https://datalayer.io)
+[![Datalayer](https://assets.datalayer.tech/datalayer-25.svg)](https://datalayer.ai)
 
 [![Become a Sponsor](https://img.shields.io/static/v1?label=Become%20a%20Sponsor&message=%E2%9D%A4&logo=GitHub&style=flat&color=1ABC9C)](https://github.com/sponsors/datalayer)
 
@@ -75,7 +75,6 @@ You can also use Jupyter AI Agents through the command line interface for automa
 
 ![Jupyter AI Agents CLI](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
-
 ### Basic Installation
 
 To install Jupyter AI Agents, run the following command:
@@ -110,7 +109,7 @@ pip install datalayer_pycrdt==0.12.17
 ```
 ### Examples
 
-We put here a quick example for a Out-Kernel Stateless Agent via CLI helping your JupyterLab session.
+Jupyter AI Agents provides CLI commands to help your JupyterLab session using **Pydantic AI agents** with **Model Context Protocol (MCP)** for tool integration.
 
 Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and create a notebook `notebook.ipynb`.
 
@@ -121,49 +120,186 @@ jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 
 Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
 
-The following takes you through an example with the Azure OpenAI provider. Read the [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials and make sure you define them in the following `.env` file.
+### API Keys Configuration
 
+Set the appropriate API key for your chosen provider:
+
+**OpenAI:**
 ```bash
-cat << EOF >>.env
-OPENAI_API_VERSION="..."
-AZURE_OPENAI_ENDPOINT="..."
-AZURE_OPENAI_API_KEY="..."
-EOF
+export OPENAI_API_KEY='your-api-key-here'
 ```
 
-**Prompt Agent**
+**Anthropic:**
+```bash
+export ANTHROPIC_API_KEY='your-api-key-here'
+```
 
-To use the Jupyter AI Agents, an easy way is to launch a CLI (update the Azure deployment name based on your setup).
+**Azure OpenAI:**
+```bash
+export AZURE_OPENAI_API_KEY='your-api-key-here'
+export AZURE_OPENAI_ENDPOINT='https://your-resource.openai.azure.com'
+export AZURE_OPENAI_API_VERSION='2024-08-01-preview'  # optional
+```
+
+**Important for Azure OpenAI:** 
+- The `AZURE_OPENAI_ENDPOINT` should be just the base URL (e.g., `https://your-resource.openai.azure.com`)
+- Do NOT include `/openai/deployments/...` or query parameters in the endpoint
+- The deployment name is specified via the `--model-name` parameter
+- See `.env.azure.example` for a complete configuration template
+
+**Other providers:**
+```bash
+export GOOGLE_API_KEY='your-api-key-here'        # For Google/Gemini
+export COHERE_API_KEY='your-api-key-here'        # For Cohere
+export GROQ_API_KEY='your-api-key-here'          # For Groq
+export MISTRAL_API_KEY='your-api-key-here'       # For Mistral
+# AWS credentials for Bedrock
+export AWS_ACCESS_KEY_ID='your-key'
+export AWS_SECRET_ACCESS_KEY='your-secret'
+export AWS_REGION='us-east-1'
+```
+
+### Model Specification
+
+You can specify the model in two ways:
+
+1. **Using `--model` with full string** (recommended):
+   ```bash
+   --model "openai:gpt-4o"
+   --model "anthropic:claude-sonnet-4-0"
+   --model "azure-openai:deployment-name"
+   ```
+
+2. **Using `--model-provider` and `--model-name`**:
+   ```bash
+   --model-provider openai --model-name gpt-4o
+   --model-provider anthropic --model-name claude-sonnet-4-0
+   ```
+
+Supported providers: `openai`, `anthropic`, `azure-openai`, `github-copilot`, `google`, `bedrock`, `groq`, `mistral`, `cohere`
+
+### Prompt Agent
+
+Create and execute code based on user instructions:
 
 ```bash
-# Prompt agent example.
-# make jupyter-ai-agents-prompt
+# Using full model string (recommended)
 jupyter-ai-agents prompt \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model-provider azure-openai \
-  --model-name gpt-4o-mini \
+  --model "anthropic:claude-sonnet-4-0" \
   --path notebook.ipynb \
   --input "Create a matplotlib example"
+
+# Using provider and model name
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider anthropic \
+  --model-name claude-sonnet-4-0 \
+  --path notebook.ipynb \
+  --input "Create a pandas dataframe with sample data and plot it"
 ```
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
+![Jupyter AI Agents - Prompt](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-prompt-demo-terminal.gif)
 
-**Explain Error Agent**
+### Explain Error Agent
+
+Analyze and fix notebook errors:
 
 ```bash
-# Explain Error agent example.
-# make jupyter-ai-agents-explain-error
 jupyter-ai-agents explain-error \
   --url http://localhost:8888 \
   --token MY_TOKEN \
-  --model-provider azure-openai \
-  --model-name gpt-4o-mini \
-  --path notebook.ipynb
+  --model "anthropic:claude-sonnet-4-0" \
+  --path notebook.ipynb \
+  --current-cell-index 5
 ```
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
+![Jupyter AI Agents - Explain Error](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
+### REPL Mode (Interactive)
+
+For an interactive experience with direct access to all Jupyter MCP tools, use the REPL mode:
+
+```bash
+jupyter-ai-agents repl \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0"
+```
+
+In REPL mode, you can directly ask the AI to:
+- List notebooks in directories
+- Read and analyze notebook contents
+- Execute code in cells
+- Insert new cells
+- Modify existing cells
+- Install Python packages
+
+Example REPL interactions:
+
+```
+> List all notebooks in the current directory
+> Create a new notebook called analysis.ipynb
+> In analysis.ipynb, create a cell that imports pandas and loads data.csv
+> Execute the cell and show me the first 5 rows
+> Add a matplotlib plot showing the distribution of the 'age' column
+```
+
+The REPL provides special commands:
+- `/exit`: Exit the session
+- `/markdown`: Show last response in markdown format
+- `/multiline`: Toggle multiline input mode (use Ctrl+D to submit)
+- `/cp`: Copy last response to clipboard
+
+You can also use a custom system prompt:
+
+```bash
+jupyter-ai-agents repl \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0" \
+  --system-prompt "You are a data science expert specializing in pandas and matplotlib."
+```
+
+### Prompt Agent
+
+Create and execute code based on user instructions:
+
+```bash
+# Using full model string (recommended)
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0" \
+  --path notebook.ipynb \
+  --input "Create a matplotlib example"
+
+# Using provider and model name
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider anthropic \
+  --model-name claude-sonnet-4-0 \
+  --path notebook.ipynb \
+  --input "Create a pandas dataframe with sample data and plot it"
+```
+
+### Explain Error Agent
+
+Analyze and fix notebook errors:
+
+```bash
+jupyter-ai-agents explain-error \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model "anthropic:claude-sonnet-4-0" \
+  --path notebook.ipynb \
+  --current-cell-index 5
+```
+
+## Uninstall
 
 ### About the Technology
 

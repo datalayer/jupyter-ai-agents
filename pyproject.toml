@@ -31,19 +31,12 @@ dependencies = [
   "datalayer_core",
   "fastapi",
   "httpx>=0.25.0",
-  "jupyter_kernel_client",
   "jupyter_mcp_tools",
   "jupyter_mcp_server",
   "jupyter-collaboration==4.0.2",
   "datalayer_pycrdt==0.12.17",
-  "jupyter_nbmodel_client",
   "jupyter_server>=2.10,<3",
   "jupyterlab>=4.0.0,<5",
-  "langchain",
-  "langchain-anthropic",
-  "langchain-aws",
-  "langchain-github-copilot",
-  "langchain-openai",
   "mcp",
   "pydantic-ai-slim[anthropic,openai,cli,mcp]>=1.9.0",
   "pydantic-settings",
@@ -63,7 +56,7 @@ typing = ["mypy>=0.990"]
 [project.scripts]
 jaa = "jupyter_ai_agents.cli.app:main"
 jupyter-ai-agents = "jupyter_ai_agents.cli.app:main"
-jupyter-ai-agents-console = "jupyter_ai_agents.cli.consoleapp:main"
+jupyter-ai-agents-console = "jupyter_ai_agents.cli.console_app:main"
 
 [project.license]
 file = "LICENSE"

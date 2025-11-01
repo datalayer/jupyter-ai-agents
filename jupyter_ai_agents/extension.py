@@ -18,16 +18,15 @@ from jupyter_server.extension.application import ExtensionApp, ExtensionAppJinja
 
 from jupyter_ai_agents.handlers.index import IndexHandler
 from jupyter_ai_agents.handlers.config import ConfigHandler
-from jupyter_ai_agents.handlers.nbmodel import AINbModelAgentsHandler, AINbModelAgentsInstanceHandler
 from jupyter_ai_agents.handlers.chat import ChatHandler
 from jupyter_ai_agents.handlers.configure import ConfigureHandler
 from jupyter_ai_agents.handlers.mcp import (
     MCPServersHandler,
     MCPServerHandler,
 )
-from jupyter_ai_agents.agents.pydantic.mcp import MCPToolManager
-from jupyter_ai_agents.agents.pydantic.chat.config import ChatConfig
-from jupyter_ai_agents.agents.pydantic.chat.agent import create_chat_agent
+from jupyter_ai_agents.agents.mcp import MCPToolManager
+from jupyter_ai_agents.agents.chat.config import ChatConfig
+from jupyter_ai_agents.agents.chat.agent import create_chat_agent
 from jupyter_ai_agents.tools import create_mcp_server
 from jupyter_ai_agents.__version__ import __version__
 
@@ -164,8 +163,6 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             (url_path_join(self.name), IndexHandler),
             (url_path_join(self.name, "config"), ConfigHandler),
             (url_path_join(self.name, "configure"), ConfigureHandler),
-            (url_path_join(self.name, "agents"), AINbModelAgentsHandler),
-            (url_path_join(self.name, r"agents/(.+)$"), AINbModelAgentsInstanceHandler),
             (url_path_join("api", "chat"), ChatHandler),
             (url_path_join("api", "mcp/servers"), MCPServersHandler),
             (url_path_join("api", r"mcp/servers/([^/]+)"), MCPServerHandler),

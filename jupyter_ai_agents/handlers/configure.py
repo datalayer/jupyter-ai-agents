@@ -10,7 +10,7 @@ import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
 
-from jupyter_ai_agents.agents.pydantic.models import (
+from jupyter_ai_agents.agents.models import (
     FrontendConfig,
     AIModel,
     BuiltinTool,
@@ -83,7 +83,7 @@ class ConfigureHandler(APIHandler):
             models = [
                 AIModel(
                     id="anthropic:claude-sonnet-4-5",
-                    name="Claude Sonnet 4.0",
+                    name="Claude Sonnet 4.5",
                     builtin_tools=tool_ids  # Associate all available tools
                 )
             ]

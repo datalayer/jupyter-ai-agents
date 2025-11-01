@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "ai",
@@ -18,7 +18,7 @@
   "license": "BSD-3-Clause",
   "author": {
     "name": "Datalayer",
-    "email": "info@datalayer.io"
+    "email": "info@datalayer.ai"
   },
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
