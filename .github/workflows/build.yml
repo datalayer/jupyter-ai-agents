@@ -41,7 +41,7 @@ jobs:
           pip uninstall -y "jupyter_ai_agents"
           rm -rf "jupyter_ai_agents"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: my_server_extension-sdist-${{ matrix.python-version }}
@@ -78,7 +78,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: "x64"
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: my_server_extension-sdist-${{ matrix.python-version }}
       - name: Install and Test
@@ -102,7 +102,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Distributions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: jupyter_ai_agents-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
