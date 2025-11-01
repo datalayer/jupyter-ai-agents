@@ -218,35 +218,9 @@ jupyter-ai-agents explain-error \
 
 ![Jupyter AI Agents - Explain Error](https://assets.datalayer.tech/jupyter-ai-agent/ai-agent-explainerror-demo-terminal.gif)
 
-=======
->>>>>>> e8fdf4c (azure)
-### Interactive Mode
-
-Start an interactive chat session with the AI agent:
-
-```bash
-jupyter-ai-agents interactive \
-  --url http://localhost:8888 \
-  --token MY_TOKEN \
-  --model "anthropic:claude-sonnet-4-0" \
-  --path notebook.ipynb
-```
-
-The interactive mode uses pydantic-ai's built-in CLI interface, providing features like:
-- `/exit`: Exit the session
-- `/markdown`: Show last response in markdown format
-- `/multiline`: Toggle multiline input mode
-- `/cp`: Copy last response to clipboard
->>>>>>> d73a709 (redme: lint)
-
-### REPL Mode (Recommended for Interactive Use)
-
-For a more flexible interactive experience with direct access to all Jupyter MCP tools, use the REPL mode:
-=======
 ### REPL Mode (Interactive)
 
 For an interactive experience with direct access to all Jupyter MCP tools, use the REPL mode:
->>>>>>> fea7651 (repl)
 
 ```bash
 jupyter-ai-agents repl \
