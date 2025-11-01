@@ -114,17 +114,22 @@ def create_model_with_provider(
         return OpenAIChatModel(model_name, provider=azure_provider_with_timeout)
     elif model_provider.lower() == 'anthropic':
         from pydantic_ai.models.anthropic import AnthropicModel
+        from pydantic_ai.providers.anthropic import AnthropicProvider
         from anthropic import AsyncAnthropic
         
-        # Create Anthropic client with custom timeout
-        client = AsyncAnthropic(
-            timeout=http_timeout,
+        # Create Anthropic client with custom timeout and longer connect timeout
+        # Note: Many corporate networks block Anthropic API, use Azure/OpenAI if connection fails
+        anthropic_client = AsyncAnthropic(
+            timeout=httpx.Timeout(timeout, connect=60.0),  # Longer connect timeout for slow/restricted networks
             max_retries=2
         )
         
+        # Wrap in AnthropicProvider
+        anthropic_provider = AnthropicProvider(anthropic_client=anthropic_client)
+        
         return AnthropicModel(
             model_name,
-            provider=client
+            provider=anthropic_provider
         )
     elif model_provider.lower() in ['openai', 'github-copilot']:
         from pydantic_ai.models.openai import OpenAIChatModel

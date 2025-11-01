@@ -372,10 +372,8 @@ def repl(
             from jupyter_ai_agents.tools import MCPServerStreamableHTTP
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
-            typer.echo("\n🔧 Available MCP Tools:")
             
             for server_url in server_urls:
-                typer.echo(f"\n   Connecting to: {server_url}")
                 try:
                     mcp_client = MCPServerStreamableHTTP(server_url)
                     
@@ -384,15 +382,16 @@ def repl(
                         tools = await mcp_client.list_tools()
                         
                         if not tools or len(tools) == 0:
-                            typer.echo("     No tools available")
+                            typer.echo("\n  No tools available")
                             continue
                         
-                        typer.echo(f"     Found {len(tools)} tools:")
+                        typer.echo(f"\n  Available Tools ({len(tools)}):")
                         for tool in tools:
                             name = tool.name
                             description = tool.description or ""
                             schema = tool.inputSchema
                             
+                            # Build parameter list
                             params = []
                             if schema and "properties" in schema:
                                 for param_name, param_info in schema["properties"].items():
@@ -400,16 +399,16 @@ def repl(
                                     params.append(f"{param_name}: {param_type}")
                             
                             param_str = f"({', '.join(params)})" if params else "()"
-                            desc_first_line = description.split('\n')[0] if description else ""
-                            typer.echo(f"     • {name}{param_str} - {desc_first_line}")
+                            desc_first_line = description.split('\n')[0] if description else "No description"
+                            typer.echo(f"    • {name}{param_str} - {desc_first_line}")
                 except Exception as e:
                     logger.warning(f"Could not connect to {server_url}: {e}")
-                    typer.echo(f"     ⚠️  Could not connect: {e}")
+                    typer.echo(f"\n  ⚠️  Could not list tools from {server_url}")
 
         except Exception as e:
             logger.warning(f"Could not list tools: {e}")
-            typer.echo(f"\n⚠️  Could not list tools: {e}")
-            typer.echo("   The agent will still work with available tools\n")
+            typer.echo(f"\n  ⚠️  Could not list tools: {e}")
+
     
     try:
         from pydantic_ai import Agent
@@ -460,6 +459,12 @@ def repl(
                 )
                 model_display_name = model  # azure-openai:deployment-name
                 logger.info(f"Using Azure OpenAI deployment: {deployment_name}")
+            elif model.startswith('anthropic:'):
+                # Parse anthropic:model-name format and use create_model_with_provider
+                model_name_part = model.split(':', 1)[1]
+                model_obj = create_model_with_provider('anthropic', model_name_part, timeout)
+                model_display_name = model
+                logger.info(f"Using Anthropic model: {model_name_part} (timeout: {timeout}s)")
             else:
                 model_obj = model
                 model_display_name = model
@@ -485,7 +490,17 @@ def repl(
             mcp_client = MCPServerStreamableHTTP(server_url)
             toolsets.append(mcp_client)
         
-        # List tools before starting the agent (separate asyncio.run call)
+        # Display welcome message
+        typer.echo("="*70)
+        typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
+        typer.echo("="*70)
+        typer.echo(f"Model: {model_display_name}")
+        
+        typer.echo(f"MCP Servers: {len(server_urls)} connected")
+        for server_url in server_urls:
+            typer.echo(f"  - {server_url}")
+        
+        # List tools inline in welcome message
         asyncio.run(list_tools_async())
         
         # Create default system prompt if not provided
@@ -505,17 +520,6 @@ Be proactive in suggesting what you can do with the available tools.
             toolsets=toolsets,
             system_prompt=instructions,
         )
-        
-        # Display welcome message
-        typer.echo("="*70)
-        typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
-        typer.echo("="*70)
-        typer.echo(f"Model: {model_display_name}")
-        
-        server_urls = [s.strip() for s in mcp_servers.split(',')]
-        typer.echo(f"MCP Servers: {len(server_urls)} connected")
-        for server_url in server_urls:
-            typer.echo(f"  - {server_url}")
         
         typer.echo("="*70)
         typer.echo("\nSpecial commands:")
