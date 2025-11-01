@@ -12,19 +12,21 @@ import logging
 import httpx
 
 # Pydantic AI agents
-from jupyter_ai_agents.agents.cli.prompt_agent import (
+from jupyter_ai_agents.agents.prompt.prompt_agent import (
     create_prompt_agent,
     run_prompt_agent,
 )
-from jupyter_ai_agents.agents.cli.explain_error_agent import (
+from jupyter_ai_agents.agents.explain_error.explain_error_agent import (
     create_explain_error_agent,
     run_explain_error_agent,
+)
+from jupyter_ai_agents.agents.prompt.prompt_agent import (
+    create_prompt_agent,
+    run_prompt_agent,
 )
 from jupyter_ai_agents.tools import create_mcp_server
 
 # Import tools for REPL
-from jupyter_ai_agents.tools import get_available_tools_from_mcp
-
 # Import model utilities
 from jupyter_ai_agents.utils.model import create_model_with_provider
 
@@ -54,8 +56,10 @@ app = typer.Typer(help="Jupyter AI Agents - AI-powered notebook manipulation wit
 
 @app.command()
 def prompt(
-    url: str = typer.Option("http://localhost:8888", help="URL to the Jupyter Server."),
-    token: str = typer.Option("", help="Jupyter Server token."),
+    mcp_servers: str = typer.Option(
+        "http://localhost:8888/mcp",
+        help="Comma-separated list of MCP server URLs (e.g., 'http://localhost:8888/mcp' for jupyter-mcp-server)."
+    ),
     path: str = typer.Option("", help="Jupyter Notebook path."),
     input: str = typer.Option("", help="User instruction/prompt."),
     model: str = typer.Option(
@@ -67,6 +71,7 @@ def prompt(
         help="Model provider: 'openai', 'anthropic', 'azure-openai', 'github-copilot', 'google', 'bedrock', 'groq', 'mistral', 'cohere'."
     ),
     model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
+    timeout: float = typer.Option(60.0, help="HTTP timeout in seconds for API requests (default: 60.0)."),
     current_cell_index: int = typer.Option(-1, help="Index of the cell where the prompt is asked."),
     full_context: bool = typer.Option(False, help="Flag to provide full notebook context to the AI model."),
     max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
@@ -95,16 +100,14 @@ def prompt(
     Examples:
         # Using full model string
         jupyter-ai-agents prompt \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
+            --mcp-servers http://localhost:8888/mcp \\
             --path notebook.ipynb \\
             --model "openai:gpt-4o" \\
             --input "Create a matplotlib example"
         
         # Using provider and name
         jupyter-ai-agents prompt \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
+            --mcp-servers http://localhost:8888/mcp \\
             --path notebook.ipynb \\
             --model-provider anthropic \\
             --model-name claude-sonnet-4-0 \\
@@ -115,9 +118,20 @@ def prompt(
     
     async def _run():
         try:
-            # Create MCP server connection
-            logger.info(f"Connecting to Jupyter server at {url}")
-            mcp_server = create_mcp_server(url, token)
+            # Create MCP server connection(s)
+            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+            
+            server_urls = [s.strip() for s in mcp_servers.split(',')]
+            logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
+            
+            toolsets = []
+            for server_url in server_urls:
+                logger.info(f"  - {server_url}")
+                mcp_client = MCPServerStreamableHTTP(server_url)
+                toolsets.append(mcp_client)
+            
+            # Use first MCP server for backward compatibility with create_prompt_agent
+            mcp_server = toolsets[0] if toolsets else None
             
             # Determine model - handle azure-openai:deployment format or use provider+name
             if model:
@@ -127,17 +141,22 @@ def prompt(
                     deployment_name = model.split(':', 1)[1]
                     model_obj = OpenAIChatModel(deployment_name, provider='azure')
                     logger.info(f"Using Azure OpenAI deployment: {deployment_name}")
+                elif model.startswith('anthropic:'):
+                    # Parse anthropic:model-name format and use create_model_with_provider
+                    model_name_part = model.split(':', 1)[1]
+                    model_obj = create_model_with_provider('anthropic', model_name_part, timeout)
+                    logger.info(f"Using Anthropic model: {model_name_part} (timeout: {timeout}s)")
                 else:
                     # User provided full model string
                     model_obj = model
                     logger.info(f"Using explicit model: {model_obj}")
             else:
                 # Create model object with provider-specific configuration
-                model_obj = create_model_with_provider(model_provider, model_name)
+                model_obj = create_model_with_provider(model_provider, model_name, timeout)
                 if isinstance(model_obj, str):
                     logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
                 else:
-                    logger.info(f"Using {model_provider} model: {model_name}")
+                    logger.info(f"Using {model_provider} model: {model_name} (timeout: {timeout}s)")
             
             # Prepare notebook context
             notebook_context = {
@@ -169,8 +188,10 @@ def prompt(
 
 @app.command()
 def explain_error(
-    url: str = typer.Option("http://localhost:8888", help="URL to the Jupyter Server."),
-    token: str = typer.Option("", help="Jupyter Server token."),
+    mcp_servers: str = typer.Option(
+        "http://localhost:8888/mcp",
+        help="Comma-separated list of MCP server URLs (e.g., 'http://localhost:8888/mcp' for jupyter-mcp-server)."
+    ),
     path: str = typer.Option("", help="Jupyter Notebook path."),
     model: str = typer.Option(
         None,
@@ -181,8 +202,10 @@ def explain_error(
         help="Model provider: 'openai', 'anthropic', 'azure-openai', 'github-copilot', 'google', 'bedrock', 'groq', 'mistral', 'cohere'."
     ),
     model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
+    timeout: float = typer.Option(60.0, help="HTTP timeout in seconds for API requests (default: 60.0)."),
     current_cell_index: int = typer.Option(-1, help="Index of the cell with the error (-1 for first error)."),
     max_tool_calls: int = typer.Option(10, help="Maximum number of tool calls per agent run (prevents excessive API usage)."),
+    max_requests: int = typer.Option(3, help="Maximum number of API requests per run (defaults to 3 for error fixing)."),
     verbose: bool = typer.Option(False, help="Enable verbose logging."),
 ):
     """
@@ -207,16 +230,14 @@ def explain_error(
     Examples:
         # Using full model string
         jupyter-ai-agents explain-error \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
+            --mcp-servers http://localhost:8888/mcp \\
             --path notebook.ipynb \\
             --model "anthropic:claude-sonnet-4-0" \\
             --current-cell-index 5
         
         # Using provider and name
         jupyter-ai-agents explain-error \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
+            --mcp-servers http://localhost:8888/mcp \\
             --path notebook.ipynb \\
             --model-provider openai \\
             --model-name gpt-4o
@@ -226,9 +247,20 @@ def explain_error(
     
     async def _run():
         try:
-            # Create MCP server connection
-            logger.info(f"Connecting to Jupyter server at {url}")
-            mcp_server = create_mcp_server(url, token)
+            # Create MCP server connection(s)
+            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+            
+            server_urls = [s.strip() for s in mcp_servers.split(',')]
+            logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
+            
+            toolsets = []
+            for server_url in server_urls:
+                logger.info(f"  - {server_url}")
+                mcp_client = MCPServerStreamableHTTP(server_url)
+                toolsets.append(mcp_client)
+            
+            # Use first MCP server for backward compatibility with create_explain_error_agent
+            mcp_server = toolsets[0] if toolsets else None
             
             # Determine model - handle azure-openai:deployment format or use provider+name
             if model:
@@ -238,15 +270,20 @@ def explain_error(
                     deployment_name = model.split(':', 1)[1]
                     model_obj = OpenAIChatModel(deployment_name, provider='azure')
                     logger.info(f"Using Azure OpenAI deployment: {deployment_name}")
+                elif model.startswith('anthropic:'):
+                    # Parse anthropic:model-name format and use create_model_with_provider
+                    model_name_part = model.split(':', 1)[1]
+                    model_obj = create_model_with_provider('anthropic', model_name_part, timeout)
+                    logger.info(f"Using Anthropic model: {model_name_part} (timeout: {timeout}s)")
                 else:
                     model_obj = model
                     logger.info(f"Using explicit model: {model_obj}")
             else:
-                model_obj = create_model_with_provider(model_provider, model_name)
+                model_obj = create_model_with_provider(model_provider, model_name, timeout)
                 if isinstance(model_obj, str):
                     logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
                 else:
-                    logger.info(f"Using {model_provider} model: {model_name}")
+                    logger.info(f"Using {model_provider} model: {model_name} (timeout: {timeout}s)")
             
             # In a real implementation, we would:
             # 1. Fetch notebook content from server
@@ -273,7 +310,9 @@ def explain_error(
                 error_description,
                 notebook_content=notebook_content,
                 error_cell_index=current_cell_index,
+                notebook_path=path,
                 max_tool_calls=max_tool_calls,
+                max_requests=max_requests,
             )
             
             # Print result

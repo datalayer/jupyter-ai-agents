@@ -37,7 +37,9 @@ When the user asks you to create something, break it down into steps:
 3. Write the main code
 4. Add markdown explanations
 
-Execute each code cell as you create it to ensure it works properly."""
+Execute each code cell as you create it to ensure it works properly.
+
+IMPORTANT: When you have completed the task successfully, provide a final text response summarizing what you did WITHOUT making any more tool calls. This signals completion and allows the program to exit properly."""
 
 
 class PromptAgentDeps:
@@ -83,8 +85,12 @@ def create_prompt_agent(
         if notebook_context.get('current_cell_index', -1) != -1:
             system_prompt += f"\n\nUser instruction was given at cell index: {notebook_context['current_cell_index']}"
     
-    # Add reminder to be efficient
-    system_prompt += "\n\nBe efficient: Complete the task in as few steps as possible. Don't over-verify or re-check unnecessarily."
+    # Add reminder to be efficient and complete properly
+    system_prompt += (
+        "\n\nBe efficient: Complete the task in as few steps as possible. "
+        "Don't over-verify or re-check unnecessarily. "
+        "When the task is done, provide a final summary WITHOUT tool calls to signal completion."
+    )
     
     # Create agent with MCP toolset
     agent = Agent(
@@ -112,7 +118,7 @@ async def run_prompt_agent(
     Args:
         agent: The configured prompt agent
         user_input: User's instruction/prompt
-        notebook_context: Optional notebook context
+        notebook_context: Optional notebook context (should include 'notebook_path')
         max_tool_calls: Maximum number of tool calls to prevent excessive API usage
     max_requests: Maximum number of API requests (default: 4, lower if needed for strict rate limits)
     
@@ -120,11 +126,27 @@ async def run_prompt_agent(
         Agent's response
     """
     import asyncio
+    import os
     from pydantic_ai import UsageLimitExceeded, UsageLimits
     
     deps = PromptAgentDeps(notebook_context)
     
     logger.info(f"Running prompt agent with input: {user_input[:50]}... (max_tool_calls={max_tool_calls}, max_requests={max_requests})")
+    
+    # Prepend notebook connection instruction if path is provided
+    if notebook_context and notebook_context.get('notebook_path'):
+        notebook_path = notebook_context['notebook_path']
+        notebook_name = os.path.splitext(os.path.basename(notebook_path))[0]
+        
+        # Prepend instruction to connect to the notebook first
+        enhanced_input = (
+            f"First, use the use_notebook tool to connect to the notebook at path '{notebook_path}' "
+            f"with notebook_name '{notebook_name}' and mode 'connect'. "
+            f"Then, {user_input}"
+        )
+        logger.info(f"Enhanced input to connect to notebook: {notebook_path}")
+    else:
+        enhanced_input = user_input
     
     # Warn about low limits
     if max_requests <= 2:
@@ -144,7 +166,7 @@ async def run_prompt_agent(
         
         # Add timeout to prevent hanging on retries
         result = await asyncio.wait_for(
-            agent.run(user_input, deps=deps, usage_limits=usage_limits),
+            agent.run(enhanced_input, deps=deps, usage_limits=usage_limits),
             timeout=120.0  # 2 minute timeout
         )
         logger.info("Prompt agent completed successfully")

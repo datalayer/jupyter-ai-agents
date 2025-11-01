@@ -55,21 +55,21 @@ repl:
 # Adjust --max-requests based on your Azure tier (CLI default: 4; lower if you hit rate limits)
 prompt:
 	jupyter-ai-agents prompt \
-		--url http://localhost:8888 \
-		--token MY_TOKEN \
-		--model azure-openai:gpt-4o-mini \
+		--verbose \
+		--mcp-servers http://localhost:8888/mcp \
+		--model anthropic:claude-sonnet-4-20250514 \
 		--path notebook.ipynb \
-		--max-requests 4 \
+		--max-requests 20 \
 		--max-tool-calls 10 \
 		--input "Create a matplotlib example"
 
 explain-error:
 	jupyter-ai-agents explain-error \
-		--url http://localhost:8888 \
-		--token MY_TOKEN \
-		--model azure-openai:gpt-4o-mini \
+		--verbose \
+		--mcp-servers http://localhost:8888/mcp \
+		--model anthropic:claude-sonnet-4-20250514 \
 		--path notebook.ipynb \
-		--max-requests 4 \
+		--max-requests 20 \
 		--max-tool-calls 10
 
 publish-pypi: # publish the pypi package
