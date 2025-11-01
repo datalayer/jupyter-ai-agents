@@ -36,6 +36,13 @@ jupyterlab: ## jupyterlab
 		--ServerApp.root_dir ./dev/content \
 		--IdentityProvider.token=
 
+jupyterlab-debug: ## jupyterlab-debug
+	jupyter lab \
+		--port 8888 \
+		--debug \
+		--ServerApp.root_dir ./dev/content \
+		--IdentityProvider.token=
+
 example-fastapi: ## example-fastapi server
 	@exec echo
 	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
