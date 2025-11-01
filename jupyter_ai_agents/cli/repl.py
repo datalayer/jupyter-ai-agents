@@ -146,68 +146,67 @@ def repl(
     if verbose:
         enable_verbose_logging()
     
-    async def _run():
+    # Separate function to initialize and list tools
+    async def list_tools_async():
+        """List all tools available from the jupyter-mcp-server"""
         try:
-            from pydantic_ai import Agent
-            
-            # Determine model - use model object for special providers like Azure
-            if model:
-                model_obj = model
-                logger.info(f"Using explicit model: {model_obj}")
+            typer.echo("\n🔧 Available Jupyter MCP Tools:")
+            typer.echo(f"   Connecting to: {url.rstrip('/')}/mcp")
+
+            tools = await get_available_tools_from_mcp(url, token)
+
+            if not tools:
+                typer.echo("\n   No tools reported by the MCP server.\n")
+                return
+
+            typer.echo(f"\n   Found {len(tools)} tools:\n")
+
+            for tool in tools:
+                name = tool.get("name", "<unknown>")
+                description = tool.get("description", "")
+                schema = tool.get("inputSchema", {}) or {}
+
+                params = []
+                if isinstance(schema, dict) and "properties" in schema:
+                    for param_name, param_info in schema["properties"].items():
+                        param_type = param_info.get("type", "any")
+                        params.append(f"{param_name}: {param_type}")
+
+                param_str = f"({', '.join(params)})" if params else "()"
+                
+                # One-line format: name(params) - first line of description
+                desc_first_line = description.split('\n')[0] if description else ""
+                typer.echo(f"   • {name}{param_str} - {desc_first_line}")
+
+        except Exception as e:
+            logger.warning(f"Could not list tools: {e}")
+            typer.echo(f"\n⚠️  Could not list tools: {e}")
+            typer.echo("   The agent will still work with available tools\n")
+    
+    try:
+        from pydantic_ai import Agent
+        
+        # Determine model - use model object for special providers like Azure
+        if model:
+            model_obj = model
+            logger.info(f"Using explicit model: {model_obj}")
+        else:
+            model_obj = create_model_with_provider(model_provider, model_name)
+            if isinstance(model_obj, str):
+                logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
             else:
-                model_obj = create_model_with_provider(model_provider, model_name)
-                if isinstance(model_obj, str):
-                    logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
-                else:
-                    logger.info(f"Using {model_provider} model: {model_name}")
-            
-            # Create MCP server connection
-            logger.info(f"Connecting to Jupyter server at {url}")
-            mcp_server = create_mcp_server(url, token)
-            
-            # List available tools from the MCP server
-            async def list_tools():
-                """List all tools available from the jupyter-mcp-server"""
-                try:
-                    typer.echo("\n🔧 Available Jupyter MCP Tools:")
-                    typer.echo(f"   Connecting to: {url.rstrip('/')}/mcp")
-
-                    tools = await get_available_tools_from_mcp(url, token)
-
-                    if not tools:
-                        typer.echo("\n   No tools reported by the MCP server.\n")
-                        return
-
-                    typer.echo(f"\n   Found {len(tools)} tools:\n")
-
-                    for tool in tools:
-                        name = tool.get("name", "<unknown>")
-                        description = tool.get("description", "")
-                        schema = tool.get("inputSchema", {}) or {}
-
-                        params = []
-                        if isinstance(schema, dict) and "properties" in schema:
-                            for param_name, param_info in schema["properties"].items():
-                                param_type = param_info.get("type", "any")
-                                params.append(f"{param_name}: {param_type}")
-
-                        param_str = f"({', '.join(params)})" if params else "()"
-                        
-                        # One-line format: name(params) - first line of description
-                        desc_first_line = description.split('\n')[0] if description else ""
-                        typer.echo(f"   • {name}{param_str} - {desc_first_line}")
-
-                except Exception as e:
-                    logger.warning(f"Could not list tools: {e}")
-                    typer.echo(f"\n⚠️  Could not list tools: {e}")
-                    typer.echo("   The agent will still work with available tools\n")
-            
-            # List tools before starting the agent
-            await list_tools()
-            
-            # Create default system prompt if not provided
-            if system_prompt is None:
-                instructions = """You are a helpful AI assistant with direct access to Jupyter notebooks via MCP tools.
+                logger.info(f"Using {model_provider} model: {model_name}")
+        
+        # Create MCP server connection
+        logger.info(f"Connecting to Jupyter server at {url}")
+        mcp_server = create_mcp_server(url, token)
+        
+        # List tools before starting the agent (separate asyncio.run call)
+        asyncio.run(list_tools_async())
+        
+        # Create default system prompt if not provided
+        if system_prompt is None:
+            instructions = """You are a helpful AI assistant with direct access to Jupyter notebooks via MCP tools.
 
 You can:
 - List notebooks in directories
@@ -226,52 +225,59 @@ When the user asks you to work with notebooks:
 Be proactive in suggesting what you can do with the available tools.
 Always confirm before making destructive changes.
 """
-            else:
-                instructions = system_prompt
-            
-            # Create agent with MCP toolset
-            logger.info("Creating agent with Jupyter MCP tools...")
-            agent = Agent(
-                model_obj,
-                toolsets=[mcp_server],
-                system_prompt=instructions,
-            )
-            
-            # Display welcome message
-            typer.echo("="*70)
-            typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
-            typer.echo("="*70)
-            if isinstance(model_obj, str):
-                typer.echo(f"Model: {model_obj}")
-            else:
-                typer.echo(f"Model: {model_provider}:{model_name}")
-            typer.echo(f"Jupyter Server: {url}")
-            typer.echo("="*70)
-            typer.echo("\nSpecial commands:")
-            typer.echo("  /exit       - Exit the session")
-            typer.echo("  /markdown   - Show last response in markdown")
-            typer.echo("  /multiline  - Toggle multiline mode (Ctrl+D to submit)")
-            typer.echo("  /cp         - Copy last response to clipboard")
-            typer.echo("\nYou can directly ask the AI to interact with Jupyter notebooks!")
-            typer.echo("Example: 'List all notebooks' or 'Create a matplotlib plot in notebook.ipynb'")
-            typer.echo("="*70 + "\n")
-            
-            # Start the pydantic-ai CLI
-            logger.info("Starting interactive REPL...")
-            await agent.to_cli()
-            
-        except KeyboardInterrupt:
-            typer.echo("\n\nSession interrupted by user.")
-        except asyncio.CancelledError:
-            # Handle cancellation from Ctrl+C during SDK retries
-            logger.info("REPL session cancelled")
-            typer.echo("\n\nSession cancelled.")
-        except Exception as e:
-            logger.error(f"Error in REPL: {e}", exc_info=True)
-            typer.echo(f"\nError: {str(e)}", err=True)
-            raise typer.Exit(code=1)
+        else:
+            instructions = system_prompt
+        
+        # Create agent with MCP toolset
+        logger.info("Creating agent with Jupyter MCP tools...")
+        agent = Agent(
+            model_obj,
+            toolsets=[mcp_server],
+            system_prompt=instructions,
+        )
+        
+        # Display welcome message
+        typer.echo("="*70)
+        typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
+        typer.echo("="*70)
+        if isinstance(model_obj, str):
+            typer.echo(f"Model: {model_obj}")
+        else:
+            typer.echo(f"Model: {model_provider}:{model_name}")
+        typer.echo(f"Jupyter Server: {url}")
+        typer.echo("="*70)
+        typer.echo("\nSpecial commands:")
+        typer.echo("  /exit       - Exit the session")
+        typer.echo("  /markdown   - Show last response in markdown")
+        typer.echo("  /multiline  - Toggle multiline mode (Ctrl+D to submit)")
+        typer.echo("  /cp         - Copy last response to clipboard")
+        typer.echo("\nYou can directly ask the AI to interact with Jupyter notebooks!")
+        typer.echo("Example: 'List all notebooks' or 'Create a matplotlib plot in notebook.ipynb'")
+        typer.echo("="*70 + "\n")
+        
+        # Launch the CLI interface (separate asyncio.run call with context manager)
+        async def _run_cli() -> None:
+            assert agent is not None
+            async with agent:
+                await agent.to_cli()
+        
+        asyncio.run(_run_cli())
     
-    asyncio.run(_run())
+    except KeyboardInterrupt:
+        typer.echo("\n\n🛑 Agent stopped by user")
+    except asyncio.CancelledError:
+        # Handle cancellation from Ctrl+C during SDK retries
+        logger.info("REPL session cancelled")
+        typer.echo("\n\n🛑 Session cancelled")
+    except BaseExceptionGroup as exc:
+        typer.echo("\n❌ Encountered errors while running the CLI:")
+        for idx, sub_exc in enumerate(exc.exceptions, start=1):
+            typer.echo(f"  [{idx}] {type(sub_exc).__name__}: {sub_exc}")
+        raise typer.Exit(code=1)
+    except Exception as e:
+        logger.error(f"Error in REPL: {e}", exc_info=True)
+        typer.echo(f"\n❌ Error: {str(e)}", err=True)
+        raise typer.Exit(code=1)
 
 
 def main():
