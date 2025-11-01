@@ -33,7 +33,7 @@ dependencies = [
   "httpx>=0.25.0",
   "jupyter_mcp_tools",
   "jupyter_mcp_server",
-  "jupyter-collaboration==4.0.2",
+  "jupyter-collaboration==4.1.1",
   "datalayer_pycrdt==0.12.17",
   "jupyter_server>=2.10,<3",
   "jupyterlab>=4.0.0,<5",
