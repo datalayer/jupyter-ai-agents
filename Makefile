@@ -46,8 +46,7 @@ repl:
 	jupyter-ai-agents repl \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model-provider anthropic \
-		--model-name claude-sonnet-4-0
+		--model azure-openai:gpt-4o-mini
 
 # Note: For Azure OpenAI, ensure these environment variables are set:
 # - AZURE_OPENAI_API_KEY
@@ -58,7 +57,7 @@ prompt:
 	jupyter-ai-agents prompt \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model anthropic:claude-sonnet-4-0 \
+		--model azure-openai:gpt-4o-mini \
 		--path notebook.ipynb \
 		--max-requests 4 \
 		--max-tool-calls 10 \
@@ -68,7 +67,7 @@ explain-error:
 	jupyter-ai-agents explain-error \
 		--url http://localhost:8888 \
 		--token MY_TOKEN \
-		--model anthropic:claude-sonnet-4-0 \
+		--model azure-openai:gpt-4o-mini \
 		--path notebook.ipynb \
 		--max-requests 4 \
 		--max-tool-calls 10

@@ -57,7 +57,6 @@ typing = ["mypy>=0.990"]
 jaa = "jupyter_ai_agents.cli.app:main"
 jupyter-ai-agents = "jupyter_ai_agents.cli.app:main"
 jupyter-ai-agents-console = "jupyter_ai_agents.cli.console_app:main"
-jupyter-ai-agents-repl = "jupyter_ai_agents.cli.repl:main"
 
 [project.license]
 file = "LICENSE"
