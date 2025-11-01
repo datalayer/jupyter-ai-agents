@@ -1,6 +1,8 @@
 .PHONY: help install mcp1 mcp2 repl1 repl2 clean
 
 # Default target
+# anthropic:claude-sonnet-4-20250514
+# azure-openai:gpt-4o-mini
 help:
 	@echo "Simple MCP Example - Makefile"
 	@echo ""
@@ -78,6 +80,7 @@ repl1:
 	@echo "Make sure the calculator server is running first (make mcp1 in another terminal)"
 	@echo ""
 	jupyter-ai-agents repl \
+	  --verbose \
 	  --mcp-servers http://localhost:8001/mcp \
 	  --model azure-openai:gpt-4o-mini
 
@@ -89,6 +92,7 @@ repl2:
 	@echo "Make sure the echo server is running first (make mcp2 in another terminal)"
 	@echo ""
 	jupyter-ai-agents repl \
+	  --verbose \
 	  --mcp-servers http://localhost:8002/mcp \
 	  --model azure-openai:gpt-4o-mini
 

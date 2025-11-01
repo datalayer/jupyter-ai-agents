@@ -8,7 +8,7 @@
 
 [![Become a Sponsor](https://img.shields.io/static/v1?label=Become%20a%20Sponsor&message=%E2%9D%A4&logo=GitHub&style=flat&color=1ABC9C)](https://github.com/sponsors/datalayer)
 
-# MCP Repl Examples
+# Simple MCP Server Examples
 
 This directory contains two simple MCP servers that demonstrate how to create and use MCP servers with jupyter-ai-agents.
 
@@ -88,9 +88,12 @@ jupyter-ai-agents repl --mcp-servers http://localhost:8001/mcp
 
 # Multiple servers
 jupyter-ai-agents repl --mcp-servers "http://localhost:8001/mcp,http://localhost:8002/mcp"
+
+# Connect to Jupyter MCP Server (jupyter-mcp-server)
+jupyter-ai-agents repl --mcp-servers http://localhost:8888/mcp
 ```
 
-**Important:** The MCP servers use Streamable HTTP transport with a single `/mcp` endpoint that handles both GET (for SSE streaming) and POST (for JSON-RPC messages) requests, as defined in the [MCP specification 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http).
+**Important:** All MCP servers use Streamable HTTP transport with the `/mcp` endpoint. The `--mcp-servers` parameter accepts comma-separated URLs for connecting to any MCP servers (standalone servers like calculator/echo, or jupyter-mcp-server).
 
 ## �💬 REPL Examples
 

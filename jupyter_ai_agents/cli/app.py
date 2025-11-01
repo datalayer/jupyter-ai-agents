@@ -9,6 +9,7 @@ from __future__ import annotations
 import typer
 import asyncio
 import logging
+import httpx
 
 # Pydantic AI agents
 from jupyter_ai_agents.agents.pydantic.cli.prompt_agent import (
@@ -24,6 +25,9 @@ from jupyter_ai_agents.tools import create_mcp_server
 # Import tools for REPL
 from jupyter_ai_agents.tools import get_available_tools_from_mcp
 
+# Import model utilities
+from jupyter_ai_agents.utils.model import create_model_with_provider
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -32,9 +36,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("anthropic").setLevel(logging.ERROR)
+logging.getLogger("openai").setLevel(logging.ERROR)
+
 def enable_verbose_logging():
     """Enable verbose logging for debugging API calls and retries."""
-    logging.getLogger().setLevel(logging.DEBUG)
+    # logging.getLogger().setLevel(logging.DEBUG)
     # Enable detailed HTTP logging to see retry reasons
     logging.getLogger("httpx").setLevel(logging.DEBUG)
     logging.getLogger("anthropic").setLevel(logging.DEBUG)
@@ -42,77 +50,6 @@ def enable_verbose_logging():
     logger.debug("Verbose logging enabled - will show detailed HTTP requests, responses, and retry reasons")
 
 app = typer.Typer(help="Jupyter AI Agents - AI-powered notebook manipulation with Pydantic AI and MCP.")
-
-
-def get_model_string(model_provider: str, model_name: str) -> str:
-    """
-    Convert model provider and name to pydantic-ai model string format.
-    
-    Args:
-        model_provider: Provider name (azure-openai, openai, anthropic, github-copilot, etc.)
-        model_name: Model/deployment name
-    
-    Returns:
-        Model string in format 'provider:model' 
-        For Azure OpenAI, returns the model name and sets provider via create_model_with_provider()
-    
-    Note:
-        For Azure OpenAI, the returned string is just the model name.
-        The Azure provider configuration is handled separately via OpenAIModel(provider='azure').
-        Required env vars for Azure:
-        - AZURE_OPENAI_API_KEY
-        - AZURE_OPENAI_ENDPOINT (base URL only, e.g., https://your-resource.openai.azure.com)
-        - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
-    """
-    # For Azure OpenAI, we return just the model name
-    # The provider will be set to 'azure' when creating the OpenAIModel
-    if model_provider.lower() == 'azure-openai':
-        return model_name
-    
-    # Map provider names to pydantic-ai format for other providers
-    provider_map = {
-        'openai': 'openai',
-        'anthropic': 'anthropic',
-        'github-copilot': 'openai',      # GitHub Copilot uses OpenAI models
-        'bedrock': 'bedrock',
-        'google': 'google',
-        'gemini': 'google',
-        'groq': 'groq',
-        'mistral': 'mistral',
-        'cohere': 'cohere',
-    }
-    
-    provider = provider_map.get(model_provider.lower(), model_provider)
-    return f"{provider}:{model_name}"
-
-
-def create_model_with_provider(model_provider: str, model_name: str):
-    """
-    Create a pydantic-ai model object with the appropriate provider configuration.
-    
-    This is necessary for providers like Azure OpenAI that need special initialization.
-    
-    Args:
-        model_provider: Provider name (e.g., 'azure-openai', 'openai', 'anthropic')
-        model_name: Model/deployment name
-        
-    Returns:
-        Model object or string for pydantic-ai Agent
-        
-    Note:
-        For Azure OpenAI, requires these environment variables:
-        - AZURE_OPENAI_API_KEY
-        - AZURE_OPENAI_ENDPOINT (base URL only, e.g., https://your-resource.openai.azure.com)
-        - AZURE_OPENAI_API_VERSION (optional, defaults to latest)
-    """
-    if model_provider.lower() == 'azure-openai':
-        from pydantic_ai.models.openai import OpenAIChatModel
-        # For Azure OpenAI, create OpenAIChatModel with provider='azure'
-        # Environment variables AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT must be set
-        return OpenAIChatModel(model_name, provider='azure')
-    else:
-        # For other providers, use the standard string format
-        return get_model_string(model_provider, model_name)
 
 
 @app.command()
@@ -353,14 +290,11 @@ def explain_error(
     
     asyncio.run(_run())
 
-
 @app.command()
 def repl(
-    url: str = typer.Option(None, help="URL to the Jupyter Server (for jupyter-mcp-server integration)."),
-    token: str = typer.Option("", help="Jupyter Server token."),
     mcp_servers: str = typer.Option(
-        None,
-        help="Comma-separated list of MCP server URLs (e.g., 'http://localhost:8001,http://localhost:8002'). Use this OR --url, not both."
+        ...,
+        help="Comma-separated list of MCP server URLs (e.g., 'http://localhost:8001/mcp,http://localhost:8002/mcp' for standalone servers, or 'http://localhost:8888/mcp' for jupyter-mcp-server)."
     ),
     model: str = typer.Option(
         None,
@@ -371,6 +305,7 @@ def repl(
         help="Model provider: 'openai', 'anthropic', 'azure-openai', 'github-copilot', 'google', 'bedrock', 'groq', 'mistral', 'cohere'."
     ),
     model_name: str = typer.Option("gpt-4o", help="Model name or deployment name."),
+    timeout: float = typer.Option(60.0, help="HTTP timeout in seconds for API requests (default: 60.0)."),
     system_prompt: str = typer.Option(
         None,
         help="Custom system prompt. If not provided, uses a default prompt based on the MCP servers being used."
@@ -381,12 +316,9 @@ def repl(
     Start an interactive REPL with access to MCP tools.
     
     This command launches pydantic-ai's built-in CLI with MCP server tools.
-    You can connect to:
-    1. Jupyter MCP server (jupyter-mcp-server) via --url
-    2. External MCP servers via --mcp-servers
-    
-    Use --url for jupyter-mcp-server integration with Jupyter notebooks.
-    Use --mcp-servers for connecting to standalone MCP servers (e.g., calculator, weather, etc.).
+    You can connect to any MCP servers implementing the Streamable HTTP transport:
+    - Jupyter MCP server (jupyter-mcp-server): http://localhost:8888/mcp
+    - Standalone MCP servers: http://localhost:8001/mcp, http://localhost:8002/mcp, etc.
     
     You can specify the model in two ways:
     1. Using --model with full string: --model "openai:gpt-4o"
@@ -408,115 +340,71 @@ def repl(
     - /cp: Copy last response to clipboard
     
     Examples:
-        # Connect to Jupyter Server (jupyter-mcp-server)
+        # Connect to Jupyter MCP Server with OpenAI
         jupyter-ai-agents repl \\
-            --url http://localhost:8888 \\
-            --token MY_TOKEN \\
+            --mcp-servers "http://localhost:8888/mcp" \\
             --model "openai:gpt-4o"
         
-        # Connect to external MCP servers
+        # Connect to standalone MCP servers with Anthropic
+        # Note: Use correct Anthropic model names like claude-sonnet-4-20250514
         jupyter-ai-agents repl \\
-            --mcp-servers "http://localhost:8001,http://localhost:8002" \\
-            --model-provider openai \\
-            --model-name gpt-4o
+            --mcp-servers "http://localhost:8001/mcp,http://localhost:8002/mcp" \\
+            --model-provider anthropic \\
+            --model-name claude-sonnet-4-20250514
         
-        # Then in the REPL with Jupyter, you can ask:
-        > List all notebooks in the current directory
-        > Create a new notebook called analysis.ipynb
-        > In analysis.ipynb, create a cell that imports pandas
+        # Set custom timeout (useful for slow connections)
+        jupyter-ai-agents repl \\
+            --mcp-servers "http://localhost:8888/mcp" \\
+            --timeout 120.0
         
-        # Or with external MCP servers (e.g., calculator + echo):
-        > Add 5 and 7
-        > Reverse the text "hello world"
+        # Then in the REPL, you can ask:
+        > List all notebooks in the current directory  (with jupyter-mcp-server)
+        > Add 5 and 7  (with calculator server)
+        > Reverse the text "hello world"  (with echo server)
     """
     if verbose:
         enable_verbose_logging()
-    
-    # Validate that user provides either --url or --mcp-servers, not both
-    if url and mcp_servers:
-        typer.echo("❌ Error: Cannot use both --url and --mcp-servers. Choose one:", err=True)
-        typer.echo("   --url: For Jupyter Server (jupyter-mcp-server)", err=True)
-        typer.echo("   --mcp-servers: For external MCP servers", err=True)
-        raise typer.Exit(code=1)
-    
-    if not url and not mcp_servers:
-        typer.echo("❌ Error: Must provide either --url or --mcp-servers:", err=True)
-        typer.echo("   --url: For Jupyter Server (jupyter-mcp-server)", err=True)
-        typer.echo("   --mcp-servers: For external MCP servers (comma-separated URLs)", err=True)
-        raise typer.Exit(code=1)
     
     # Separate function to initialize and list tools
     async def list_tools_async():
         """List all tools available from the MCP server(s)"""
         try:
-            if url:
-                # Jupyter MCP server
-                typer.echo("\n🔧 Available Jupyter MCP Tools:")
-                typer.echo(f"   Connecting to: {url.rstrip('/')}/mcp")
-
-                tools = await get_available_tools_from_mcp(url, token)
-
-                if not tools:
-                    typer.echo("\n   No tools reported by the MCP server.\n")
-                    return
-
-                typer.echo(f"\n   Found {len(tools)} tools:\n")
-
-                for tool in tools:
-                    name = tool.get("name", "<unknown>")
-                    description = tool.get("description", "")
-                    schema = tool.get("inputSchema", {}) or {}
-
-                    params = []
-                    if isinstance(schema, dict) and "properties" in schema:
-                        for param_name, param_info in schema["properties"].items():
-                            param_type = param_info.get("type", "any")
-                            params.append(f"{param_name}: {param_type}")
-
-                    param_str = f"({', '.join(params)})" if params else "()"
+            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+            
+            server_urls = [s.strip() for s in mcp_servers.split(',')]
+            typer.echo("\n🔧 Available MCP Tools:")
+            
+            for server_url in server_urls:
+                typer.echo(f"\n   Connecting to: {server_url}")
+                try:
+                    mcp_client = MCPServerStreamableHTTP(server_url)
                     
-                    # One-line format: name(params) - first line of description
-                    desc_first_line = description.split('\n')[0] if description else ""
-                    typer.echo(f"   • {name}{param_str} - {desc_first_line}")
-            else:
-                # External MCP servers
-                from jupyter_ai_agents.tools import MCPServerStreamableHTTP
-                
-                server_urls = [s.strip() for s in mcp_servers.split(',')]
-                typer.echo("\n🔧 Available MCP Tools:")
-                
-                for server_url in server_urls:
-                    typer.echo(f"\n   Connecting to: {server_url}")
-                    try:
-                        mcp_client = MCPServerStreamableHTTP(server_url)
+                    # Use context manager to connect and list tools
+                    async with mcp_client:
+                        tools = await mcp_client.list_tools()
                         
-                        # Initialize connection and list tools
-                        async with mcp_client:
-                            await mcp_client.initialize()
-                            tools = await mcp_client.list_tools()
+                        if not tools or len(tools) == 0:
+                            typer.echo("     No tools available")
+                            continue
+                        
+                        typer.echo(f"     Found {len(tools)} tools:")
+                        for tool in tools:
+                            name = tool.name
+                            description = tool.description or ""
+                            schema = tool.inputSchema
                             
-                            if not tools or len(tools) == 0:
-                                typer.echo("     No tools available")
-                                continue
+                            params = []
+                            if schema and "properties" in schema:
+                                for param_name, param_info in schema["properties"].items():
+                                    param_type = param_info.get("type", "any")
+                                    params.append(f"{param_name}: {param_type}")
                             
-                            typer.echo(f"     Found {len(tools)} tools:")
-                            for tool in tools:
-                                name = tool.name
-                                description = tool.description or ""
-                                schema = tool.inputSchema
-                                
-                                params = []
-                                if schema and "properties" in schema:
-                                    for param_name, param_info in schema["properties"].items():
-                                        param_type = param_info.get("type", "any")
-                                        params.append(f"{param_name}: {param_type}")
-                                
-                                param_str = f"({', '.join(params)})" if params else "()"
-                                desc_first_line = description.split('\n')[0] if description else ""
-                                typer.echo(f"     • {name}{param_str} - {desc_first_line}")
-                    except Exception as e:
-                        logger.warning(f"Could not connect to {server_url}: {e}")
-                        typer.echo(f"     ⚠️  Could not connect: {e}")
+                            param_str = f"({', '.join(params)})" if params else "()"
+                            desc_first_line = description.split('\n')[0] if description else ""
+                            typer.echo(f"     • {name}{param_str} - {desc_first_line}")
+                except Exception as e:
+                    logger.warning(f"Could not connect to {server_url}: {e}")
+                    typer.echo(f"     ⚠️  Could not connect: {e}")
 
         except Exception as e:
             logger.warning(f"Could not list tools: {e}")
@@ -531,65 +419,57 @@ def repl(
             # Check if model string is in azure-openai:deployment format
             if model.startswith('azure-openai:'):
                 from pydantic_ai.models.openai import OpenAIChatModel
+                from pydantic_ai.providers import infer_provider
+                from pydantic_ai.providers.openai import OpenAIProvider
+                
                 deployment_name = model.split(':', 1)[1]
-                model_obj = OpenAIChatModel(deployment_name, provider='azure')
-                logger.info(f"Using Azure OpenAI deployment: {deployment_name}")
+                http_timeout = httpx.Timeout(timeout, connect=30.0)
+                
+                # Create custom provider with timeout
+                http_client = httpx.AsyncClient(timeout=http_timeout, follow_redirects=True)
+                
+                # Infer Azure provider first to get proper configuration
+                azure_provider_base = infer_provider('azure')
+                
+                # Create new provider with same base_url but custom http_client
+                azure_provider = OpenAIProvider(
+                    base_url=str(azure_provider_base.client.base_url),
+                    http_client=http_client
+                )
+                
+                model_obj = OpenAIChatModel(
+                    deployment_name, 
+                    provider=azure_provider
+                )
+                logger.info(f"Using Azure OpenAI deployment: {deployment_name} (timeout: {timeout}s, connect: 30s)")
             else:
                 model_obj = model
                 logger.info(f"Using explicit model: {model_obj}")
         else:
-            model_obj = create_model_with_provider(model_provider, model_name)
+            model_obj = create_model_with_provider(model_provider, model_name, timeout)
             if isinstance(model_obj, str):
                 logger.info(f"Using model: {model_obj} (from {model_provider} + {model_name})")
             else:
-                logger.info(f"Using {model_provider} model: {model_name}")
+                logger.info(f"Using {model_provider} model: {model_name} (timeout: {timeout}s)")
         
         # Create MCP server connection(s)
+        from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+        
+        server_urls = [s.strip() for s in mcp_servers.split(',')]
+        logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
+        
         toolsets = []
-        if url:
-            # Jupyter MCP server
-            logger.info(f"Connecting to Jupyter server at {url}")
-            mcp_server = create_mcp_server(url, token)
-            toolsets.append(mcp_server)
-        else:
-            # External MCP servers
-            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
-            
-            server_urls = [s.strip() for s in mcp_servers.split(',')]
-            logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
-            
-            for server_url in server_urls:
-                logger.info(f"  - {server_url}")
-                mcp_client = MCPServerStreamableHTTP(server_url)
-                toolsets.append(mcp_client)
+        for server_url in server_urls:
+            logger.info(f"  - {server_url}")
+            mcp_client = MCPServerStreamableHTTP(server_url)
+            toolsets.append(mcp_client)
         
         # List tools before starting the agent (separate asyncio.run call)
         asyncio.run(list_tools_async())
         
         # Create default system prompt if not provided
         if system_prompt is None:
-            if url:
-                instructions = """You are a helpful AI assistant with direct access to Jupyter notebooks via MCP tools.
-
-You can:
-- List notebooks in directories
-- Read notebook contents
-- Execute code in notebook cells
-- Insert new cells (code or markdown)
-- Modify existing cells
-- Install Python packages if needed
-
-When the user asks you to work with notebooks:
-1. Use list_notebooks to find available notebooks
-2. Use read_notebook to examine notebook content
-3. Use execute_cell to run code
-4. Use insert_cell to add new content
-
-Be proactive in suggesting what you can do with the available tools.
-Always confirm before making destructive changes.
-"""
-            else:
-                instructions = """You are a helpful AI assistant with access to various MCP tools.
+            instructions = """You are a helpful AI assistant with access to various MCP tools.
 
 Use the available tools to help the user accomplish their tasks.
 Be proactive in suggesting what you can do with the available tools.
@@ -614,13 +494,10 @@ Be proactive in suggesting what you can do with the available tools.
         else:
             typer.echo(f"Model: {model_provider}:{model_name}")
         
-        if url:
-            typer.echo(f"Jupyter Server: {url}")
-        else:
-            server_urls = [s.strip() for s in mcp_servers.split(',')]
-            typer.echo(f"MCP Servers: {len(server_urls)} connected")
-            for server_url in server_urls:
-                typer.echo(f"  - {server_url}")
+        server_urls = [s.strip() for s in mcp_servers.split(',')]
+        typer.echo(f"MCP Servers: {len(server_urls)} connected")
+        for server_url in server_urls:
+            typer.echo(f"  - {server_url}")
         
         typer.echo("="*70)
         typer.echo("\nSpecial commands:")
@@ -628,21 +505,13 @@ Be proactive in suggesting what you can do with the available tools.
         typer.echo("  /markdown   - Show last response in markdown")
         typer.echo("  /multiline  - Toggle multiline mode (Ctrl+D to submit)")
         typer.echo("  /cp         - Copy last response to clipboard")
-        
-        if url:
-            typer.echo("\nYou can directly ask the AI to interact with Jupyter notebooks!")
-            typer.echo("Example: 'List all notebooks' or 'Create a matplotlib plot in notebook.ipynb'")
-        else:
-            typer.echo("\nYou can directly ask the AI to use the available MCP tools!")
-            typer.echo("Example: 'Add 5 and 7' or 'Reverse the text hello world'")
-        
         typer.echo("="*70 + "\n")
         
         # Launch the CLI interface (separate asyncio.run call with context manager)
         async def _run_cli() -> None:
             assert agent is not None
             async with agent:
-                await agent.to_cli()
+                await agent.to_cli(prog_name='jupyter-ai-agents')
         
         asyncio.run(_run_cli())
     

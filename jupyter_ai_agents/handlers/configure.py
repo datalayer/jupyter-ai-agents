@@ -83,7 +83,7 @@ class ConfigureHandler(APIHandler):
             models = [
                 AIModel(
                     id="anthropic:claude-sonnet-4-5",
-                    name="Claude Sonnet 4.0",
+                    name="Claude Sonnet 4.5",
                     builtin_tools=tool_ids  # Associate all available tools
                 )
             ]
