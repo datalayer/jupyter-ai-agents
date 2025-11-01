@@ -18,7 +18,7 @@
   "license": "BSD-3-Clause",
   "author": {
     "name": "Datalayer",
-    "email": "info@datalayer.io"
+    "email": "info@datalayer.ai"
   },
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
