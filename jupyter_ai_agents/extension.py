@@ -108,16 +108,12 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             token = self.serverapp.token
             self.log.info(f"Jupyter server URL: {base_url}")
             
-            # Create MCP server connection to jupyter-mcp-server
-            self.log.info("Creating MCP server connection to jupyter-mcp-server...")
-            mcp_server = create_mcp_server(base_url, token)
-            self.log.info("MCP server connection created")
-            
-            # Create chat agent with MCP server toolset
+            # Create chat agent without eagerly attaching MCP server tools
+            # We'll create the MCP connection per request to avoid async context issues
             default_model = config.get_default_model()
             self.log.info(f"Creating chat agent with model: {default_model}")
-            agent = create_chat_agent(model=default_model, mcp_server=mcp_server)
-            self.log.info("Chat agent created with MCP tools")
+            agent = create_chat_agent(model=default_model, mcp_server=None)
+            self.log.info("Chat agent created; MCP tools will be attached per request")
             
             # Create MCP tool manager for additional MCP servers
             mcp_manager = MCPToolManager()
@@ -135,7 +131,8 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
             self.settings['chat_agent'] = agent
             self.settings['mcp_manager'] = mcp_manager
             self.settings['chat_config'] = config
-            self.settings['jupyter_mcp_server'] = mcp_server
+            self.settings['chat_base_url'] = base_url
+            self.settings['chat_token'] = token
             
             self.log.info("Jupyter AI Agents extension initialized successfully")
             

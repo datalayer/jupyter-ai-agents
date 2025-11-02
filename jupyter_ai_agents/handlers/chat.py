@@ -14,6 +14,8 @@ from pydantic_ai.ui.vercel_ai import VercelAIAdapter
 from starlette.requests import Request
 from starlette.datastructures import Headers
 
+from ..tools import create_mcp_server
+
 logger = logging.getLogger(__name__)
 
 
@@ -80,81 +82,67 @@ class ChatHandler(APIHandler):
                 self.finish(json.dumps({"error": "Chat agent not initialized"}))
                 return
             
-            # Create request adapter (Starlette-compatible)
-            tornado_request = TornadoRequestAdapter(self)
-            
-            # Parse request body to extract model if specified
-            try:
-                body = await tornado_request.json()
-                model = body.get('model') if isinstance(body, dict) else None
-            except:
-                model = None
-            
-            # Get builtin tools (empty list - tools metadata is only for UI display)
-            # The actual pydantic-ai tools are registered in the agent itself
-            builtin_tools = []
-            
-            # Create usage limits for the agent
-            from pydantic_ai import UsageLimits
-            usage_limits = UsageLimits(
-                output_tokens_limit=5000,
-                total_tokens_limit=100000,
-            )
-            
-            # Use VercelAIAdapter.dispatch_request (new API)
-            # This is now a classmethod that takes the request and agent directly
-            response = await VercelAIAdapter.dispatch_request(
-                tornado_request,
-                agent=agent,
-                model=model,
-#                usage=usage_limits,
-                builtin_tools=builtin_tools,
-            )
-            
-            # Set headers from FastAPI response
-            for key, value in response.headers.items():
-                self.set_header(key, value)
-            
-            # Stream the response body
-            # FastAPI StreamingResponse has body_iterator
-            # Wrap in try-except to catch cancel scope errors
-            if hasattr(response, 'body_iterator'):
-                try:
-                    async for chunk in response.body_iterator:
-                        """
-                        # Filter out benign cancel scope errors from the stream
-                        # These are internal anyio errors that don't affect functionality
-                        if isinstance(chunk, bytes):
-                            chunk_str = chunk.decode('utf-8', errors='ignore')
-                        else:
-                            chunk_str = str(chunk)
-                        
-                        # Skip chunks that contain cancel scope errors
-                        if 'cancel scope' in chunk_str.lower() and 'error' in chunk_str.lower():
-                            self.log.debug(f"Filtered out begin cancel scope error from stream")
-                            continue
-                        """
+            # Lazily create the MCP server connection for this request
+            base_url = self.settings.get('chat_base_url')
+            token = self.settings.get('chat_token')
+            mcp_server = create_mcp_server(base_url, token)
 
-                        # Write the chunk
-                        if isinstance(chunk, bytes):
-                            self.write(chunk)
-                        else:
-                            self.write(chunk.encode('utf-8') if isinstance(chunk, str) else chunk)
-                        await self.flush()
-                except Exception as stream_error:
-                    # Log but don't crash - the stream might have completed successfully
-                    # Cancel scope errors often happen during cleanup after successful completion
-                    self.log.debug(f"Stream iteration completed with: {stream_error}")
-            else:
-                # Fallback for non-streaming response
-                body = response.body
-                if isinstance(body, bytes):
-                    self.write(body)
-                else:
-                    self.write(body.encode('utf-8') if isinstance(body, str) else body)
+            async with mcp_server:
+                # Create request adapter (Starlette-compatible)
+                tornado_request = TornadoRequestAdapter(self)
+                
+                # Parse request body to extract model if specified
+                try:
+                    body = await tornado_request.json()
+                    model = body.get('model') if isinstance(body, dict) else None
+                except Exception:
+                    model = None
+                
+                # Get builtin tools (empty list - tools metadata is only for UI display)
+                # The actual pydantic-ai tools are registered in the agent itself
+                builtin_tools = []
+                
+                # Create usage limits for the agent
+                usage_limits = UsageLimits(
+                    tool_calls_limit=5,                    
+                    output_tokens_limit=5000,
+                    total_tokens_limit=100000,
+                )
+                
+                # Use VercelAIAdapter.dispatch_request (new API)
+                response = await VercelAIAdapter.dispatch_request(
+                    tornado_request,
+                    agent=agent,
+                    model=model,
+                    usage_limits=usage_limits,
+                    toolsets=[mcp_server],
+                    builtin_tools=builtin_tools,
+                )
             
-            # Finish the response
-            self.finish()
+                # Set headers from FastAPI response
+                for key, value in response.headers.items():
+                    self.set_header(key, value)
+                
+                # Stream the response body
+                if hasattr(response, 'body_iterator'):
+                    try:
+                        async for chunk in response.body_iterator:
+                            if isinstance(chunk, bytes):
+                                self.write(chunk)
+                            else:
+                                self.write(chunk.encode('utf-8') if isinstance(chunk, str) else chunk)
+                            await self.flush()
+                    except Exception as stream_error:
+                        self.log.debug(f"Stream iteration completed with: {stream_error}")
+                else:
+                    body = response.body
+                    if isinstance(body, bytes):
+                        self.write(body)
+                    else:
+                        self.write(body.encode('utf-8') if isinstance(body, str) else body)
+                
+                # Finish the response while MCP context is active
+                self.finish()
             
         except Exception as e:
             self.log.error(f"Error in chat handler: {e}", exc_info=True)
