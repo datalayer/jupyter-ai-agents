@@ -6,6 +6,7 @@
 
 import json
 import logging
+from pydantic_ai import UsageLimits
 import tornado.web
 
 from jupyter_server.base.handlers import APIHandler
@@ -93,12 +94,20 @@ class ChatHandler(APIHandler):
             # The actual pydantic-ai tools are registered in the agent itself
             builtin_tools = []
             
+            # Create usage limits for the agent
+            from pydantic_ai import UsageLimits
+            usage_limits = UsageLimits(
+                output_tokens_limit=5000,
+                total_tokens_limit=100000,
+            )
+            
             # Use VercelAIAdapter.dispatch_request (new API)
             # This is now a classmethod that takes the request and agent directly
             response = await VercelAIAdapter.dispatch_request(
                 tornado_request,
                 agent=agent,
                 model=model,
+#                usage=usage_limits,
                 builtin_tools=builtin_tools,
             )
             
@@ -112,6 +121,7 @@ class ChatHandler(APIHandler):
             if hasattr(response, 'body_iterator'):
                 try:
                     async for chunk in response.body_iterator:
+                        """
                         # Filter out benign cancel scope errors from the stream
                         # These are internal anyio errors that don't affect functionality
                         if isinstance(chunk, bytes):
@@ -121,9 +131,10 @@ class ChatHandler(APIHandler):
                         
                         # Skip chunks that contain cancel scope errors
                         if 'cancel scope' in chunk_str.lower() and 'error' in chunk_str.lower():
-                            self.log.debug(f"Filtered out benign cancel scope error from stream")
+                            self.log.debug(f"Filtered out begin cancel scope error from stream")
                             continue
-                        
+                        """
+
                         # Write the chunk
                         if isinstance(chunk, bytes):
                             self.write(chunk)

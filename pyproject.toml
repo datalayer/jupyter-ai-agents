@@ -38,7 +38,7 @@ dependencies = [
   "jupyter_server>=2.10,<3",
   "jupyterlab>=4.0.0,<5",
   "mcp",
-  "pydantic-ai-slim[anthropic,openai,cli,mcp]>=1.9.0",
+  "pydantic-ai-slim[anthropic,openai,cli,mcp]>=1.9.1",
   "pydantic-settings",
   "python-dotenv",
   "tornado",

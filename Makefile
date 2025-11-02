@@ -28,8 +28,6 @@ build:
 clean: ## clean
 	git clean -fdx
 
-#	pip uninstall -y pycrdt datalayer_pycrdt
-#	pip install datalayer_pycrdt
 jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
@@ -43,7 +41,7 @@ jupyterlab-debug: ## jupyterlab-debug
 		--ServerApp.root_dir ./dev/content \
 		--IdentityProvider.token=
 
-example-fastapi: ## example-fastapi server
+fastapi: ## fastapi server
 	@exec echo
 	@exec echo open http://localhost:4400/api/ai-agents/v1/ping
 	@exec echo
