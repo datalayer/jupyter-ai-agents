@@ -96,6 +96,7 @@ def create_prompt_agent(
     agent = Agent(
         model,
         toolsets=[mcp_server],
+        model_settings={"parallel_tool_calls": False},
         deps_type=PromptAgentDeps,
         system_prompt=system_prompt,
     )

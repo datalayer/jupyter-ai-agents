@@ -60,6 +60,7 @@ def create_chat_agent(
     agent = Agent(
         model_obj,
         toolsets=toolsets,
+        model_settings={"parallel_tool_calls": False},
         instructions="""You are a helpful AI assistant integrated into JupyterLab.
         
 You can help users with:
