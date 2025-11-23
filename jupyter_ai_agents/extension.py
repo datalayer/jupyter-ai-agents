@@ -18,16 +18,6 @@ from jupyter_server.extension.application import ExtensionApp, ExtensionAppJinja
 
 from jupyter_ai_agents.handlers.index import IndexHandler
 from jupyter_ai_agents.handlers.config import ConfigHandler
-from jupyter_ai_agents.handlers.chat import ChatHandler
-from jupyter_ai_agents.handlers.configure import ConfigureHandler
-from jupyter_ai_agents.handlers.mcp import (
-    MCPServersHandler,
-    MCPServerHandler,
-)
-from jupyter_ai_agents.agents.mcp import MCPToolManager
-from jupyter_ai_agents.agents.chat.config import ChatConfig
-from jupyter_ai_agents.agents.chat.agent import create_chat_agent
-from jupyter_ai_agents.tools import create_mcp_server
 from jupyter_ai_agents.__version__ import __version__
 
 
@@ -99,47 +89,6 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
 
         self.log.info("Initializing Jupyter AI Agents extension...")
         
-        try:
-            # Create configuration manager
-            config = ChatConfig()
-            
-            # Get Jupyter server connection details
-            base_url = self.serverapp.connection_url
-            token = self.serverapp.token
-            self.log.info(f"Jupyter server URL: {base_url}")
-            
-            # Create chat agent without eagerly attaching MCP server tools
-            # We'll create the MCP connection per request to avoid async context issues
-            default_model = config.get_default_model()
-            self.log.info(f"Creating chat agent with model: {default_model}")
-            agent = create_chat_agent(model=default_model, mcp_server=None)
-            self.log.info("Chat agent created; MCP tools will be attached per request")
-            
-            # Create MCP tool manager for additional MCP servers
-            mcp_manager = MCPToolManager()
-            
-            # Load additional MCP servers from configuration
-            saved_servers = config.load_mcp_servers()
-            for server in saved_servers:
-                self.log.info(f"Loading additional MCP server: {server.name} ({server.url})")
-                mcp_manager.add_server(server)
-            
-            # Register additional MCP tools with agent
-            mcp_manager.register_with_agent(agent)
-            
-            # Store in settings for handlers to access
-            self.settings['chat_agent'] = agent
-            self.settings['mcp_manager'] = mcp_manager
-            self.settings['chat_config'] = config
-            self.settings['chat_base_url'] = base_url
-            self.settings['chat_token'] = token
-            
-            self.log.info("Jupyter AI Agents extension initialized successfully")
-            
-        except Exception as e:
-            self.log.error(f"Error initializing Jupyter AI Agents: {e}", exc_info=True)
-            raise
-
         self.settings.update({"disable_check_xsrf": True})
 
         self.log.debug("Jupyter AI Agents Config {}".format(self.config))
@@ -159,10 +108,6 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         handlers = [
             (url_path_join(self.name), IndexHandler),
             (url_path_join(self.name, "config"), ConfigHandler),
-            (url_path_join(self.name, "configure"), ConfigureHandler),
-            (url_path_join("api", "chat"), ChatHandler),
-            (url_path_join("api", "mcp/servers"), MCPServersHandler),
-            (url_path_join("api", r"mcp/servers/([^/]+)"), MCPServerHandler),
         ]
         self.handlers.extend(handlers)
 

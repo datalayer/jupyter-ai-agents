@@ -7,7 +7,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import root from 'react-shadow';
-import { ChatComponent } from './ChatWidget';
+import { ChatComponent } from '@datalayer/core';
 import { PORTAL_ROOT_ID } from './shadow/with-portal';
 
 // Import styles as processed CSS string for Shadow DOM injection

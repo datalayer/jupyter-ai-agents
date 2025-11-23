@@ -4,6 +4,8 @@
  * BSD 3-Clause License
  */
 
+@import "@datalayer/core/style/chat.css";
+
 .jp-LabShell {
   height: 100vh !important;
 }
