@@ -24,7 +24,6 @@ from jupyter_ai_agents.agents.prompt.prompt_agent import (
     create_prompt_agent,
     run_prompt_agent,
 )
-from jupyter_ai_agents.tools import create_mcp_server
 
 # Import tools for REPL
 # Import model utilities
@@ -119,7 +118,7 @@ def prompt(
     async def _run():
         try:
             # Create MCP server connection(s)
-            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+            from datalayer_core.tools import MCPServerStreamableHTTP
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
             logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
@@ -248,7 +247,7 @@ def explain_error(
     async def _run():
         try:
             # Create MCP server connection(s)
-            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+            from datalayer_core.tools import MCPServerStreamableHTTP
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
             logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
@@ -408,7 +407,7 @@ def repl(
     async def list_tools_async():
         """List all tools available from the MCP server(s)"""
         try:
-            from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+            from datalayer_core.tools import MCPServerStreamableHTTP
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
             
@@ -518,7 +517,7 @@ def repl(
                 logger.info(f"Using {model_provider} model: {model_name} (timeout: {timeout}s)")
         
         # Create MCP server connection(s)
-        from jupyter_ai_agents.tools import MCPServerStreamableHTTP
+        from datalayer_core.tools import MCPServerStreamableHTTP
         
         server_urls = [s.strip() for s in mcp_servers.split(',')]
         logger.info(f"Connecting to {len(server_urls)} MCP server(s)")

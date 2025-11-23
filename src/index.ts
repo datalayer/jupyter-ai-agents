@@ -4,6 +4,7 @@
  * BSD 3-Clause License
  */
 
+import React from 'react';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -13,13 +14,12 @@ import { ILabShell } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { LabIcon } from '@jupyterlab/ui-components';
-import React from 'react';
 import { requestAPI } from './handler';
 import { ChatRoot } from './ChatRoot';
 
-import sparklesSvgstr from '../style/icons/sparkles.svg';
+import '../style/index.css';
 
-import '../style/index.js';
+import sparklesSvgstr from '../style/icons/sparkles.svg';
 
 const sparklesIcon = new LabIcon({
   name: 'ai-chat:sparkles',

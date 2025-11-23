@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import root from 'react-shadow';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ChatComponent } from '@datalayer/core';
 import { PORTAL_ROOT_ID } from './shadow/with-portal';
 
