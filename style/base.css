@@ -13,18 +13,92 @@
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
   overflow: hidden !important;
+  /* Chrome-specific: avoid 'strict' containment which breaks flex layout */
+  contain: layout style paint !important;
+  position: relative !important;
 }
 
+/* The ReactWidget's content wrapper */
 .jp-ai-chat-container > .lm-Widget {
   display: flex !important;
   flex-direction: column !important;
+  flex: 1 1 0 !important;
   height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
   overflow: hidden !important;
 }
 
+/* The React root element inside ReactWidget */
 .jp-ai-chat-container .jp-RenderedHTMLCommon {
-  height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
+  flex: 1 1 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Ensure all intermediate divs maintain flexbox chain - includes wrapper and theme providers */
+.jp-ai-chat-container .jp-RenderedHTMLCommon > div,
+.jp-ai-chat-container .jp-RenderedHTMLCommon > div > div,
+.jp-ai-chat-container .jp-RenderedHTMLCommon > div > div > div {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Direct targeting of the chat root component and its parent chain */
+.jp-ai-chat-container .dla-chat-root,
+.jp-ai-chat-container div:has(> .dla-chat-root) {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Force scrollbar to always be visible in Chrome - scoped to chat container only */
+.jp-ai-chat-container .dla-chat-messages {
+  scrollbar-width: thin !important; /* Firefox - thin scrollbar */
+  -webkit-overflow-scrolling: touch;
+}
+
+.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar {
+  width: 6px !important;
+  display: block !important;
+}
+
+.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Chrome-specific workaround: force layout recalculation */
+@supports (-webkit-appearance: none) {
+  .jp-ai-chat-container,
+  .jp-ai-chat-container .lm-Widget,
+  .jp-ai-chat-container .jp-RenderedHTMLCommon,
+  .jp-ai-chat-container .dla-chat-root {
+    transform: translateZ(0) !important;
+    will-change: auto !important;
+  }
 }

@@ -21,13 +21,16 @@ const queryClient = new QueryClient({
 
 /**
  * Chat component that provides necessary context providers
+ * Wrapper div ensures proper height propagation in JupyterLab
  */
 export const Chat: React.FC = () => {
   return (
-    <JupyterReactTheme>
-      <QueryClientProvider client={queryClient}>
-        <ChatComponent />
-      </QueryClientProvider>
-    </JupyterReactTheme>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
+      <JupyterReactTheme>
+        <QueryClientProvider client={queryClient}>
+          <ChatComponent />
+        </QueryClientProvider>
+      </JupyterReactTheme>
+    </div>
   );
 };
