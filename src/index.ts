@@ -4,7 +4,6 @@
  * BSD 3-Clause License
  */
 
-import React from 'react';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -12,40 +11,13 @@ import {
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ILabShell } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ReactWidget } from '@jupyterlab/ui-components';
-import { LabIcon } from '@jupyterlab/ui-components';
 import { setupPrimerPortals } from '@datalayer/primer-addons';
-import { Chat } from './Chat';
+import { ChatWidget } from './widget';
 // import { requestAPI } from './handler';
 
 import '../style/index.css';
 
-import sparklesSvgstr from '../style/icons/sparkles.svg';
-
-const sparklesIcon = new LabIcon({
-  name: 'ai-chat:sparkles',
-  svgstr: sparklesSvgstr
-});
-
-
 setupPrimerPortals();
-
-/**
- * Chat widget with React Query provider
- */
-class ChatWidgetWithProvider extends ReactWidget {
-  constructor() {
-    super();
-    this.addClass('jp-ai-chat-container');
-    this.id = 'jupyter-ai-chat';
-    this.title.icon = sparklesIcon;
-    this.title.closable = true;
-  }
-
-  render(): JSX.Element {
-    return React.createElement(Chat);
-  }
-}
 
 /**
  * Initialization data for the @datalayer/jupyter-ai-agents extension.
@@ -67,7 +39,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     );
 
     // Create and add chat widget to left sidebar
-    const chatWidget = new ChatWidgetWithProvider();
+    const chatWidget = new ChatWidget();
     labShell.add(chatWidget, 'right', { rank: 1000 });
 
     if (settingRegistry) {

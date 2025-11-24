@@ -4,8 +4,18 @@
  * BSD 3-Clause License
  */
 
+body {
+  overflow: visible !important;
+}
+
 .jp-LabShell {
   height: 100vh !important;
+}
+
+/* Fix for JupyterLab submenus being clipped - offset them to be visible */
+/* Exclude top-level menu bar menus (lm-MenuBar-menu) */
+div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
+  margin-top: -100vh !important;
 }
 
 /* Ensure the chat container fills the available space in JupyterLab */
@@ -15,10 +25,6 @@
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
-  overflow: hidden !important;
-  /* Chrome-specific: avoid 'strict' containment which breaks flex layout */
-  contain: layout style paint !important;
-  position: relative !important;
 }
 
 /* The ReactWidget's content wrapper */
@@ -29,7 +35,6 @@
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
-  overflow: hidden !important;
 }
 
 /* The React root element inside ReactWidget */
@@ -40,7 +45,6 @@
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
-  overflow: hidden !important;
 }
 
 /* Ensure all intermediate divs maintain flexbox chain - includes wrapper and theme providers */
@@ -53,7 +57,6 @@
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
-  overflow: hidden !important;
 }
 
 /* Direct targeting of the chat root component and its parent chain */
@@ -65,7 +68,6 @@
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
-  overflow: hidden !important;
 }
 
 /* Force scrollbar to always be visible in Chrome - scoped to chat container only */
@@ -90,15 +92,4 @@
 
 .jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.4);
-}
-
-/* Chrome-specific workaround: force layout recalculation */
-@supports (-webkit-appearance: none) {
-  .jp-ai-chat-container,
-  .jp-ai-chat-container .lm-Widget,
-  .jp-ai-chat-container .jp-RenderedHTMLCommon,
-  .jp-ai-chat-container .dla-chat-root {
-    transform: translateZ(0) !important;
-    will-change: auto !important;
-  }
 }
