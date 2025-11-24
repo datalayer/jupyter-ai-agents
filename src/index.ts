@@ -14,8 +14,9 @@ import { ILabShell } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { LabIcon } from '@jupyterlab/ui-components';
-import { requestAPI } from './handler';
-import { ChatRoot } from './ChatRoot';
+import { setupPrimerPortals } from '@datalayer/primer-addons';
+import { Chat } from './Chat';
+// import { requestAPI } from './handler';
 
 import '../style/index.css';
 
@@ -25,6 +26,9 @@ const sparklesIcon = new LabIcon({
   name: 'ai-chat:sparkles',
   svgstr: sparklesSvgstr
 });
+
+
+setupPrimerPortals();
 
 /**
  * Chat widget with React Query provider
@@ -39,7 +43,7 @@ class ChatWidgetWithProvider extends ReactWidget {
   }
 
   render(): JSX.Element {
-    return React.createElement(ChatRoot);
+    return React.createElement(Chat);
   }
 }
 
@@ -82,7 +86,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           );
         });
     }
-
+    /*
     // Test connection to backend by fetching configuration
     requestAPI<any>('configure')
       .then(data => {
@@ -93,6 +97,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           `The jupyter-ai-agents server extension appears to be missing.\n${reason}`
         );
       });
+    */
   }
 };
 
