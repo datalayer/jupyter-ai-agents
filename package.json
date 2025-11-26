@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "ai",
@@ -19,6 +19,14 @@
   "author": {
     "name": "Datalayer",
     "email": "info@datalayer.ai"
+  },
+  "sideEffects": [
+    "style/*.css",
+    "style/index.js"
+  ],
+  "styleModule": "style/index.js",
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
@@ -129,15 +137,8 @@
     "webpack-dev-server": "^4.15.1",
     "ws": "^8.18.3"
   },
-  "sideEffects": [
-    "style/*.css",
-    "style/index.js"
-  ],
-  "styleModule": "style/index.js",
-  "publishConfig": {
-    "access": "public"
-  },
   "resolutions": {
+    "@atlassiansox/analytics-web-client": "npm:empty-npm-package@1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@types/react": "^18.0.26",
