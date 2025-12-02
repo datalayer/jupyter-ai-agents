@@ -140,7 +140,6 @@
     "stylelint": "^16.26.1",
     "stylelint-config-recommended": "^17.0.0",
     "stylelint-config-standard": "^39.0.1",
-    "stylelint-csstree-validator": "^3.0.0",
     "stylelint-prettier": "^4.0.0",
     "to-string-loader": "^1.2.0",
     "typescript": "~5.8.0",
@@ -208,9 +207,6 @@
       "stylelint-config-recommended",
       "stylelint-config-standard",
       "stylelint-prettier/recommended"
-    ],
-    "plugins": [
-      "stylelint-csstree-validator"
     ],
     "rules": {
       "csstree/validator": true,
