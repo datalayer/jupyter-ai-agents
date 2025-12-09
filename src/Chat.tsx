@@ -5,7 +5,7 @@
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ChatComponent } from '@datalayer/core';
+import { ChatComponent } from '@datalayer/agent-runtimes';
 import { JupyterReactTheme } from '@datalayer/jupyter-react/lib/theme/JupyterReactTheme';
 
 import '../style/index.css';

@@ -16,7 +16,7 @@ import * as collaborationPlugins from '@jupyter/collaboration-extension';
 
 import * as jupyterAIAgentsPlugins from '../index';
 
-import '@datalayer/core/style/index.css';
+import '@datalayer/agent-runtimes/style/index.css';
 
 setupPrimerPortals();
 
