@@ -107,6 +107,7 @@ def create_explain_error_agent(
     agent = Agent(
         model,
         toolsets=[mcp_server],
+        model_settings={"parallel_tool_calls": False},
         deps_type=ExplainErrorAgentDeps,
         system_prompt=system_prompt,
     )

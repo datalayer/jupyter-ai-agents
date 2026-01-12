@@ -555,6 +555,7 @@ Be proactive in suggesting what you can do with the available tools.
         logger.info("Creating agent with MCP tools...")
         agent = Agent(
             model_obj,
+            model_settings={"parallel_tool_calls": False},
             toolsets=toolsets,
             system_prompt=instructions,
         )
