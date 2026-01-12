@@ -72,7 +72,7 @@
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@datalayer/agent-runtimes": "^0.0.4",
+    "@datalayer/agent-runtimes": "^0.0.5",
     "@datalayer/jupyter-react": "^2.0.0",
     "@jupyter/collaboration": "^4.0.1",
     "@jupyter/collaboration-extension": "^4.0.1",
@@ -112,6 +112,7 @@
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
     "autoprefixer": "^10.4.21",
+    "assert": "^2.1.0",
     "babel-loader": "^9.1.2",
     "browserify-zlib": "^0.2.0",
     "crypto-browserify": "^3.12.1",
