@@ -530,7 +530,7 @@ def repl(
         
         # Display welcome message
         typer.echo("="*70)
-        typer.echo("🪐 ✨ Jupyter AI Agents - Interactive REPL")
+        typer.echo("🪐 🤖 Jupyter AI Agents - Interactive REPL")
         typer.echo("="*70)
         typer.echo(f"Model: {model_display_name}")
         
