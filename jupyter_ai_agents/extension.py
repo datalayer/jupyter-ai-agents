@@ -92,13 +92,18 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         
         self.settings.update({"disable_check_xsrf": True})
 
+        # Store server connection info for MCP server creation
+        # These will be used lazily when handling chat requests
+        self.settings["chat_base_url"] = self.serverapp.connection_url
+        self.settings["chat_token"] = self.serverapp.token
+
         # Create chat agent
         try:
             self.log.info("Creating chat agent...")
             agent = create_chat_agent()
             if agent:
                 self.settings["chat_agent"] = agent
-                self.settings["chat_toolsets"] = []  # Can be extended with MCP servers
+                self.settings["chat_toolsets"] = []  # Can be extended with MCP servers via request parameter
                 self.log.info("Chat agent created successfully")
             else:
                 self.log.warning(

@@ -25,6 +25,7 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
+  overflow: hidden !important;
 }
 
 /* The ReactWidget's content wrapper */
@@ -35,6 +36,7 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
+  overflow: hidden !important;
 }
 
 /* The React root element inside ReactWidget */
@@ -45,6 +47,7 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
+  overflow: hidden !important;
 }
 
 /* Ensure all intermediate divs maintain flexbox chain - includes wrapper and theme providers */
@@ -57,6 +60,7 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
+  overflow: hidden !important;
 }
 
 /* Direct targeting of the chat root component and its parent chain */
@@ -68,10 +72,14 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
+  overflow: hidden !important;
 }
 
-/* Force scrollbar to always be visible in Chrome - scoped to chat container only */
+/* Messages area should be scrollable */
 .jp-ai-chat-container .dla-chat-messages {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
   scrollbar-width: thin !important; /* Firefox - thin scrollbar */
   -webkit-overflow-scrolling: touch;
 }
@@ -92,4 +100,10 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
 
 .jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.4);
+}
+
+/* Fix textarea initial height glitch */
+.jp-ai-chat-container textarea {
+  min-height: 40px !important;
+  height: auto !important;
 }
