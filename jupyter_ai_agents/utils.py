@@ -2,10 +2,40 @@
 #
 # BSD 3-Clause License
 
+import os
 import re
 
 from jupyter_kernel_client import KernelClient
 from jupyter_nbmodel_client import NbModelClient
+
+
+def create_model_with_provider(
+    provider: str,
+    model_name: str,
+    timeout: float = 60.0,
+) -> str:
+    """
+    Create a model string with the specified provider.
+
+    Args:
+        provider: Model provider ("anthropic", "openai", "azure-openai")
+        model_name: Model or deployment name
+        timeout: HTTP timeout in seconds
+
+    Returns:
+        Model string for pydantic-ai (e.g., "anthropic:claude-3-5-sonnet-latest")
+    """
+    if provider == "azure-openai":
+        # Azure OpenAI requires environment variables
+        # Return format: "azure-openai:<deployment-name>"
+        return f"azure-openai:{model_name}"
+    elif provider == "openai":
+        return f"openai:{model_name}"
+    elif provider == "anthropic":
+        return f"anthropic:{model_name}"
+    else:
+        # Default format
+        return f"{provider}:{model_name}"
 
 
 def retrieve_cells_content(notebook: NbModelClient, cell_index_stop: int=-1) -> list:

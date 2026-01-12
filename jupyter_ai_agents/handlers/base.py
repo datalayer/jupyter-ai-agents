@@ -2,10 +2,6 @@
 #
 # BSD 3-Clause License
 
-# Copyright (c) 2023-2024 Datalayer, Inc.
-#
-# Datalayer License
-
 """Base handler."""
 
 from jupyter_server.base.handlers import JupyterHandler

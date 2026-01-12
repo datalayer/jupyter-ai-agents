@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (c) 2024-2025 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
 """
 MCP Server 1 - Calculator Tools
 

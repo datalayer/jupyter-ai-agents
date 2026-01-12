@@ -1,0 +1,116 @@
+# Copyright (c) 2024-2025 Datalayer, Inc.
+#
+# BSD 3-Clause License
+
+# Copyright (c) 2023-2025 Datalayer, Inc.
+# Distributed under the terms of the Modified BSD License.
+
+"""Configuration for the Jupyter development server."""
+
+import os
+
+#################
+# Logging
+#################
+
+c.ServerApp.log_level = 'INFO'
+
+#################
+# Network
+#################
+
+c.ServerApp.ip = '0.0.0.0'
+c.ServerApp.port = 8888
+c.ServerApp.port_retries = 0
+
+#################
+# Browser
+#################
+
+c.ServerApp.open_browser = False
+
+#################
+# Terminal
+#################
+
+c.ServerApp.terminals_enabled = True
+
+#################
+# Authentication
+#################
+
+c.IdentityProvider.token = '60c1661cc408f978c309d04157af55c9588ff9557c9380e4fb50785750703da6'
+
+#################
+# Security
+#################
+
+#################
+# Security
+#################
+
+c.ServerApp.disable_check_xsrf = True
+
+# c.ServerApp.allow_origin = ORIGIN
+c.ServerApp.allow_origin_pat = '.*'
+c.ServerApp.allow_credentials = True
+
+ORIGIN = '*'
+
+c.ServerApp.tornado_settings = {
+  'headers': {
+#    'Access-Control-Allow-Origin': ORIGIN,
+    'Access-Control-Allow-Methods': '*',
+    'Access-Control-Allow-Headers': 'Accept, Accept-Encoding, Accept-Language, Authorization, Cache-Control, Connection, Content-Type, Host, Origin, Pragma, Referer, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Upgrade, User-Agent, X-XSRFToken, X-Datalayer, Expires',
+    'Access-Control-Allow-Credentials': 'true',
+    'Content-Security-Policy': f"frame-ancestors 'self' {ORIGIN} ",
+  },
+  'cookie_options': {
+    'SameSite': 'None',
+    'Secure': True
+  }
+}
+c.IdentityProvider.cookie_options = {
+  "SameSite": "None",
+  "Secure": True,
+}
+
+#################
+# Server Extensions
+#################
+
+c.ServerApp.jpserver_extensions = {
+    'jupyterlab': True,
+    'datalayer': True,
+}
+
+#################
+# Content
+#################
+
+# c.FileContentsManager.delete_to_trash = False
+content_dir = os.path.dirname(os.path.realpath(__file__)) + '/../content'
+c.ServerApp.root_dir = content_dir
+c.ServerApp.preferred_dir = content_dir
+
+#################
+# URLs
+#################
+
+c.ServerApp.base_url = '/api/jupyter-server/'
+c.ServerApp.default_url = '/lab'
+
+#################
+# Kernel
+#################
+
+# See
+# https://github.com/jupyterlab/jupyterlab/pull/11841
+# https://github.com/jupyter-server/jupyter_server/pull/657
+c.ZMQChannelsWebsocketConnection.kernel_ws_protocol = None # None or ''
+
+#################
+# Collaboration
+#################
+
+c.YDocExtension.disable_rtc = False

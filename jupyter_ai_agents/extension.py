@@ -2,13 +2,10 @@
 #
 # BSD 3-Clause License
 
-# Copyright (c) 2023-2024 Datalayer, Inc.
-#
-# Datalayer License
-
 """The Jupyter AI Agents Server application."""
 
 import os
+import logging
 
 from traitlets import default, CInt, Instance, Unicode
 from traitlets.config import Configurable
@@ -18,17 +15,11 @@ from jupyter_server.extension.application import ExtensionApp, ExtensionAppJinja
 
 from jupyter_ai_agents.handlers.index import IndexHandler
 from jupyter_ai_agents.handlers.config import ConfigHandler
-from jupyter_ai_agents.handlers.chat import ChatHandler
-from jupyter_ai_agents.handlers.configure import ConfigureHandler
-from jupyter_ai_agents.handlers.mcp import (
-    MCPServersHandler,
-    MCPServerHandler,
-)
-from jupyter_ai_agents.agents.mcp import MCPToolManager
-from jupyter_ai_agents.agents.chat.config import ChatConfig
-from jupyter_ai_agents.agents.chat.agent import create_chat_agent
-from jupyter_ai_agents.tools import create_mcp_server
+from jupyter_ai_agents.handlers.chat_handler import VercelAIChatHandler
+from jupyter_ai_agents.agents.chat_agent import create_chat_agent
 from jupyter_ai_agents.__version__ import __version__
+
+logger = logging.getLogger(__name__)
 
 
 DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
@@ -39,11 +30,11 @@ DEFAULT_TEMPLATE_FILES_PATH = os.path.join(os.path.dirname(__file__), "./templat
 class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
     """The Jupyter AI Agents Server extension."""
 
-    name = "jupyter_ai_agents"
+    name = "agent_runtimes"
 
     description = "AI Agents for JupyterLab with MCP support"
 
-    extension_url = "/jupyter_ai_agents"
+    extension_url = "/agent_runtimes"
 
     load_other_extensions = True
 
@@ -99,48 +90,28 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
 
         self.log.info("Initializing Jupyter AI Agents extension...")
         
-        try:
-            # Create configuration manager
-            config = ChatConfig()
-            
-            # Get Jupyter server connection details
-            base_url = self.serverapp.connection_url
-            token = self.serverapp.token
-            self.log.info(f"Jupyter server URL: {base_url}")
-            
-            # Create chat agent without eagerly attaching MCP server tools
-            # We'll create the MCP connection per request to avoid async context issues
-            default_model = config.get_default_model()
-            self.log.info(f"Creating chat agent with model: {default_model}")
-            agent = create_chat_agent(model=default_model, mcp_server=None)
-            self.log.info("Chat agent created; MCP tools will be attached per request")
-            
-            # Create MCP tool manager for additional MCP servers
-            mcp_manager = MCPToolManager()
-            
-            # Load additional MCP servers from configuration
-            saved_servers = config.load_mcp_servers()
-            for server in saved_servers:
-                self.log.info(f"Loading additional MCP server: {server.name} ({server.url})")
-                mcp_manager.add_server(server)
-            
-            # Register additional MCP tools with agent
-            mcp_manager.register_with_agent(agent)
-            
-            # Store in settings for handlers to access
-            self.settings['chat_agent'] = agent
-            self.settings['mcp_manager'] = mcp_manager
-            self.settings['chat_config'] = config
-            self.settings['chat_base_url'] = base_url
-            self.settings['chat_token'] = token
-            
-            self.log.info("Jupyter AI Agents extension initialized successfully")
-            
-        except Exception as e:
-            self.log.error(f"Error initializing Jupyter AI Agents: {e}", exc_info=True)
-            raise
-
         self.settings.update({"disable_check_xsrf": True})
+
+        # Store server connection info for MCP server creation
+        # These will be used lazily when handling chat requests
+        self.settings["chat_base_url"] = self.serverapp.connection_url
+        self.settings["chat_token"] = self.serverapp.token
+
+        # Create chat agent
+        try:
+            self.log.info("Creating chat agent...")
+            agent = create_chat_agent()
+            if agent:
+                self.settings["chat_agent"] = agent
+                self.settings["chat_toolsets"] = []  # Can be extended with MCP servers via request parameter
+                self.log.info("Chat agent created successfully")
+            else:
+                self.log.warning(
+                    "Could not create chat agent. Please configure AI provider API keys "
+                    "(e.g., ANTHROPIC_API_KEY, OPENAI_API_KEY)"
+                )
+        except Exception as e:
+            self.log.error(f"Failed to create chat agent: {e}", exc_info=True)
 
         self.log.debug("Jupyter AI Agents Config {}".format(self.config))
 
@@ -153,16 +124,16 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         """Register HTTP handlers."""
 
         self.log.info("Registering Jupyter AI Agents handlers...")
-        self.log.info("Jupyter AI Agents Config {}".format(self.settings['jupyter_ai_agents_jinja2_env']))
+        self.log.info("Jupyter AI Agents Config {}".format(self.settings['agent_runtimes_jinja2_env']))
         
         # Use relative paths - they will be joined with base_url in _load_jupyter_server_extension
+        # These paths match the agent-runtimes requestAPI expectations:
+        # - /agent_runtimes/configure - for config query (models, tools)
+        # - /agent_runtimes/chat - for chat messages (Vercel AI protocol)
         handlers = [
             (url_path_join(self.name), IndexHandler),
-            (url_path_join(self.name, "config"), ConfigHandler),
-            (url_path_join(self.name, "configure"), ConfigureHandler),
-            (url_path_join("api", "chat"), ChatHandler),
-            (url_path_join("api", "mcp/servers"), MCPServersHandler),
-            (url_path_join("api", r"mcp/servers/([^/]+)"), MCPServerHandler),
+            (url_path_join(self.name, "configure"), ConfigHandler),
+            (url_path_join(self.name, "chat"), VercelAIChatHandler),
         ]
         self.handlers.extend(handlers)
 
