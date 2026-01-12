@@ -4,7 +4,7 @@
  * Datalayer License
  */
 
-import { Jupyter, JupyterLabApp } from '@datalayer/jupyter-react';
+import { JupyterReactTheme, JupyterLabApp } from '@datalayer/jupyter-react';
 import { setupPrimerPortals } from '@datalayer/primer-addons';
 
 import * as lightThemePlugins from '@jupyterlab/theme-light-extension';
@@ -42,9 +42,9 @@ const JupyterAIAgentsApp = () => {
 }
 
 export const ExampleJupyterLab = () => (
-  <Jupyter startDefaultKernel collaborative>
+  <JupyterReactTheme>
     <JupyterAIAgentsApp />
-  </Jupyter>
+  </JupyterReactTheme>
 );
 
 export default ExampleJupyterLab;

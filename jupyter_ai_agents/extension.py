@@ -2,13 +2,10 @@
 #
 # BSD 3-Clause License
 
-# Copyright (c) 2023-2024 Datalayer, Inc.
-#
-# Datalayer License
-
 """The Jupyter AI Agents Server application."""
 
 import os
+import logging
 
 from traitlets import default, CInt, Instance, Unicode
 from traitlets.config import Configurable
@@ -18,7 +15,11 @@ from jupyter_server.extension.application import ExtensionApp, ExtensionAppJinja
 
 from jupyter_ai_agents.handlers.index import IndexHandler
 from jupyter_ai_agents.handlers.config import ConfigHandler
+from jupyter_ai_agents.handlers.chat_handler import VercelAIChatHandler
+from jupyter_ai_agents.agents.chat_agent import create_chat_agent
 from jupyter_ai_agents.__version__ import __version__
+
+logger = logging.getLogger(__name__)
 
 
 DEFAULT_STATIC_FILES_PATH = os.path.join(os.path.dirname(__file__), "./static")
@@ -29,11 +30,11 @@ DEFAULT_TEMPLATE_FILES_PATH = os.path.join(os.path.dirname(__file__), "./templat
 class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
     """The Jupyter AI Agents Server extension."""
 
-    name = "jupyter_ai_agents"
+    name = "agent_runtimes"
 
     description = "AI Agents for JupyterLab with MCP support"
 
-    extension_url = "/jupyter_ai_agents"
+    extension_url = "/agent_runtimes"
 
     load_other_extensions = True
 
@@ -91,6 +92,22 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         
         self.settings.update({"disable_check_xsrf": True})
 
+        # Create chat agent
+        try:
+            self.log.info("Creating chat agent...")
+            agent = create_chat_agent()
+            if agent:
+                self.settings["chat_agent"] = agent
+                self.settings["chat_toolsets"] = []  # Can be extended with MCP servers
+                self.log.info("Chat agent created successfully")
+            else:
+                self.log.warning(
+                    "Could not create chat agent. Please configure AI provider API keys "
+                    "(e.g., ANTHROPIC_API_KEY, OPENAI_API_KEY)"
+                )
+        except Exception as e:
+            self.log.error(f"Failed to create chat agent: {e}", exc_info=True)
+
         self.log.debug("Jupyter AI Agents Config {}".format(self.config))
 
 
@@ -102,12 +119,16 @@ class JupyterAIAgentsExtensionApp(ExtensionAppJinjaMixin, ExtensionApp):
         """Register HTTP handlers."""
 
         self.log.info("Registering Jupyter AI Agents handlers...")
-        self.log.info("Jupyter AI Agents Config {}".format(self.settings['jupyter_ai_agents_jinja2_env']))
+        self.log.info("Jupyter AI Agents Config {}".format(self.settings['agent_runtimes_jinja2_env']))
         
         # Use relative paths - they will be joined with base_url in _load_jupyter_server_extension
+        # These paths match the agent-runtimes requestAPI expectations:
+        # - /agent_runtimes/configure - for config query (models, tools)
+        # - /agent_runtimes/chat - for chat messages (Vercel AI protocol)
         handlers = [
             (url_path_join(self.name), IndexHandler),
-            (url_path_join(self.name, "config"), ConfigHandler),
+            (url_path_join(self.name, "configure"), ConfigHandler),
+            (url_path_join(self.name, "chat"), VercelAIChatHandler),
         ]
         self.handlers.extend(handlers)
 
