@@ -1,0 +1,145 @@
+# Agent Runtimes
+
+**The unified platform powering Jupyter AI Agents.**
+
+Jupyter AI Agents is built on top of [**Agent Runtimes**](https://agent-runtimes.datalayer.tech) - a comprehensive platform for deploying, managing, and interacting with AI agents across multiple protocols.
+
+:::info
+For complete Agent Runtimes documentation, visit **[agent-runtimes.datalayer.tech](https://agent-runtimes.datalayer.tech)**
+:::
+
+## Role in Jupyter AI Agents
+
+Agent Runtimes provides the core infrastructure that powers both the [UI](/ui) and [CLI](/cli):
+
+### UI Components
+
+The JupyterLab chat interface uses Agent Runtimes React components:
+
+- **Chat Component**: `@datalayer/agent-runtimes` provides the conversational UI
+- **Agent Store**: Zustand-based state management for agent connections
+- **Vercel AI Transport**: Streaming protocol for real-time responses
+
+```tsx
+// Jupyter AI Agents uses Agent Runtimes Chat component
+import { Chat, useAgentStore } from '@datalayer/agent-runtimes';
+```
+
+### Protocol Support
+
+Agent Runtimes enables multi-protocol communication:
+
+- **Vercel AI SDK**: Powers the streaming chat interface in JupyterLab
+- **MCP Integration**: Connects to Jupyter MCP Server for notebook tools
+- **Pydantic AI**: Type-safe agent orchestration on the backend
+
+### Backend Integration
+
+The Python server leverages Agent Runtimes patterns:
+
+- **AgentRuntimesApp**: FastAPI-based server architecture
+- **VercelAIAdapter**: Protocol adapter for streaming responses
+- **Tool Management**: MCP and custom tool integration
+
+## Key Benefits
+
+**Why Jupyter AI Agents uses Agent Runtimes:**
+
+| Feature | Benefit |
+|---------|---------|
+| **Multi-Protocol** | Same agent accessible via UI, CLI, or API |
+| **React Components** | Production-ready chat UI components |
+| **State Management** | Zustand store for agent lifecycle |
+| **Tool Execution** | Frontend and backend tool support |
+| **Streaming** | Real-time AI response streaming |
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  JupyterLab Extension                    │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │     Chat UI (@datalayer/agent-runtimes)         │    │
+│  │  - Chat Component                               │    │
+│  │  - Agent Store (Zustand)                        │    │
+│  │  - Vercel AI Transport                          │    │
+│  └─────────────────────────────────────────────────┘    │
+└────────────────────────┬────────────────────────────────┘
+                         │ Vercel AI Protocol
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│              Jupyter Server Extension                    │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │     Agent Handler (Agent Runtimes patterns)     │    │
+│  │  - VercelAIAdapter                              │    │
+│  │  - Pydantic AI Agent                            │    │
+│  │  - MCP Server Connection                        │    │
+│  └─────────────────────────────────────────────────┘    │
+└────────────────────────┬────────────────────────────────┘
+                         │ MCP Protocol
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│              Jupyter MCP Server                          │
+│  - Notebook operations                                   │
+│  - Code execution                                        │
+│  - File management                                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Dependencies
+
+Jupyter AI Agents depends on these Agent Runtimes packages:
+
+**Python:**
+```bash
+# Included via jupyter_ai_agents dependencies
+pydantic-ai          # Agent framework
+```
+
+**TypeScript/React:**
+```bash
+# Chat UI components
+@datalayer/agent-runtimes
+```
+
+## Extending with Agent Runtimes
+
+You can leverage Agent Runtimes features beyond the default setup:
+
+### Custom Tools
+
+```python
+from pydantic_ai import Agent
+
+agent = Agent(model='anthropic:claude-sonnet-4-5')
+
+@agent.tool
+def custom_jupyter_tool(notebook_path: str) -> str:
+    """Custom tool extending Jupyter AI Agents."""
+    # Your tool implementation
+    return "Result"
+```
+
+### Additional Protocols
+
+Agent Runtimes supports protocols beyond the default Vercel AI:
+
+- **ACP**: WebSocket-based real-time communication
+- **AG-UI**: Lightweight web interface
+- **A2A**: Agent-to-agent communication
+
+### Cloud Runtimes
+
+For advanced deployments, Agent Runtimes provides:
+
+- Runtime lifecycle management
+- Cloud compute integration
+- Multi-tenant support
+
+## Learn More
+
+- **[Agent Runtimes Documentation](https://agent-runtimes.datalayer.tech)** - Complete platform guide
+- **[GitHub Repository](https://github.com/datalayer/agent-runtimes)** - Source code
+- **[UI Documentation](/ui)** - JupyterLab chat interface
+- **[CLI Documentation](/cli)** - Command-line tools
+- **[Tools](/tools)** - Available MCP tools

@@ -62,6 +62,12 @@ module.exports = {
           label: 'Tools',
         },
         {
+          type: 'doc',
+          docId: 'agent-runtimes/index',
+          position: 'left',
+          label: 'Agent Runtimes',
+        },
+        {
           href: 'https://discord.gg/YQFwvmSSuR',
           position: 'right',
           className: 'header-discord-link',
