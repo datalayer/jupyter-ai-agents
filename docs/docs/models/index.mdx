@@ -4,4 +4,98 @@ import DocCardList from '@theme/DocCardList';
 
 Jupyter AI Agents can be used with multiple AI models providers.
 
-<DocCardList />
+## UI
+
+Read the details on the [Agent Runtimes Models documentation](https://agent-runtimes.datalayer.tech/docs/models/overview) to learn how to configure and use different models in the Jupyter AI Agents UI.
+
+## CLI
+
+### Azure OpenAI
+
+Jupyter AI Agents supports models from [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service).
+
+Read the [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai) to get the needed credentials and make sure you define them in the following environment variables.
+
+```bash
+export OPENAI_API_VERSION="..."
+export AZURE_OPENAI_ENDPOINT="..."
+export AZURE_OPENAI_API_KEY="..."
+```
+
+### Anthropic
+
+Jupyter AI Agents supports [Claude models](https:/.anthropic.com/claude/models-overview) from [Anthropic](https://www.anthropic.com/).
+
+To use Anthropic Claude directly, you'll need to:
+
+1. Get an API key from [Anthropic's Console](https://console.anthropic.com/)
+2. Set up your environment variables:
+
+```bash
+export ANTHROPIC_API_KEY="..."
+```
+
+Example usage with direct Anthropic integration:
+
+```bash
+# Prompt agent example with Anthropic Claude
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider anthropic \
+  --model-name claude-3-5-sonnet-20241022 \
+  --path notebook.ipynb \
+  --input "Create a matplotlib example"
+```
+
+You can use any of the following Claude models:
+
+- `claude-3-haiku-20240307` - Fastest and most compact Claude model
+- `claude-3-sonnet-20240229` - Balanced model for most tasks
+- `claude-3-opus-20240229` - Most powerful Claude model
+- `claude-3-5-sonnet-20241022` - Previous most intelligent Claude 3.5 model 
+- `claude-3-7-sonnet-20250219` - Most intelligent model Claude 3.7 model (recommended)
+
+### OpenAI
+
+Jupyter AI Agents supports [models](https://platform.openai.com/models#current-model-aliases) from [OpenAI](https://platform.openai.com/overview).
+
+To use OpenAI directly, you'll need to:
+
+1. Get an API key from [OpenAI](https://platform.openai.com)
+2. Set up your environment variables:
+
+```bash
+export OPENAI_API_KEY="..."
+```
+
+Example usage with direct OpenAI integration:
+
+```bash
+# Prompt agent example with OpenAI
+jupyter-ai-agents prompt \
+  --url http://localhost:8888 \
+  --token MY_TOKEN \
+  --model-provider openai \
+  --model-name gpt-4o-mini \
+  --path notebook.ipynb \
+  --input "Create a matplotlib example"
+```
+
+### GitHub Copilot
+
+Jupyter AI Agents supports models from [GitHub Copilot](https://copilot.github.com/).
+
+Read the [Langchain GitHubCopilot README](https://github.com/datalayer/langchain-github-copilot) to get the `GITHUB` token and make sur you define it in the following environment variable.
+
+```bash
+export GITHUB_TOKEN="..."
+```
+
+GitHub Copilot supports different models that you can specify using the `--model-name` parameter. The available models as of 2024-02-07 are 
+- gpt-4o
+- o1
+- o3-mini
+
+Make sure you have a GitHubCopilot subscription and have enabled the model you want to use in your GitHubCopilot settings.
+
