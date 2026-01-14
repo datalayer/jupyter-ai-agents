@@ -68,7 +68,7 @@ module.exports = {
           'aria-label': 'Discord',
         },
         {
-          href: 'https://github.com/datalayer/jupyter-mcp-server',
+          href: 'https://github.com/datalayer/jupyter-ai-agents',
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub',
