@@ -1,16 +1,259 @@
 # Tools
 
-The Current Tools are listed here.
+**MCP-based tools for Jupyter notebook operations.**
 
-- **Add and Execute Code Cell** - Add a new code cell at the end of the notebook and execute it.
-- **Add Markdown Cell** - Add a new markdown cell at the end of the notebook.
-- **Insert and Execute Code Cell** - Insert a new code cell at a specific position in the notebook and execute it.
-- **Insert Markdown Cell** - Insert a new markdown cell at a specific position in the notebook.
+These tools are available in both the [UI](/ui) and [CLI](/cli).
 
-:::note
+## MCP Integration
 
-We are implementing more Tools. For example:
+**[Jupyter MCP Server](https://github.com/datalayer/jupyter-mcp-server)** starts automatically as a Jupyter server extension, providing seamless access to Jupyter operations.
 
-- **Modify Code Cell** - Edit existing code cells to fix errors or improve code quality.
-- **Modify Markdown Cell** - Edit existing markdown cells to improve documentation quality.
-:::
+### What is MCP?
+
+**[Model Context Protocol](https://modelcontextprotocol.io)** - Standardized interface for AI agent tools:
+
+- **Standardized Definitions**: Clear schemas and descriptions
+- **Type Safety**: Input validation and type checking
+- **Extensibility**: Easy custom tool integration
+- **Discoverability**: Automatic tool discovery
+
+## Available Tools
+
+### Notebook Operations
+
+**Create Notebook**
+- Create new notebooks with specified names
+- Initialize with default or custom content
+- Set kernel and metadata
+
+**Read Notebook**
+- Retrieve notebook content and structure
+- Access cell sources and outputs
+- Query notebook metadata
+
+**List Notebooks**
+- Enumerate notebooks in workspace
+- Filter by path or pattern
+- Get notebook metadata
+
+### Cell Operations
+
+**Add Code Cell**
+- Add a new code cell at the end of the notebook
+- Optionally execute the cell after adding
+- Set cell metadata and tags
+
+**Insert Code Cell**
+- Insert a code cell at a specific position (index)
+- Execute after insertion if requested
+- Preserve existing cell order
+
+**Add Markdown Cell**
+- Add formatted markdown cells for documentation
+- Support for headings, lists, code blocks, etc.
+- Rich text formatting capabilities
+
+**Insert Markdown Cell**
+- Insert markdown at specific positions
+- Update documentation inline with code
+- Maintain notebook narrative structure
+
+**Modify Cell** (Planned)
+- Edit existing code cells to fix errors
+- Update markdown cells for improved documentation
+- Refactor code for better quality
+
+**Delete Cell** (Planned)
+- Remove cells by index or criteria
+- Clean up experimental or outdated code
+- Maintain notebook organization
+
+### Code Execution
+
+**Execute Code**
+- Run Python code in the notebook kernel
+- Capture outputs, errors, and display data
+- Support for async execution
+
+**Execute Cell**
+- Execute specific cells by index
+- Get execution results and outputs
+- Handle execution errors gracefully
+
+**Execute All** (Planned)
+- Run entire notebook from top to bottom
+- Track execution progress
+- Generate execution reports
+
+### File Operations
+
+**List Files**
+- List files and directories in workspace
+- Filter by extension or pattern
+- Get file metadata (size, modified date)
+
+**Read File**
+- Read file contents
+- Support for various file formats
+- Binary and text file handling
+
+**Write File**
+- Create or update files
+- Save generated data or reports
+- Manage workspace artifacts
+
+**Delete File** (Planned)
+- Remove files from workspace
+- Clean up temporary files
+- Organize project structure
+
+### Kernel Management
+
+**List Kernels**
+- Enumerate available kernels
+- Get kernel specifications and capabilities
+- Check kernel status
+
+**Start Kernel** (Planned)
+- Launch new kernel instances
+- Configure kernel parameters
+- Manage kernel lifecycle
+
+**Stop Kernel** (Planned)
+- Shutdown kernel instances
+- Clean up kernel resources
+- Handle kernel errors
+
+## Tool Execution
+
+### In UI
+
+**[Conversational interface](/ui) executes tools automatically:**
+
+1. User provides instruction: "Create a new notebook with pandas import"
+2. Agent selects tools: `create_notebook`, `add_code_cell`
+3. Tool execution: Runs with appropriate parameters
+4. Visual feedback: Shows tool status in UI
+5. Results display: Presents confirmation
+
+### In CLI
+
+CLI tools invoke MCP tools programmatically:
+
+```bash
+# The CLI agent uses MCP tools behind the scenes
+jupyter-ai-agent create-notebook analysis.ipynb --with-imports pandas,numpy
+```
+
+### Tool Execution Modes
+
+**Frontend Execution** (Browser)
+- Tools that modify UI elements
+- Real-time visual feedback
+- Direct DOM manipulation
+
+**Backend Execution** (Jupyter Server)
+- Tools that modify notebooks/files
+- Kernel execution and management
+- Persistent state changes
+
+## Custom Tools
+
+You can add custom tools to extend agent capabilities:
+
+### Using Pydantic AI
+
+```python
+from pydantic_ai import Agent
+
+agent = Agent(model='anthropic:claude-sonnet-4-5')
+
+@agent.tool
+def analyze_dataset(file_path: str) -> dict:
+    """
+    Analyze a dataset and return summary statistics.
+    
+    Args:
+        file_path: Path to the dataset file
+        
+    Returns:
+        Dictionary containing summary statistics
+    """
+    import pandas as pd
+    df = pd.read_csv(file_path)
+    return {
+        'rows': len(df),
+        'columns': list(df.columns),
+        'dtypes': df.dtypes.to_dict()
+    }
+```
+
+### Creating MCP Tools
+
+```python
+from mcp.server import Server
+from mcp.types import Tool
+
+server = Server("custom-tools")
+
+@server.tool()
+async def custom_operation(param: str) -> str:
+    """Custom tool description."""
+    # Tool implementation
+    return f"Processed: {param}"
+```
+
+## Tool Discovery
+
+The agent automatically discovers available tools from:
+
+1. **Jupyter MCP Server**: Default tools for notebook operations
+2. **Custom MCP Servers**: User-configured additional servers
+3. **Built-in Tools**: Agent-specific utilities
+4. **Agent Tools**: Tools defined directly on the agent
+
+## Best Practices
+
+### Tool Design
+
+- **Clear Descriptions**: Write detailed tool descriptions for agent understanding
+- **Type Safety**: Use Pydantic models for parameter validation
+- **Error Handling**: Provide informative error messages
+- **Idempotency**: Design tools to be safely retried
+
+### Tool Usage
+
+- **Minimal Operations**: Each tool should do one thing well
+- **Composability**: Combine tools for complex operations
+- **State Management**: Handle state consistently
+- **Performance**: Optimize for common operations
+
+## Planned Tools
+
+We're actively developing new tools:
+
+- 🔧 **Cell Modification**: Edit existing cells (code and markdown)
+- 🗑️ **Cell Deletion**: Remove cells by index or criteria
+- ▶️ **Execute All**: Run entire notebooks
+- 🎛️ **Kernel Control**: Start, stop, restart kernels
+- 📊 **Data Analysis**: Built-in data profiling and visualization
+- 🔍 **Search**: Search across notebooks and files
+- 📝 **Templates**: Generate notebooks from templates
+- 🧪 **Testing**: Execute tests and validate outputs
+
+## MCP Server Configuration
+
+Future versions will support configuring additional MCP servers through a UI:
+
+- Connect to specialized MCP servers (web search, databases, APIs)
+- Configure server authentication and endpoints
+- Enable/disable specific tools
+- Set tool permissions and restrictions
+
+## Learn More
+
+- [Model Context Protocol](https://modelcontextprotocol.io)
+- [Jupyter MCP Server](https://github.com/datalayer/jupyter-mcp-server)
+- [Pydantic AI Tools](https://ai.pydantic.dev/tools)
+- [UI Documentation](/ui)
+- [CLI Documentation](/cli)

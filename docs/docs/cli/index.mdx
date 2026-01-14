@@ -1,0 +1,173 @@
+import DocCardList from '@theme/DocCardList';
+
+# Command-Line Interface (CLI)
+
+**Automated notebook operations, batch processing, and CI/CD integration.**
+
+These tools enable scriptable workflows that complement the [UI](/ui) for interactive use.
+
+## Overview
+
+- **Automated Workflows**: Notebook operations in scripts and pipelines
+- **Batch Processing**: Process multiple notebooks consistently
+- **CI/CD Integration**: Incorporate AI agents into build/test pipelines
+- **Remote Execution**: Run agents independently from notebook kernels
+
+## Available CLI Tools
+
+Jupyter AI Agents currently provides the following command-line tools:
+
+<DocCardList />
+
+## Architecture
+
+**Same framework as the UI:**
+
+- **Pydantic AI**: Type-safe agent orchestration
+- **LangChain**: Complex workflow management (optional)
+- **MCP Tools**: Jupyter MCP Server capabilities
+- **Jupyter Clients**: Direct notebook and kernel integration
+
+### Deployment Modes
+
+**Where agents run:**
+
+- **Local Execution**: Agent runs on the same machine as Jupyter server
+- **Remote Execution**: Agent runs on separate compute resources
+- **Containerized**: Agent runs in isolated containers for reproducibility
+
+### Interaction Modes
+
+**How agents are triggered:**
+
+- **On-Demand**: Executed explicitly via CLI commands
+- **Event-Driven**: React to notebook or kernel changes
+- **Scheduled**: Run periodically via cron or schedulers
+
+## Common Use Cases
+
+### Automated Analysis
+
+```bash
+# Generate analysis notebook from data file
+jupyter-ai-agent analyze data.csv --output analysis.ipynb
+```
+
+### Error Debugging
+
+```bash
+# Analyze and fix errors in a notebook
+jupyter-ai-agent debug notebook.ipynb --fix-errors
+```
+
+### Batch Operations
+
+```bash
+# Execute specific cells across multiple notebooks
+jupyter-ai-agent execute notebooks/*.ipynb --cell-range 0-5
+```
+
+### CI/CD Validation
+
+```bash
+# Validate notebooks before commit
+jupyter-ai-agent validate *.ipynb --check-execution
+```
+
+## Chat vs CLI
+
+Choose the right tool for your needs:
+
+| Feature | Chat Interface | CLI Tools |
+|---------|---------------|-----------|
+| **Interaction** | Natural language, conversational | Command-line, scriptable |
+| **Use Case** | Interactive development, exploration | Automation, batch processing |
+| **Feedback** | Real-time visual feedback | Command output, logs |
+| **Integration** | JupyterLab UI | Scripts, CI/CD pipelines |
+| **Learning Curve** | Minimal, conversational | Requires command syntax |
+
+### When to Use Chat
+
+- Interactive notebook development
+- Exploring data and generating code
+- Learning and experimentation
+- Getting immediate visual feedback
+
+### When to Use CLI
+
+- Automating repetitive tasks
+- Processing multiple notebooks
+- Integrating with build pipelines
+- Running scheduled operations
+- Scripting complex workflows
+
+## Creating Custom CLI Agents
+
+You can create custom CLI agents by extending the base agent class and adding custom tools.
+
+:::info
+
+Custom agent development uses [Pydantic AI](https://ai.pydantic.dev) for modern, type-safe agent creation, with optional [LangChain](https://python.langchain.com) integration for complex workflows.
+
+🚧 A comprehensive guide for creating custom agents is under development and will be available soon.
+
+:::
+
+### Basic Example
+
+```python
+from pydantic_ai import Agent
+from jupyter_ai_agents.tools import get_jupyter_tools
+
+# Create a custom agent
+agent = Agent(
+    model='anthropic:claude-sonnet-4-5',
+    system_prompt='You are a data analysis expert.',
+    tools=get_jupyter_tools()
+)
+
+# Add custom tools
+@agent.tool
+def custom_analysis(data: str) -> str:
+    """Custom analysis tool."""
+    # Your analysis logic here
+    return "Analysis result"
+
+# Run the agent
+result = agent.run_sync('Analyze the data in notebook.ipynb')
+```
+
+## Installation
+
+The CLI tools are included when you install Jupyter AI Agents:
+
+```bash
+pip install jupyter_ai_agents
+```
+
+## Configuration
+
+CLI agents can be configured via:
+- **Environment variables**: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.
+- **Configuration files**: `.jupyter/jupyter_ai_agents_config.json`
+- **Command-line arguments**: Tool-specific options
+
+## What's Next
+
+We're expanding CLI capabilities:
+
+- 🔧 More specialized agents (refactoring, documentation, testing)
+- 📊 Advanced analysis and reporting tools
+- 🔌 Plugin system for custom CLI commands
+- ⚙️ Enhanced configuration and customization options
+- 🚀 Performance optimizations for large-scale processing
+
+Check our [GitHub Issues](https://github.com/datalayer/jupyter-ai-agents/issues) to see planned features!
+
+## Learn More
+
+- [UI](/ui) - Interactive conversational interface
+- [Available Tools](/tools) - MCP and custom tools
+- [Use Cases](/use-cases) - Practical applications
+- [Pydantic AI](https://ai.pydantic.dev)
+- [LangChain](https://python.langchain.com)

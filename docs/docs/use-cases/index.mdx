@@ -1,14 +1,134 @@
 # Use Cases
 
-The available [Agents](/agents) support following use cases.
+**Jupyter AI Agents supports both interactive and automated workflows.**
 
-- **Automated Data Analysis** - Generate and execute Python scripts to analyze data, create visualizations, or preprocess datasets.
-- **Error Debugging** - Identify and explain errors in code execution, with actionable suggestions to fix them.
+## UI Use Cases
 
-We are working on UI to easily interact with the Agents and plan on building new Agents to support more use cases.
+**[Conversational interface](/ui) for interactive JupyterLab development:**
 
-- **Creating a UI for Chatting with the Agent in JupyterLab** - Developing an interactive interface within JupyterLab 
-where users can directly communicate with the Jupyter AI Agents, issuing commands and receiving real-time responses 
-in a conversational format.
-- **Building a Code Refactoring Agent** - Developing an agent that can automatically refactor code in Jupyter Notebooks,
-improving code quality, readability, and maintainability.
+### Interactive Development
+
+- **Notebook Creation**: "Create a new notebook for analyzing the sales data with pandas and matplotlib imports"
+- **Code Generation**: "Add a cell that loads the CSV file and displays the first 10 rows"
+- **Data Visualization**: "Create a bar chart showing revenue by product category"
+- **Code Explanation**: "Explain what the code in cell 3 does"
+- **Debugging**: "This cell is throwing a KeyError. Can you help me fix it?"
+
+### Code Quality
+
+- **Refactoring**: "Refactor the code in cell 5 to use functions instead of inline operations"
+- **Optimization**: "Improve the performance of this data processing code"
+- **Documentation**: "Add docstrings to all functions in the current notebook"
+- **Testing**: "Generate unit tests for the functions in this notebook"
+
+### Learning & Exploration
+
+- **Tutorial Creation**: "Create a tutorial notebook for web scraping with BeautifulSoup"
+- **Concept Explanation**: "Explain how gradient descent works with code examples"
+- **Best Practices**: "Show me the best way to handle missing data in this dataset"
+- **Library Usage**: "Demonstrate how to use scikit-learn for classification"
+
+## CLI Use Cases
+
+**[Command-line tools](/cli) for automation and CI/CD:**
+
+### Automated Data Analysis
+
+- Generate analysis notebooks from data files
+- Process multiple datasets with consistent pipelines
+- Verify data quality and generate validation reports
+- Run periodic analyses and update result notebooks
+
+### Error Debugging
+
+- Scan notebooks for common errors
+- Identify problems and generate fixes
+- Validate notebooks execute after changes
+- Generate detailed error reports with context
+
+### Notebook Operations
+
+- Execute specific cells across multiple notebooks
+- Update notebook metadata programmatically
+- Ensure notebooks follow team coding standards
+- Remove outputs/execution counts for version control
+
+### CI/CD Integration
+
+- Verify notebooks before committing
+- Incorporate notebook testing in build workflows
+- Create documentation from notebook content
+- Enforce code quality standards
+
+## Advanced Use Cases
+
+### Real-Time Collaboration
+
+- **Pair Programming**: Multiple developers work with the same agent simultaneously
+- **Live Code Review**: Agent modifications visible to all collaborators in real-time
+- **Team Training**: Instructor uses agent to demonstrate concepts to students
+- **Knowledge Sharing**: Agent-generated notebooks shared instantly across team
+
+### Research Workflows
+
+- **Experiment Automation**: "Run parameter sweep for learning rates [0.001, 0.01, 0.1]"
+- **Results Documentation**: "Summarize the experiment results in a markdown cell"
+- **Literature Integration**: "Add citations for the methods used in this analysis"
+- **Reproducibility**: "Create a setup cell with all dependencies and random seeds"
+
+### Data Science Pipelines
+
+- **ETL Automation**: "Extract data from the API, transform it, and save to CSV"
+- **Feature Engineering**: "Create interaction features between numeric columns"
+- **Model Training**: "Train a random forest classifier on this dataset"
+- **Performance Evaluation**: "Generate a confusion matrix and classification report"
+
+## Industry-Specific Applications
+
+### Financial Analysis
+
+- Generate financial reports and dashboards
+- Automate risk calculations and scenario analysis
+- Create compliance documentation
+- Validate trading algorithms
+
+### Scientific Research
+
+- Automate data collection and preprocessing
+- Generate publication-ready figures and tables
+- Document experimental procedures
+- Reproduce and validate research findings
+
+### Education
+
+- Create interactive learning materials
+- Generate practice problems and solutions
+- Build course content and tutorials
+- Provide personalized coding assistance
+
+### Business Intelligence
+
+- Automate KPI dashboards
+- Generate executive summaries
+- Analyze business metrics
+- Create forecast models
+
+## Getting Started
+
+**Choose your workflow:**
+
+1. **Interactive**: [UI](/ui) in JupyterLab
+2. **Automation**: [CLI](/cli) tools
+3. **Capabilities**: [Available tools](/tools)
+
+## Future Use Cases
+
+We're actively working on expanding capabilities:
+
+- 🔧 **Code Refactoring Agent**: Automated code quality improvements
+- 📊 **Data Pipeline Builder**: Visual pipeline construction through chat
+- 🧪 **Experiment Tracking**: Integration with MLflow and similar tools
+- 🌐 **Multi-Notebook Workflows**: Coordinate operations across multiple notebooks
+- 🤝 **Agent Collaboration**: Multiple specialized agents working together
+
+Check our [GitHub Issues](https://github.com/datalayer/jupyter-ai-agents/issues) to see planned features and suggest new use cases!

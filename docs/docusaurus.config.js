@@ -33,45 +33,33 @@ module.exports = {
       items: [
         {
           type: 'doc',
-          docId: 'index',
-          position: 'left',
-          label: 'Overview',
-        },
-        {
-          type: 'doc',
           docId: 'use-cases/index',
           position: 'left',
           label: 'Use Cases',
         },
         {
           type: 'doc',
-          docId: 'agents/index',
+          docId: 'ui/index',
           position: 'left',
-          label: 'Agents',
+          label: 'UI',
         },
         {
           type: 'doc',
-          docId: 'deployments/index',
+          docId: 'cli/index',
           position: 'left',
-          label: 'Deployments',
-        },
-        {
-          type: 'doc',
-          docId: 'interactions/index',
-          position: 'left',
-          label: 'Interactions',
-        },
-        {
-          type: 'doc',
-          docId: 'tools/index',
-          position: 'left',
-          label: 'Tools',
+          label: 'CLI',
         },
         {
           type: 'doc',
           docId: 'models/index',
           position: 'left',
           label: 'Models',
+        },
+        {
+          type: 'doc',
+          docId: 'tools/index',
+          position: 'left',
+          label: 'Tools',
         },
         {
           href: 'https://discord.gg/YQFwvmSSuR',

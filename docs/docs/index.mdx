@@ -4,52 +4,150 @@ sidebar_position: 1
 
 # Overview
 
-**Jupyter AI Agents** is a flexible and powerful solution for using and creating **✨ AI Agents** to interact with **📓 Jupyter Notebooks**  
-with tools like `insert_cell`, `execute_cell`...
+**Jupyter AI Agents** is a flexible and powerful solution for creating and deploying **✨ AI Agents** that interact with **📓 Jupyter Notebooks** through both a conversational **chat interface** and **command-line tools**.
 
 :::info
 
-**Jupyter AI Agents** empowers **AI models** to **interact** with and **modify** Jupyter Notebooks.
+**Jupyter AI Agents** empowers **AI models** to **interact** with, **modify**, and **understand** Jupyter Notebooks through natural language and automated workflows.
 
 :::
 
-![Jupyter AI Agents](https://assets.datalayer.tech/jupyter-ai-agents/ai-agent-prompt-demo-terminal.gif)
+Equipped with [MCP (Model Context Protocol) Tools](/tools), the agent can add cells, execute code, manage files, and comprehensively modify notebooks based on user instructions or by reacting to notebook and kernel events.
 
-The Agent is equipped with [Tools](/tools) such as adding Code Cells, inserting Markdown Cells, executing Code, enabling it to modify the Notebook comprehensively based on user instructions or by reacting to Notebook and Kernel events.
+## UI
 
-## What is an AI Agents?
+Experience seamless AI assistance directly within JupyterLab through an intuitive conversational interface powered by Pydantic AI and Vercel AI Elements.
+
+![Jupyter AI Agents UI](https://assets.datalayer.tech/jupyter-ai-agents/jupyter-ai-agents-chat-1.png)
+
+The UI provides:
+- **Natural Language Interaction**: Ask questions and give instructions in plain English
+- **MCP Tool Integration**: Automatic access to Jupyter MCP Server tools for notebook operations
+- **Real-Time Streaming**: Watch AI responses appear as they're generated
+- **Visual Feedback**: See tool execution status and results in real-time
+
+[Learn more about the UI →](/ui)
+
+## CLI Tools
+
+For automated workflows and scripting, use the command-line interface to interact with notebooks programmatically.
+
+![Jupyter AI Agents CLI](https://assets.datalayer.tech/jupyter-ai-agents/ai-agent-prompt-demo-terminal.gif)
+
+The CLI enables:
+- **Automated Data Analysis**: Generate and execute Python scripts
+- **Error Debugging**: Identify and fix errors with AI assistance  
+- **Batch Operations**: Process multiple notebooks efficiently
+- **CI/CD Integration**: Incorporate AI agents into your development pipelines
+
+[Learn more about CLI usage →](/cli)
+
+## What is an AI Agent?
 
 An artificial intelligence (AI) agent is a system that **autonomously performs tasks** by designing workflows and **using tools**.
 
 Beyond processing language, these agents make decisions, solve problems, interact with environments, and execute actions. They are widely used in areas like IT automation, software design, and conversational assistants.
 
-Leveraging Large Manguage Models (LLMs), AI agents process user inputs step-by-step and call external tools as needed to tackle 
-complex tasks effectively.
+Leveraging Large Language Models (LLMs), AI agents process user inputs step-by-step and call external tools as needed to tackle complex tasks effectively.
 
 ## What Makes Jupyter AI Agents Unique?
 
-This agent is **innovative** as it is designed to **operate on the entire Notebook**, not just at the Cell level, enabling more comprehensive and seamless modifications.
+This agent is **innovative** because it operates on the **entire Notebook**, not just individual cells, enabling comprehensive and seamless modifications across your entire workspace.
+
+### Architecture
 
 ```
 Jupyter AI Agents <-----------> JupyterLab
     |
     |   (RTC Real Time Collaboration)
     |
-JNC + JKC
+JNC + JKC + MCP
 
-- JNC https://github.com/datalayer/jupyter-nbmodel-client
-- JKC https://github.com/datalayer/jupyter-kernel-client
+- JNC: https://github.com/datalayer/jupyter-nbmodel-client
+- JKC: https://github.com/datalayer/jupyter-kernel-client  
+- MCP: https://modelcontextprotocol.io
 ```
 
-This powerful functionality is made possible through the Jupyter [NbModel](https://github.com/datalayer/jupyter-nbmodel-client) and [Kernel](https://github.com/datalayer/jupyter-kernel-client) clients, enabling interactions with both Jupyter Notebooks and Kernels.
+This powerful functionality is enabled through:
+- **Jupyter [NbModel Client](https://github.com/datalayer/jupyter-nbmodel-client)**: Direct notebook manipulation
+- **Jupyter [Kernel Client](https://github.com/datalayer/jupyter-kernel-client)**: Code execution and kernel interaction
+- **[MCP (Model Context Protocol)](https://modelcontextprotocol.io)**: Standardized tool interface for AI agents
+- **[Pydantic AI](https://ai.pydantic.dev)**: Type-safe agent orchestration framework
 
 ## Key Features
 
-- **Dynamic Notebook Interaction**: Jupyter AI agents can add, edit, and execute cells dynamically based on user instructions or notebook events.
-- **Remote Agent Execution**: The agent can be executed independently, remotely on a different kernel than the one used by the notebook of interest to separate the agent execution from the notebook execution. Refer to the [Deployment Modes](/deployments) for more details.
-- **Event-Based Modifications**: Can react to Kernel and Notebook changes in real time, enabling modifications without user intervention. Refer to the [Interaction Modes](/interactions) for more details.
-- **Advanced Jupyter Tools**: Includes current capabilities like inserting markdown or code cells, running code.
-- **Built on RTC**: Real-Time Collaboration ensures seamless commmunication across all the actors.
+- **💬 Conversational UI**: Interactive interface built into JupyterLab's right panel
+- **🛠️ MCP Tool Integration**: Native support for Jupyter MCP Server tools (notebooks, code execution, file management)
+- **🔄 Real-Time Collaboration**: Changes appear instantly in JupyterLab through RTC
+- **🤖 Dynamic Notebook Interaction**: Add, edit, and execute cells based on natural language instructions
+- **🚀 Remote Agent Execution**: Agent runs on independent compute, separate from notebook kernels
+- **⚡ Event-Based Modifications**: React to kernel and notebook changes in real-time
+- **📊 Advanced Jupyter Tools**: Insert cells, execute code, manage kernels, and more
+- **🔌 Extensible Architecture**: Easy integration with custom tools and MCP servers
+
+## Getting Started
+
+### Quick Start
+
+1. **Install Jupyter AI Agents:**
+   ```bash
+   pip install jupyter_ai_agents
+   pip uninstall -y pycrdt datalayer_pycrdt
+   pip install datalayer_pycrdt==0.12.17
+   ```
+
+2. **Set up your API key** (currently supports Anthropic Claude):
+   ```bash
+   export ANTHROPIC_API_KEY='your-api-key-here'
+   ```
+
+3. **Launch JupyterLab:**
+   ```bash
+   jupyter lab
+   ```
+
+4. **Open the UI** from the right panel (sparkles ✨ icon)
+
+### What's Supported
+
+- **AI Model**: Anthropic Claude Sonnet 4.0
+- **UI**: Full-featured conversational interface in JupyterLab
+- **MCP Tools**: Jupyter MCP Server (automatic)
+- **CLI**: Command-line tools for automated workflows
+- **Real-Time Collaboration**: Full RTC support
+
+### What's Coming
+
+- 🚀 **More LLM Providers**: OpenAI, Google, and other model providers
+- ⚙️ **MCP Configuration**: UI for connecting to additional MCP servers
+- 🔧 **Extended Tools**: Access to tools from multiple MCP servers
+- 🎨 **Customization**: Themes, chat history, saved conversations
+- 🔌 **Plugin System**: Easy custom tool integration
+
+## Use Cases
+
+### Interactive Development
+
+Use the UI to:
+- Create new notebooks and populate them with starter code
+- Debug errors by asking the agent to analyze and fix issues
+- Generate data visualizations from natural language descriptions
+- Refactor code for better readability and performance
+
+### Automated Workflows
+
+Use the CLI to:
+- Batch process multiple notebooks with consistent operations
+- Generate analysis reports from data files
+- Validate notebook outputs in CI/CD pipelines
+- Automate repetitive data science tasks
+
+### Collaborative Assistance
+
+Leverage real-time collaboration:
+- Multiple users can see agent modifications in real-time
+- Agent changes integrate seamlessly with manual edits
+- Team members can review agent-generated code together
 
 ## Feedback and Contributions
 
@@ -59,4 +157,16 @@ This powerful functionality is made possible through the Jupyter [NbModel](https
 
 If you encounter any issues or have suggestions for improvement, please open a [GitHub issue](https://github.com/datalayer/jupyter-ai-agents/issues).
 
+Contributions are welcome! Check out our [contribution guidelines](https://github.com/datalayer/jupyter-ai-agents/blob/main/CONTRIBUTING.md) to get started.
+
 :::
+
+## Learn More
+
+- [UI Documentation](/ui)
+- [CLI Usage Guide](/cli)
+- [Available Tools](/tools)
+- [Use Cases](/use-cases)
+- [Pydantic AI](https://ai.pydantic.dev)
+- [Model Context Protocol](https://modelcontextprotocol.io)
+- [Jupyter MCP Server](https://github.com/datalayer/jupyter-mcp-server)

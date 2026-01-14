@@ -10,7 +10,7 @@ from typing import Any
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.mcp import MCPServerStreamableHTTP
 
-from datalayer_core.tools import create_mcp_server
+from jupyter_ai_agents.handlers.chat_handler import create_mcp_server
 
 logger = logging.getLogger(__name__)
 
