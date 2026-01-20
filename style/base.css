@@ -16,13 +16,13 @@ body {
   height: 100% !important;
 }
 
-/* Fix for JupyterLab submenus being clipped - offset them to be visible */
-/* Exclude top-level menu bar menus (lm-MenuBar-menu) */
-div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
-  margin-top: -100vh !important;
-}
+.ikTPJw {
+  overflow-y: scroll !important; /* Use scroll instead of auto to always show scrollbar */
+  scrollbar-width: thin !important; /* Firefox - thin scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent !important; /* Firefox scrollbar colors */
+ }
 
-/* Ensure the chat container fills the available space in JupyterLab */
+ /* Ensure the chat container fills the available space in JupyterLab */
 .jp-ai-chat-container {
   display: flex !important;
   flex-direction: column !important;
@@ -65,49 +65,4 @@ div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {
   min-height: 0 !important;
   max-height: 100% !important;
   overflow: hidden !important;
-}
-
-/* Direct targeting of the chat root component and its parent chain */
-.jp-ai-chat-container .dla-chat-root,
-.jp-ai-chat-container div:has(> .dla-chat-root) {
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 1 0 !important;
-  height: 100% !important;
-  min-height: 0 !important;
-  max-height: 100% !important;
-  overflow: hidden !important;
-}
-
-/* Messages area should be scrollable */
-.jp-ai-chat-container .dla-chat-messages {
-  flex: 1 1 0 !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  scrollbar-width: thin !important; /* Firefox - thin scrollbar */
-  -webkit-overflow-scrolling: touch;
-}
-
-.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar {
-  width: 6px !important;
-  display: block !important;
-}
-
-.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.jp-ai-chat-container .dla-chat-messages::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-/* Fix textarea initial height glitch */
-.jp-ai-chat-container textarea {
-  min-height: 40px !important;
-  height: auto !important;
 }
