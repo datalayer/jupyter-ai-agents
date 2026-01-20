@@ -12,6 +12,10 @@ body {
   height: 100vh !important;
 }
 
+.prc-src-BaseStyles-dl-St {
+  height: 100% !important;
+}
+
 /* Fix for JupyterLab submenus being clipped - offset them to be visible */
 /* Exclude top-level menu bar menus (lm-MenuBar-menu) */
 div[tabindex="0"].lm-Menu.jp-ThemedContainer:not(.lm-MenuBar-menu) {

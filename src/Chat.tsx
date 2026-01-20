@@ -194,25 +194,27 @@ export const Chat: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
       <JupyterReactTheme>
-        <QueryClientProvider client={queryClient}>
-          <ChatPanel 
-            transport="vercel-ai-jupyter"
-            baseUrl={baseUrl}
-            height="100%"
-            showModelSelector={true}
-            showToolsMenu={true}
-            suggestions={[
-              {
-                title: '💡 Get started',
-                message: 'What can you help me with?',
-              },
-              {
-                title: '📓 Notebook help',
-                message: 'Can you help me with my Jupyter notebook?',
-              },
-            ]}
-          />
-        </QueryClientProvider>
+        <Box sx={{ height: '100%' }}>
+          <QueryClientProvider client={queryClient}>
+            <ChatPanel 
+              transport="vercel-ai-jupyter"
+              baseUrl={baseUrl}
+              height="100%"
+              showModelSelector={true}
+              showToolsMenu={true}
+              suggestions={[
+                {
+                  title: '💡 Get started',
+                  message: 'What can you help me with?',
+                },
+                {
+                  title: '📓 Notebook help',
+                  message: 'Can you help me with my Jupyter notebook?',
+                },
+              ]}
+            />
+          </QueryClientProvider>
+        </Box>
       </JupyterReactTheme>
     </div>
   );
