@@ -72,8 +72,8 @@
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@datalayer/agent-runtimes": "^0.0.5",
-    "@datalayer/jupyter-react": "^2.0.0",
+    "@datalayer/agent-runtimes": "^1.0.0",
+    "@datalayer/jupyter-react": "^2.0.7",
     "@jupyter/collaboration": "^4.0.1",
     "@jupyter/collaboration-extension": "^4.0.1",
     "@jupyter/collaborative-drive": "^4.0.1",
@@ -111,8 +111,8 @@
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
-    "autoprefixer": "^10.4.21",
     "assert": "^2.1.0",
+    "autoprefixer": "^10.4.21",
     "babel-loader": "^9.1.2",
     "browserify-zlib": "^0.2.0",
     "crypto-browserify": "^3.12.1",
