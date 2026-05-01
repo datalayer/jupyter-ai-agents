@@ -35,7 +35,7 @@ dependencies = [
   "datalayer_pycrdt==0.12.17",
   "fastapi",
   "httpx>=0.25.0",
-  "jupyter-collaboration==4.0.2",
+  "jupyter-collaboration==4.3.0",
   "jupyter_mcp_server",
   "jupyter_mcp_tools",
   "jupyter_server>=2.10,<3",
