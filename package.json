@@ -68,6 +68,7 @@
     "stylelint:check": "stylelint --cache \"style/**/*.css\"",
     "test": "jest --coverage",
     "watch": "run-p watch:src watch:labextension",
+    "watch:lib": "tsc -w",
     "watch:labextension": "jupyter labextension watch .",
     "watch:src": "tsc -w --sourceMap"
   },

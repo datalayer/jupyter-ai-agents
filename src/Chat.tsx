@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Chat as ChatPanel, useAgentStore } from '@datalayer/agent-runtimes';
+import { Chat as ChatPanel } from '@datalayer/agent-runtimes';
 import { JupyterReactTheme } from '@datalayer/jupyter-react';
 import { ServerConnection } from '@jupyterlab/services';
 import { Box } from '@datalayer/primer-addons';
@@ -21,9 +21,6 @@ const queryClient = new QueryClient({
     }
   }
 });
-
-const AGENT_ID = 'jupyter-ai-agent';
-
 /**
  * Get Jupyter server base URL and token
  */
@@ -47,30 +44,14 @@ function useEnsureAgent(
   error: string | null;
 } {
   const [isChecking, setIsChecking] = useState(true);
-  const [hasInitialized, setHasInitialized] = useState(false);
-  const upsertAgent = useAgentStore(state => state.upsertAgent);
-  const updateAgentStatus = useAgentStore(state => state.updateAgentStatus);
+  const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only run once
-    if (hasInitialized) {
-      return;
-    }
-
     let mounted = true;
 
     async function checkAgentStatus() {
       try {
-        // Initialize agent in store
-        upsertAgent({
-          id: AGENT_ID,
-          name: 'Jupyter AI Agent',
-          description: 'AI agent running on Jupyter server',
-          baseUrl,
-          transport: 'vercel-ai-jupyter',
-          status: 'initializing',
-        });
-
         // Check if agent is available by querying configure endpoint
         const headers: HeadersInit = {
           'Content-Type': 'application/json'
@@ -93,33 +74,31 @@ function useEnsureAgent(
         if (mounted) {
           if (response.ok) {
             console.log('[JupyterAIAgents] Agent is ready');
-            updateAgentStatus(AGENT_ID, 'running');
+            setIsReady(true);
+            setError(null);
             setIsChecking(false);
-            setHasInitialized(true);
           } else if (response.status === 503) {
             // Agent not available - backend hasn't initialized yet
             console.log('[JupyterAIAgents] Waiting for agent initialization...');
-            updateAgentStatus(
-              AGENT_ID,
-              'error',
+            setIsReady(false);
+            setError(
               'Agent is initializing. Please ensure API keys (ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.) are configured.'
             );
             setIsChecking(false);
-            setHasInitialized(true);
           } else {
             const errorText = await response.text().catch(() => 'Unknown error');
-            updateAgentStatus(AGENT_ID, 'error', `Agent status check failed: ${errorText}`);
+            setIsReady(false);
+            setError(`Agent status check failed: ${errorText}`);
             setIsChecking(false);
-            setHasInitialized(true);
           }
         }
       } catch (err) {
         if (mounted) {
           console.error('[JupyterAIAgents] Error checking agent status:', err);
           const errorMessage = err instanceof Error ? err.message : 'Failed to connect to Jupyter server';
-          updateAgentStatus(AGENT_ID, 'error', errorMessage);
+          setIsReady(false);
+          setError(errorMessage);
           setIsChecking(false);
-          setHasInitialized(true);
         }
       }
     }
@@ -129,12 +108,7 @@ function useEnsureAgent(
     return () => {
       mounted = false;
     };
-  }, [baseUrl, token, hasInitialized, upsertAgent, updateAgentStatus]);
-
-  // Get current agent state from store
-  const currentAgent = useAgentStore(state => state.getAgentById(AGENT_ID));
-  const isReady = currentAgent?.status === 'running';
-  const error = currentAgent?.error || null;
+  }, [baseUrl, token]);
 
   return { isReady: isReady && !isChecking, error };
 }
@@ -144,8 +118,8 @@ function useEnsureAgent(
  * Wrapper div ensures proper height propagation in JupyterLab
  */
 export const Chat: React.FC = () => {
-  const { baseUrl } = getJupyterSettings();
-  const { isReady, error } = useEnsureAgent(baseUrl, getJupyterSettings().token);
+  const { baseUrl, token } = getJupyterSettings();
+  const { isReady, error } = useEnsureAgent(baseUrl, token);
 
   // Show loading state while initializing
   if (!isReady) {
@@ -197,7 +171,7 @@ export const Chat: React.FC = () => {
         <Box sx={{ height: '100%' }}>
           <QueryClientProvider client={queryClient}>
             <ChatPanel 
-              transport="vercel-ai-jupyter"
+              protocol="vercel-ai-jupyter"
               baseUrl={baseUrl}
               height="100%"
               showModelSelector={true}
