@@ -160,6 +160,20 @@ export const Chat: React.FC = () => {
     [visibleRuntimes, selectedRuntimePodName]
   );
 
+  // The runtime ingress points at the Jupyter server path
+  // (`.../jupyter/server/...`). The agent-runtimes server is exposed under
+  // `.../agent-runtimes/...` on the same host, so rewrite the path the same way
+  // the Datalayer UI does to avoid hitting the Jupyter server (CORS/404).
+  const selectedRuntimeEndpoint = useMemo(() => {
+    if (!selectedRuntime?.ingress) {
+      return undefined;
+    }
+    return selectedRuntime.ingress.replace(
+      '/jupyter/server/',
+      '/agent-runtimes/'
+    );
+  }, [selectedRuntime]);
+
   const loadCloudRuntimes = useCallback(async () => {
     setIsLoadingRuntimes(true);
     setRuntimeError(null);
@@ -403,7 +417,7 @@ export const Chat: React.FC = () => {
                     Select a cloud agent runtime to enable chat.
                   </Text>
                 </Box>
-              ) : !selectedRuntime.ingress ? (
+              ) : !selectedRuntimeEndpoint ? (
                 <Box sx={{ p: 3 }}>
                   <Text sx={{ color: 'danger.fg', fontSize: 1 }}>
                     Selected runtime has no ingress URL. Please choose another runtime.
@@ -412,15 +426,15 @@ export const Chat: React.FC = () => {
               ) : (
                 <ChatPanel
                   protocol="vercel-ai"
-                  baseUrl={selectedRuntime.ingress}
+                  baseUrl={selectedRuntimeEndpoint}
                   authToken={iamStore.getState().token}
-                  runtimeId={selectedRuntime.pod_name}
-                  historyEndpoint={`${selectedRuntime.ingress}/api/v1/history`}
+                  agentId="default"
                   height="100%"
                   showModelSelector={true}
                   showToolsMenu={true}
                   showInformation={false}
                   showTokenUsage={false}
+                  showToolApprovalBanner={false}
                   suggestions={[
                     {
                       title: 'Get started',
