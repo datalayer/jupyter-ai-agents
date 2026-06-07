@@ -12,6 +12,54 @@
 
 const path = require('path');
 
+function patchLicenseWebpackPluginIterator() {
+  const candidatePaths = [
+    './node_modules/@jupyterlab/builder/node_modules/license-webpack-plugin/dist/WebpackInnerModuleIterator',
+    'license-webpack-plugin/dist/WebpackInnerModuleIterator',
+  ];
+
+  for (const candidatePath of candidatePaths) {
+    try {
+      const iteratorModule = require(candidatePath);
+      const IteratorClass = iteratorModule?.WebpackInnerModuleIterator;
+      const prototype = IteratorClass?.prototype;
+
+      if (!prototype || typeof prototype.getActualFilename !== 'function') {
+        continue;
+      }
+      if (prototype.__datalayerProvideModuleGuardPatched) {
+        return;
+      }
+
+      const originalGetActualFilename = prototype.getActualFilename;
+
+      prototype.getActualFilename = function getActualFilenamePatched(filename) {
+        if (typeof filename !== 'string') {
+          return null;
+        }
+
+        if (filename.indexOf('provide module') === 0) {
+          const parts = filename.split('=');
+          if (parts.length < 2) {
+            return null;
+          }
+          const resolved = parts.slice(1).join('=').trim();
+          return resolved || null;
+        }
+
+        return originalGetActualFilename.call(this, filename);
+      };
+
+      prototype.__datalayerProvideModuleGuardPatched = true;
+      return;
+    } catch (error) {
+      // Try the next candidate path.
+    }
+  }
+}
+
+patchLicenseWebpackPluginIterator();
+
 module.exports = {
   resolve: {
     alias: {

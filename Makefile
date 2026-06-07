@@ -28,6 +28,9 @@ build:
 clean: ## clean
 	git clean -fdx
 
+example: ## example
+	npm run example
+
 jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
