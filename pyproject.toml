@@ -3,7 +3,7 @@
 # BSD 3-Clause License
 
 [build-system]
-requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0.3.2"]
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.5.8,<5", "hatch-nodejs-version>=0.3.2"]
 build-backend = "hatchling.build"
 
 [project]
@@ -38,7 +38,7 @@ dependencies = [
   "jupyter_mcp_server",
   "jupyter_mcp_tools",
   "jupyter_server>=2.10,<3",
-  "jupyterlab>=4.0.0,<5",
+  "jupyterlab>=4.5.8,<5",
   "pycrdt>=0.12.50",
   "python-dotenv",
   "tornado",
