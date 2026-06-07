@@ -4,6 +4,7 @@
  * BSD 3-Clause License
  */
 
+import React from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { LabIcon } from '@jupyterlab/ui-components';
 import { Chat } from './Chat';
@@ -14,6 +15,14 @@ const sparklesIcon = new LabIcon({
   name: 'ai-chat:sparkles',
   svgstr: sparklesSvgstr
 });
+
+const WidgetContent: React.FC = () => {
+  return (
+    <>
+      <Chat />
+    </>
+  );
+};
 
 /**
  * Chat widget with React Query provider
@@ -28,7 +37,7 @@ export class ChatWidget extends ReactWidget {
   }
 
   render(): JSX.Element {
-    return <Chat/>
+    return <WidgetContent />;
   }
 }
 

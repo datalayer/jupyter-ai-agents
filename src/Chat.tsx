@@ -12,7 +12,7 @@ import React, {
   useState
 } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Chat as ChatPanel } from '@datalayer/agent-runtimes';
+import { Chat as ChatPanel } from '@datalayer/agent-runtimes/lib/chat/Chat';
 import { JupyterReactTheme } from '@datalayer/jupyter-react';
 import { ServerConnection } from '@jupyterlab/services';
 import { Box } from '@datalayer/primer-addons';
@@ -41,6 +41,7 @@ const queryClient = new QueryClient({
     }
   }
 });
+
 /**
  * Get Jupyter server base URL and token
  */
@@ -189,40 +190,7 @@ export const Chat: React.FC = () => {
     );
   }, [selectedRuntime]);
 
-  // DEBUG: render-loop tracer. Logs every render and lists which tracked
-  // values changed identity since the previous render. When React error #185
-  // fires, the last lines printed here reveal the value(s) flipping in a loop.
-  const renderCountRef = useRef(0);
-  renderCountRef.current += 1;
-  console.log(`[JupyterAIAgents][Chat] render count: ${renderCountRef.current}`);
-  const prevSnapshotRef = useRef<Record<string, unknown>>({});
-  const snapshot: Record<string, unknown> = {
-    baseUrl,
-    token,
-    isReady,
-    error,
-    isAuthenticated,
-    authError,
-    runtimeError,
-    isLoadingRuntimes,
-    runtimes,
-    runtimesLength: runtimes.length,
-    selectedRuntimePodName,
-    visibleRuntimes,
-    selectedRuntime,
-    selectedRuntimeEndpoint
-  };
-  const changedKeys: string[] = [];
-  for (const key of Object.keys(snapshot)) {
-    if (prevSnapshotRef.current[key] !== snapshot[key]) {
-      changedKeys.push(key);
-    }
-  }
-  prevSnapshotRef.current = snapshot;
-  console.log(
-    `[JupyterAIAgents][Chat] render #${renderCountRef.current} changed:`,
-    changedKeys
-  );
+  console.log(`[JupyterAIAgents][Chat] render`);
 
   const loadCloudRuntimes = useCallback(async () => {
     setIsLoadingRuntimes(true);
@@ -483,28 +451,32 @@ export const Chat: React.FC = () => {
                   </Text>
                 </Box>
               ) : (
-                <ChatPanel
-                  protocol="vercel-ai"
-                  baseUrl={selectedRuntimeEndpoint}
-                  authToken={iamStore.getState().token}
-                  agentId="default"
-                  height="100%"
-                  showModelSelector={true}
-                  showToolsMenu={true}
-                  showInformation={false}
-                  showTokenUsage={false}
-                  showToolApprovalBanner={false}
-                  suggestions={[
-                    {
-                      title: 'Get started',
-                      message: 'What can you help me with?',
-                    },
-                    {
-                      title: 'Notebook help',
-                      message: 'Can you help me with my Jupyter notebook?',
-                    },
-                  ]}
-                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+                  <Box sx={{ flex: 1, minHeight: 0 }}>
+                    <ChatPanel
+                      protocol="vercel-ai"
+                      baseUrl={selectedRuntimeEndpoint}
+                      authToken={iamStore.getState().token}
+                      agentId="default"
+                      height="100%"
+                      showModelSelector={true}
+                      showToolsMenu={true}
+                      showInformation={false}
+                      showTokenUsage={false}
+                      showToolApprovalBanner={false}
+                      suggestions={[
+                        {
+                          title: 'Get started',
+                          message: 'What can you help me with?',
+                        },
+                        {
+                          title: 'Notebook help',
+                          message: 'Can you help me with my Jupyter notebook?',
+                        },
+                      ]}
+                    />
+                  </Box>
+                </Box>
               )}
             </Box>
           </QueryClientProvider>

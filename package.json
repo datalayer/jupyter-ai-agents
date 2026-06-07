@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.20.2",
+  "version": "0.20.3",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "ai",
@@ -70,12 +70,14 @@
     "watch": "run-p watch:src watch:labextension",
     "watch:lib": "tsc -w",
     "watch:labextension": "jupyter labextension watch .",
+    "watch:labextension:dev": "jupyter labextension watch --development True .",
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
     "@datalayer/core": "^1.0.24",
-    "@datalayer/agent-runtimes": "^1.0.6",
+    "@datalayer/agent-runtimes": "^1.0.9",
     "@datalayer/jupyter-react": "^2.0.9",
+    "@datalayer/primer-addons": "^1.0.15",
     "@jupyter/collaboration": "^4.0.1",
     "@jupyter/collaboration-extension": "^4.0.1",
     "@jupyter/collaborative-drive": "^4.0.1",
@@ -218,6 +220,21 @@
         "bundled": false,
         "singleton": true,
         "requiredVersion": "18.3.1"
+      },
+      "@datalayer/core": {
+        "bundled": true,
+        "singleton": true,
+        "requiredVersion": "^1.0.24"
+      },
+      "@datalayer/agent-runtimes": {
+        "bundled": true,
+        "singleton": true,
+        "requiredVersion": "^1.0.8"
+      },
+      "@datalayer/primer-addons": {
+        "bundled": true,
+        "singleton": true,
+        "requiredVersion": "^1.0.15"
       },
       "@datalayer/icons-react": {
         "bundled": true,
