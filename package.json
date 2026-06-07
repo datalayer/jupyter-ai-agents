@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "ai",
@@ -73,8 +73,9 @@
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@datalayer/agent-runtimes": "^1.0.0",
-    "@datalayer/jupyter-react": "^2.0.7",
+    "@datalayer/core": "^1.0.24",
+    "@datalayer/agent-runtimes": "^1.0.6",
+    "@datalayer/jupyter-react": "^2.0.9",
     "@jupyter/collaboration": "^4.0.1",
     "@jupyter/collaboration-extension": "^4.0.1",
     "@jupyter/collaborative-drive": "^4.0.1",
