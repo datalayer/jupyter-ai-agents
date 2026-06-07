@@ -8,7 +8,6 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState
 } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -68,17 +67,8 @@ function useEnsureAgent(
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // DEBUG: how many times does the agent-status effect run? If this climbs
-  // continuously, `baseUrl`/`token` are changing identity every render.
-  const ensureEffectRunsRef = useRef(0);
-
   useEffect(() => {
     let mounted = true;
-    ensureEffectRunsRef.current += 1;
-    console.log(
-      `[JupyterAIAgents][useEnsureAgent] effect run #${ensureEffectRunsRef.current}`,
-      { baseUrl, token: token ? `${token.slice(0, 4)}…` : token }
-    );
 
     async function checkAgentStatus() {
       try {
@@ -103,13 +93,11 @@ function useEnsureAgent(
 
         if (mounted) {
           if (response.ok) {
-            console.log('[JupyterAIAgents] Agent is ready');
             setIsReady(true);
             setError(null);
             setIsChecking(false);
           } else if (response.status === 503) {
             // Agent not available - backend hasn't initialized yet
-            console.log('[JupyterAIAgents] Waiting for agent initialization...');
             setIsReady(false);
             setError(
               'Agent is initializing. Please ensure API keys (ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.) are configured.'
@@ -190,8 +178,6 @@ export const Chat: React.FC = () => {
     );
   }, [selectedRuntime]);
 
-  console.log(`[JupyterAIAgents][Chat] render`);
-
   const loadCloudRuntimes = useCallback(async () => {
     setIsLoadingRuntimes(true);
     setRuntimeError(null);
@@ -211,20 +197,11 @@ export const Chat: React.FC = () => {
     }
   }, []);
 
-  const loadEffectRunsRef = useRef(0);
   useEffect(() => {
-    loadEffectRunsRef.current += 1;
-    console.log(
-      `[JupyterAIAgents][Chat] load effect run #${loadEffectRunsRef.current}`,
-      { isReady, isAuthenticated }
-    );
     if (!isReady || !isAuthenticated) {
       return;
     }
     loadCloudRuntimes().catch(() => {
-      console.warn(
-        '[JupyterAIAgents][Chat] loadCloudRuntimes failed; clearing auth'
-      );
       setIsAuthenticated(false);
       setAuthError('Please sign in to list cloud runtimes.');
     });
