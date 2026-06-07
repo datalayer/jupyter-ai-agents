@@ -4,7 +4,13 @@
  * BSD 3-Clause License
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Chat as ChatPanel } from '@datalayer/agent-runtimes';
 import { JupyterReactTheme } from '@datalayer/jupyter-react';
@@ -61,8 +67,17 @@ function useEnsureAgent(
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // DEBUG: how many times does the agent-status effect run? If this climbs
+  // continuously, `baseUrl`/`token` are changing identity every render.
+  const ensureEffectRunsRef = useRef(0);
+
   useEffect(() => {
     let mounted = true;
+    ensureEffectRunsRef.current += 1;
+    console.log(
+      `[JupyterAIAgents][useEnsureAgent] effect run #${ensureEffectRunsRef.current}`,
+      { baseUrl, token: token ? `${token.slice(0, 4)}…` : token }
+    );
 
     async function checkAgentStatus() {
       try {
@@ -174,6 +189,41 @@ export const Chat: React.FC = () => {
     );
   }, [selectedRuntime]);
 
+  // DEBUG: render-loop tracer. Logs every render and lists which tracked
+  // values changed identity since the previous render. When React error #185
+  // fires, the last lines printed here reveal the value(s) flipping in a loop.
+  const renderCountRef = useRef(0);
+  renderCountRef.current += 1;
+  console.log(`[JupyterAIAgents][Chat] render count: ${renderCountRef.current}`);
+  const prevSnapshotRef = useRef<Record<string, unknown>>({});
+  const snapshot: Record<string, unknown> = {
+    baseUrl,
+    token,
+    isReady,
+    error,
+    isAuthenticated,
+    authError,
+    runtimeError,
+    isLoadingRuntimes,
+    runtimes,
+    runtimesLength: runtimes.length,
+    selectedRuntimePodName,
+    visibleRuntimes,
+    selectedRuntime,
+    selectedRuntimeEndpoint
+  };
+  const changedKeys: string[] = [];
+  for (const key of Object.keys(snapshot)) {
+    if (prevSnapshotRef.current[key] !== snapshot[key]) {
+      changedKeys.push(key);
+    }
+  }
+  prevSnapshotRef.current = snapshot;
+  console.log(
+    `[JupyterAIAgents][Chat] render #${renderCountRef.current} changed:`,
+    changedKeys
+  );
+
   const loadCloudRuntimes = useCallback(async () => {
     setIsLoadingRuntimes(true);
     setRuntimeError(null);
@@ -193,11 +243,20 @@ export const Chat: React.FC = () => {
     }
   }, []);
 
+  const loadEffectRunsRef = useRef(0);
   useEffect(() => {
+    loadEffectRunsRef.current += 1;
+    console.log(
+      `[JupyterAIAgents][Chat] load effect run #${loadEffectRunsRef.current}`,
+      { isReady, isAuthenticated }
+    );
     if (!isReady || !isAuthenticated) {
       return;
     }
     loadCloudRuntimes().catch(() => {
+      console.warn(
+        '[JupyterAIAgents][Chat] loadCloudRuntimes failed; clearing auth'
+      );
       setIsAuthenticated(false);
       setAuthError('Please sign in to list cloud runtimes.');
     });
