@@ -10,6 +10,8 @@ package-lock.json
 tsconfig.tsbuildinfo
 jupyter_ai_agents/labextension
 
+*.log
+
 # Version file is handled by hatchling
 jupyter_ai_agents/_version.py
 

@@ -24,6 +24,9 @@ module.exports = {
     publicPath: '/'
   },
   mode,
+  experiments: {
+    asyncWebAssembly: true,
+  },
   devServer: {
     port: 8080,
     client: { overlay: false },
@@ -141,6 +144,10 @@ module.exports = {
         generator: {
           filename: 'schema/[name][ext][query]',
         },
+      },
+      {
+        test: /\.wasm$/,
+        type: 'webassembly/async',
       }
     ]
   },

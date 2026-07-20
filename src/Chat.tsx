@@ -24,9 +24,11 @@ import {
   Text,
 } from '@primer/react';
 import {
+  coreStore,
   iamStore,
   SignInSimple,
 } from '@datalayer/core';
+import { DEFAULT_SERVICE_URLS } from '@datalayer/core/lib/api/constants';
 import { AiAgentIcon } from '@datalayer/icons-react';
 
 import '../style/index.css';
@@ -142,6 +144,17 @@ function useEnsureAgent(
  * Wrapper div ensures proper height propagation in JupyterLab
  */
 export const Chat: React.FC = () => {
+  useEffect(() => {
+    // JupyterLab serves this extension from localhost, but IAM/runtimes are
+    // cloud services; ensure service URLs do not fall back to local origins.
+    coreStore.getState().setConfiguration({
+      datalayerUrl: DEFAULT_SERVICE_URLS.IAM,
+      iamUrl: DEFAULT_SERVICE_URLS.IAM,
+      runtimesUrl: DEFAULT_SERVICE_URLS.RUNTIMES,
+      aiAgentsUrl: DEFAULT_SERVICE_URLS.AI_AGENTS,
+    });
+  }, []);
+
   const { baseUrl, token } = getJupyterSettings();
   const { isReady, error } = useEnsureAgent(baseUrl, token);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
@@ -310,6 +323,7 @@ export const Chat: React.FC = () => {
               title="Jupyter AI Agents"
               description="Sign in with username/password or token to access cloud agent runtimes."
               leadingIcon={<AiAgentIcon size={24} />}
+              loginUrl={`${DEFAULT_SERVICE_URLS.IAM}/api/iam/v1/login`}
               onSignIn={(jwtToken: string) => {
                 void handleSignIn(jwtToken);
               }}

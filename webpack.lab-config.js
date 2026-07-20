@@ -67,6 +67,7 @@ module.exports = {
     },
     fallback: {
       "fs": false,
+      "module": false,
       "path": require.resolve("path-browserify"),
       "stream": require.resolve("stream-browserify"),
       "crypto": require.resolve("crypto-browserify"),
@@ -124,6 +125,10 @@ module.exports = {
         generator: {
           filename: 'schema/[name][ext][query]',
         },
+      },
+      {
+        test: /\.wasm$/,
+        type: 'webassembly/async',
       },
     ],
   },
