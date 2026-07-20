@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Chat as ChatPanel } from '@datalayer/agent-runtimes/lib/chat/Chat';
+import { AgentRuntimesClient } from '@datalayer/agent-runtimes/lib/client/AgentRuntimesClient';
 import { JupyterReactTheme } from '@datalayer/jupyter-react';
 import { ServerConnection } from '@jupyterlab/services';
 import { Box } from '@datalayer/primer-addons';
@@ -23,10 +24,8 @@ import {
   Text,
 } from '@primer/react';
 import {
-  getRuntimes,
   iamStore,
   SignInSimple,
-  type IRuntimePod,
 } from '@datalayer/core';
 import { AiAgentIcon } from '@datalayer/icons-react';
 
@@ -40,6 +39,13 @@ const queryClient = new QueryClient({
     }
   }
 });
+
+interface IRuntimePod {
+  pod_name: string;
+  ingress: string;
+  given_name: string;
+  environment_name: string;
+}
 
 /**
  * Get Jupyter server base URL and token
@@ -182,7 +188,14 @@ export const Chat: React.FC = () => {
     setIsLoadingRuntimes(true);
     setRuntimeError(null);
     try {
-      const cloudRuntimes = await getRuntimes();
+      const token = iamStore.getState().token;
+      if (!token) {
+        throw new Error('Please sign in to list cloud runtimes.');
+      }
+      const client = new AgentRuntimesClient({ token });
+      const cloudRuntimes = (await client.listRuntimes()).map((runtime: any) =>
+        runtime.rawData()
+      );
       setRuntimes(cloudRuntimes);
       if (cloudRuntimes.length === 0) {
         setSelectedRuntimePodName(null);
