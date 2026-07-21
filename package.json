@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.20.6",
+  "version": "0.20.7",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "ai",
@@ -90,6 +90,7 @@
     "@jupyterlab/application": "^4.0.0",
     "@jupyterlab/apputils": "^4.0.0",
     "@jupyterlab/coreutils": "^6.0.0",
+    "@jupyterlab/outputarea": "^4.0.0",
     "@jupyterlab/services": "^7.0.0",
     "@jupyterlab/settingregistry": "^4.0.0",
     "@jupyterlab/ui-components": "^4.0.0",
