@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.20.7",
+  "version": "0.20.8",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "ai",
@@ -74,13 +74,10 @@
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@datalayer/core": "^1.0.24",
     "@datalayer/agent-runtimes": "^1.0.17",
+    "@datalayer/core": "^1.0.24",
     "@datalayer/jupyter-react": "^2.0.10",
     "@datalayer/primer-addons": "^1.0.15",
-    "@primer/octicons-react": "^19.29.1",
-    "@primer/react": "^37.31.0",
-    "@primer/react-brand": "^0.58.0",
     "@jupyter/collaboration": "^4.0.1",
     "@jupyter/collaboration-extension": "^4.0.1",
     "@jupyter/collaborative-drive": "^4.0.1",
@@ -94,6 +91,9 @@
     "@jupyterlab/services": "^7.0.0",
     "@jupyterlab/settingregistry": "^4.0.0",
     "@jupyterlab/ui-components": "^4.0.0",
+    "@primer/octicons-react": "^19.29.1",
+    "@primer/react": "^37.31.0",
+    "@primer/react-brand": "^0.58.0",
     "@tanstack/react-query": "^5.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",

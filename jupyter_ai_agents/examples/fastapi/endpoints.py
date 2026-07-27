@@ -18,7 +18,7 @@ from fastapi import APIRouter, Request
 
 from datalayer_core.client import DatalayerClient
 
-from jupyter_kernel_client import KernelClient
+from jupyter_kernel_client import JupyterKernelClient
 
 from jupyter_ai_agents.agents.langchain.prompt_agent import PromptAgent
 from jupyter_ai_agents.agents.langchain.models import NbModelAgentRequestModel
@@ -127,7 +127,7 @@ async def create_ai_agents_endpoint(agent_request: NbModelAgentRequestModel, req
             websocket_url=ws_url,
             username=user.uid,
             path=room_id,
-            runtime_client=KernelClient(
+            runtime_client=JupyterKernelClient(
                 kernel_id=kernel_id,
                 server_url=jupyter_ingress,
                 token=jupyter_token,
