@@ -8,7 +8,7 @@ import logging
 from typing import Any
 
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.mcp import MCPServerStreamableHTTP
+from pydantic_ai.mcp import MCPToolset
 
 from jupyter_ai_agents.handlers.chat_handler import create_mcp_server
 
@@ -68,7 +68,7 @@ class ExplainErrorAgentDeps:
 
 def create_explain_error_agent(
     model: str,
-    mcp_server: MCPServerStreamableHTTP,
+    mcp_server: MCPToolset,
     notebook_content: str = "",
     error_info: dict[str, Any] | None = None,
     error_cell_index: int = -1,
@@ -109,7 +109,7 @@ def create_explain_error_agent(
         toolsets=[mcp_server],
         model_settings={"parallel_tool_calls": False},
         deps_type=ExplainErrorAgentDeps,
-        system_prompt=system_prompt,
+        instructions=system_prompt,
     )
     
     logger.info(f"Created explain error agent with model {model} (max_tool_calls={max_tool_calls})")
@@ -183,7 +183,7 @@ async def run_explain_error_agent(
             timeout=120.0  # 2 minute timeout
         )
         logger.info("Explain error agent completed successfully")
-        return result.response
+        return str(result.output)
     except asyncio.TimeoutError:
         logger.error("Explain error agent timed out after 120 seconds")
         return "Error: Operation timed out. The agent may have hit rate limits or is taking too long."
