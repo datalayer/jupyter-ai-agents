@@ -3,13 +3,14 @@
   "version": "0.20.9",
   "description": "Jupyter AI Agents.",
   "keywords": [
+    "agents",
     "ai",
+    "ai-agents",
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension",
     "mcp",
-    "agents",
-    "ai-agents"
+    "skills"
   ],
   "homepage": "https://github.com/datalayer/jupyter-ai-agents",
   "bugs": {
