@@ -29,22 +29,18 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "agent-runtimes",
+  "agent-runtimes[all]",
   "anyio",
-  "datalayer_core",
+  "datalayer-core",
   "fastapi",
   "httpx",
   "jupyter-collaboration",
   "jupyter-mcp-server",
   "jupyter-mcp-tools",
+  "jupyter-mcp-sandboxes",
   "jupyter-server>=2.10,<3",
   "jupyterlab>=4.6.1,<5",
-  "pydantic-ai>=2.21.0,<3",
-  "pydantic-ai-slim[openai,anthropic]>=2.21.0,<3",
-  "pydantic-graph>=2.21.0,<3",
-  "pycrdt",
   "python-dotenv",
-  "tornado",
   "uvicorn",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
