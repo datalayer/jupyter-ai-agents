@@ -177,11 +177,15 @@ async def run_explain_error_agent(
             request_limit=max_requests,  # Strict limit to avoid rate limiting
         )
         
-        # Add timeout to prevent hanging on retries
-        result = await asyncio.wait_for(
-            agent.run(enhanced_description, deps=deps, usage_limits=usage_limits),
-            timeout=120.0  # 2 minute timeout
-        )
+        # Entering the agent enters its toolsets: the MCP connection is
+        # opened before the run and closed after it, the way the chat
+        # handler holds `async with mcp_server`.
+        async with agent:
+            # Add timeout to prevent hanging on retries
+            result = await asyncio.wait_for(
+                agent.run(enhanced_description, deps=deps, usage_limits=usage_limits),
+                timeout=120.0  # 2 minute timeout
+            )
         logger.info("Explain error agent completed successfully")
         return str(result.output)
     except asyncio.TimeoutError:

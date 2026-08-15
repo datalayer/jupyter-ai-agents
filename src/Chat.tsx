@@ -203,7 +203,7 @@ export const Chat: React.FC = () => {
     try {
       const token = iamStore.getState().token;
       if (!token) {
-        throw new Error('Please sign in to list cloud runtimes.');
+        throw new Error('Please sign in to list cloud agents.');
       }
       const client = new AgentRuntimesClient({ token });
       const cloudRuntimes = (await client.listRuntimes()).map((runtime: any) =>
@@ -215,7 +215,7 @@ export const Chat: React.FC = () => {
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to load cloud runtimes.';
+        err instanceof Error ? err.message : 'Failed to load cloud agents.';
       setRuntimeError(message);
       throw err;
     } finally {
@@ -372,7 +372,7 @@ export const Chat: React.FC = () => {
                   <ActionMenu.Overlay width="large">
                     <ActionList selectionVariant="single">
                       <ActionList.GroupHeading>
-                        Cloud Agent Runtimes
+                        Cloud Agents
                       </ActionList.GroupHeading>
                       {visibleRuntimes.map(runtime => (
                         <ActionList.Item
@@ -417,7 +417,7 @@ export const Chat: React.FC = () => {
                 >
                   <Spinner />
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    Loading cloud runtimes...
+                    Loading cloud agents...
                   </Text>
                 </Box>
               ) : runtimeError ? (
@@ -427,7 +427,7 @@ export const Chat: React.FC = () => {
               ) : visibleRuntimes.length === 0 ? (
                 <Box sx={{ p: 3 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    No cloud agent available for this account.
+                    No cloud agents available for this account.
                   </Text>
                 </Box>
               ) : !selectedRuntime ? (
@@ -504,6 +504,12 @@ export const Chat: React.FC = () => {
                       authToken={iamStore.getState().token}
                       agentId="default"
                       height="100%"
+                      // The chat sits in a JupyterLab sidebar, next to the
+                      // panels of the application: it wears the theme of the
+                      // lab (the JupyterReactTheme above), not its own — the
+                      // internal boundary would restyle it as the web
+                      // application.
+                      disableInternalJupyterTheme
                       showModelSelector={true}
                       showToolsMenu={true}
                       showInformation={false}
