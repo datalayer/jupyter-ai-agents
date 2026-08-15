@@ -1,6 +1,6 @@
 {
   "name": "@datalayer/jupyter-ai-agents",
-  "version": "0.20.9",
+  "version": "1.0.0",
   "description": "Jupyter AI Agents.",
   "keywords": [
     "agents",

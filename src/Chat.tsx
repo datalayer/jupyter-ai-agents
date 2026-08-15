@@ -148,7 +148,6 @@ export const Chat: React.FC = () => {
     // JupyterLab serves this extension from localhost, but IAM/runtimes are
     // cloud services; ensure service URLs do not fall back to local origins.
     coreStore.getState().setConfiguration({
-      datalayerUrl: DEFAULT_SERVICE_URLS.IAM,
       iamUrl: DEFAULT_SERVICE_URLS.IAM,
       runtimesUrl: DEFAULT_SERVICE_URLS.RUNTIMES,
       aiAgentsUrl: DEFAULT_SERVICE_URLS.AI_AGENTS,
@@ -371,8 +370,9 @@ export const Chat: React.FC = () => {
                 }}
               >
                 <ActionMenu>
-                  <ActionMenu.Button>
-                    {selectedRuntime ? selectedRuntime.given_name : 'Select cloud runtime'}
+                  {/* Nothing to pick: the button says so and does not open. */}
+                  <ActionMenu.Button disabled={visibleRuntimes.length === 0}>
+                    {selectedRuntime ? selectedRuntime.given_name : 'Select cloud agent'}
                   </ActionMenu.Button>
                   <ActionMenu.Overlay width="large">
                     <ActionList selectionVariant="single">
@@ -439,7 +439,7 @@ export const Chat: React.FC = () => {
               ) : visibleRuntimes.length === 0 ? (
                 <Box sx={{ p: 3 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    No cloud runtimes available for this account.
+                    No cloud agent available for this account.
                   </Text>
                 </Box>
               ) : !selectedRuntime ? (
