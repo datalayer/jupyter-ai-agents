@@ -32,6 +32,7 @@ import { DEFAULT_SERVICE_URLS } from '@datalayer/core/lib/api/constants';
 import { AiAgentIcon } from '@datalayer/icons-react';
 
 import '../style/index.css';
+import { useAIAgentsStore } from './store';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -222,6 +223,9 @@ export const Chat: React.FC = () => {
     }
   }, []);
 
+  // The doorbell of the store: anything that created or terminated a code
+  // sandbox — the Datalayer UI plugins do — rings it, and the list reloads.
+  const refreshSeq = useAIAgentsStore(state => state.refreshSeq);
   useEffect(() => {
     if (!isReady || !isAuthenticated) {
       return;
@@ -230,7 +234,7 @@ export const Chat: React.FC = () => {
       setIsAuthenticated(false);
       setAuthError('Please sign in to list cloud runtimes.');
     });
-  }, [isReady, isAuthenticated, loadCloudRuntimes]);
+  }, [isReady, isAuthenticated, loadCloudRuntimes, refreshSeq]);
 
   const handleSignIn = useCallback(async (authToken: string) => {
     setAuthError(null);
@@ -259,15 +263,6 @@ export const Chat: React.FC = () => {
       setIsAuthenticated(false);
     }
   }, [loadCloudRuntimes]);
-
-  const handleLogout = useCallback(() => {
-    iamStore.getState().logout();
-    setIsAuthenticated(false);
-    setSelectedRuntimePodName(null);
-    setRuntimes([]);
-    setRuntimeError(null);
-    setAuthError(null);
-  }, []);
 
   // Show loading state while initializing
   if (!isReady) {
@@ -406,13 +401,6 @@ export const Chat: React.FC = () => {
                   >
                     Refresh
                   </Button>
-                  <Button
-                    size="small"
-                    variant="invisible"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </Button>
                 </Box>
               </Box>
 
@@ -443,10 +431,63 @@ export const Chat: React.FC = () => {
                   </Text>
                 </Box>
               ) : !selectedRuntime ? (
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    Select a cloud agent runtime to enable chat.
+                    Select a cloud agent to enable chat.
                   </Text>
+                  {/* The agents, right where the choice is asked for: one
+                      row and one button each, so picking one is a click
+                      rather than a trip to the dropdown above. */}
+                  {visibleRuntimes.map(runtime => (
+                    <Box
+                      key={runtime.pod_name}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        border: '1px solid',
+                        borderColor: 'border.default',
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Text
+                          sx={{
+                            display: 'block',
+                            fontSize: 1,
+                            fontWeight: 'semibold',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                          title={runtime.pod_name}
+                        >
+                          {runtime.given_name}
+                        </Text>
+                        <Text
+                          sx={{
+                            display: 'block',
+                            fontSize: 0,
+                            color: 'fg.muted',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {runtime.environment_name}
+                        </Text>
+                      </Box>
+                      <Button
+                        size="small"
+                        onClick={() => {
+                          setSelectedRuntimePodName(runtime.pod_name);
+                        }}
+                      >
+                        Use
+                      </Button>
+                    </Box>
+                  ))}
                 </Box>
               ) : !selectedRuntimeEndpoint ? (
                 <Box sx={{ p: 3 }}>

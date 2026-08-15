@@ -77,6 +77,7 @@
   "dependencies": {
     "@datalayer/agent-runtimes": "^1.0.17",
     "@datalayer/core": "^1.0.24",
+    "@datalayer/icons-react": "^1.0.8",
     "@datalayer/jupyter-react": "^2.0.10",
     "@datalayer/primer-addons": "^1.0.15",
     "@jupyter/collaboration": "^4.0.1",
@@ -88,6 +89,7 @@
     "@jupyterlab/application": "^4.0.0",
     "@jupyterlab/apputils": "^4.0.0",
     "@jupyterlab/coreutils": "^6.0.0",
+    "@jupyterlab/launcher": "^4.0.0",
     "@jupyterlab/outputarea": "^4.0.0",
     "@jupyterlab/services": "^7.0.0",
     "@jupyterlab/settingregistry": "^4.0.0",

@@ -4,23 +4,27 @@
  * BSD 3-Clause License
  */
 
-body {
-  overflow: visible !important;
-}
+/*
+ * Everything in this sheet is scoped under `.jp-ai-chat-container`.
+ *
+ * This stylesheet is loaded by a JupyterLab plugin, so it lands on the whole
+ * application: an unscoped rule here restyles the host. An earlier version
+ * forced `body` overflow, the lab-shell height and — through Primer's hashed
+ * `BaseStyles` class — the height of every Primer wrapper on the page, which
+ * broke the layout of the notebook editor of Datalayer (cells pushed down by
+ * a viewport-sized gap). The chat may size itself; the page is not its to
+ * size.
+ */
 
-.jp-LabShell {
-  height: 100vh !important;
-}
-
-.prc-src-BaseStyles-dl-St {
+.jp-ai-chat-container .prc-src-BaseStyles-dl-St {
   height: 100% !important;
 }
 
-.ikTPJw {
+.jp-ai-chat-container .ikTPJw {
   overflow-y: scroll !important; /* Use scroll instead of auto to always show scrollbar */
   scrollbar-width: thin !important; /* Firefox - thin scrollbar */
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent !important; /* Firefox scrollbar colors */
- }
+}
 
  /* Ensure the chat container fills the available space in JupyterLab */
 .jp-ai-chat-container {
