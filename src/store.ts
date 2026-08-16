@@ -28,6 +28,13 @@
 
 import { create } from 'zustand';
 
+/** The Datalayer editor currently focused in the lab, if any. */
+export type IActiveEditor = {
+  kind: 'notebook' | 'document';
+  /** The id the editor registered under in its store — its path. */
+  id: string;
+};
+
 export interface IAIAgentsStore {
   /**
    * How many times a refresh was asked for. The sidebar watches this and
@@ -36,11 +43,20 @@ export interface IAIAgentsStore {
   refreshSeq: number;
   /** Ask the AI Agents sidebar to reload its agents. */
   refreshAgents: () => void;
+  /**
+   * The Datalayer editor in front of the user, kept current by the lab
+   * plugin. The chat registers the frontend tools of exactly this editor,
+   * so "insert a cell" lands in the notebook being looked at.
+   */
+  activeEditor?: IActiveEditor;
+  setActiveEditor: (activeEditor?: IActiveEditor) => void;
 }
 
 export const useAIAgentsStore = create<IAIAgentsStore>(set => ({
   refreshSeq: 0,
-  refreshAgents: () => set(state => ({ refreshSeq: state.refreshSeq + 1 }))
+  refreshAgents: () => set(state => ({ refreshSeq: state.refreshSeq + 1 })),
+  activeEditor: undefined,
+  setActiveEditor: activeEditor => set({ activeEditor })
 }));
 
 export default useAIAgentsStore;

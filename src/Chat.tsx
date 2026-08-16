@@ -33,6 +33,11 @@ import { AiAgentIcon } from '@datalayer/icons-react';
 
 import '../style/index.css';
 import { useAIAgentsStore } from './store';
+import {
+  useNotebookTools,
+  type FrontendToolDefinition
+} from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/notebookHooks';
+import { useLexicalTools } from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/lexicalHooks';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -226,6 +231,29 @@ export const Chat: React.FC = () => {
   // The doorbell of the store: anything that created or terminated a code
   // sandbox — the Datalayer UI plugins do — rings it, and the list reloads.
   const refreshSeq = useAIAgentsStore(state => state.refreshSeq);
+
+  /*
+   * The frontend tools of the editor in front of the user.
+   *
+   * The lab plugin publishes which Datalayer editor is focused; the same
+   * hooks the web application's editors use build the tools of that editor
+   * — the notebook ones over the notebook store, the document ones over the
+   * lexical store, both keyed by the editor's id. Hooks are unconditional,
+   * so both are built and the active editor picks; with no Datalayer editor
+   * focused the chat carries no editor tools.
+   */
+  const activeEditor = useAIAgentsStore(state => state.activeEditor);
+  const notebookTools = useNotebookTools(
+    activeEditor?.kind === 'notebook' ? activeEditor.id : 'jp-ai-agents-idle'
+  );
+  const documentTools = useLexicalTools(
+    activeEditor?.kind === 'document' ? activeEditor.id : 'jp-ai-agents-idle'
+  );
+  const frontendTools: FrontendToolDefinition[] = !activeEditor
+    ? []
+    : activeEditor.kind === 'notebook'
+      ? notebookTools
+      : documentTools;
   useEffect(() => {
     if (!isReady || !isAuthenticated) {
       return;
@@ -388,6 +416,24 @@ export const Chat: React.FC = () => {
                           </ActionList.Description>
                         </ActionList.Item>
                       ))}
+                      {selectedRuntimePodName && (
+                        <>
+                          <ActionList.Divider />
+                          {/* The same word as the code sandbox dialog: letting
+                              go of the agent, not cancelling the menu. */}
+                          <ActionList.Item
+                            variant="danger"
+                            onSelect={() => {
+                              setSelectedRuntimePodName(null);
+                            }}
+                          >
+                            Unassign
+                            <ActionList.Description variant="block">
+                              Let go of this agent; the chat waits for another.
+                            </ActionList.Description>
+                          </ActionList.Item>
+                        </>
+                      )}
                     </ActionList>
                   </ActionMenu.Overlay>
                 </ActionMenu>
@@ -504,6 +550,7 @@ export const Chat: React.FC = () => {
                       authToken={iamStore.getState().token}
                       agentId="default"
                       height="100%"
+                      frontendTools={frontendTools}
                       // The chat sits in a JupyterLab sidebar, next to the
                       // panels of the application: it wears the theme of the
                       // lab (the JupyterReactTheme above), not its own — the

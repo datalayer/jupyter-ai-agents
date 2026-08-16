@@ -15,6 +15,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import RobotIconJupyterLab from '@datalayer/icons-react/data2/RobotIconJupyterLab';
 import { setupPrimerPortals } from '@datalayer/primer-addons';
 import { ChatWidget } from './widget';
+import { useAIAgentsStore } from './store';
 // import { requestAPI } from './handler';
 
 import '../style/index.css';
@@ -43,6 +44,50 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Create and add chat widget to left sidebar
     const chatWidget = new ChatWidget();
     labShell.add(chatWidget, 'right', { rank: 1000 });
+
+    /*
+     * Tell the chat which Datalayer editor is in front of the user.
+     *
+     * Both Datalayer editors — the notebook and the `.dlex` document — are
+     * document widgets whose content wears the `dla-Container` class, and
+     * both register in their stores under the path of the document. The
+     * default editors of JupyterLab are deliberately not published: the
+     * frontend tools read the Datalayer stores, which know nothing of them.
+     */
+    const publishActiveEditor = (widget: unknown) => {
+      /*
+       * Only the main area speaks for the selection.
+       *
+       * `currentChanged` also fires when a sidebar takes focus — this chat
+       * itself, the file browser — and clearing the selection then would
+       * drop the notebook's tools at the very moment the user clicks into
+       * the chat to use them. A sidebar focus keeps the previous choice; a
+       * main-area widget that is not a Datalayer editor clears it.
+       */
+      const inMainArea = Array.from(labShell.widgets('main')).some(
+        candidate => candidate === widget
+      );
+      if (!widget || !inMainArea) {
+        return;
+      }
+      const path: string | undefined = (widget as any)?.context?.path;
+      const isDatalayer = !!(widget as any)?.content?.hasClass?.(
+        'dla-Container'
+      );
+      let activeEditor;
+      if (path && isDatalayer) {
+        if (path.endsWith('.ipynb')) {
+          activeEditor = { kind: 'notebook' as const, id: path };
+        } else if (path.endsWith('.dlex')) {
+          activeEditor = { kind: 'document' as const, id: path };
+        }
+      }
+      useAIAgentsStore.getState().setActiveEditor(activeEditor);
+    };
+    publishActiveEditor(labShell.currentWidget);
+    labShell.currentChanged.connect((_, args) => {
+      publishActiveEditor(args.newValue);
+    });
 
     if (settingRegistry) {
       settingRegistry
