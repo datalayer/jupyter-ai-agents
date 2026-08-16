@@ -46,6 +46,44 @@ const plugin: JupyterFrontEndPlugin<void> = {
     labShell.add(chatWidget, 'right', { rank: 1000 });
 
     /*
+     * Double the width the right panel opens at while the chat is the
+     * visible panel.
+     *
+     * JupyterLab offers no official way to size a side panel. Lumino reads
+     * the CSS minimum of the split panel's direct child — `#jp-right-stack`
+     * — when it fits the layout, so the floor is written there, and only
+     * while the chat is showing: the file browser and the other panels keep
+     * their usual width. `fit()` makes the shell re-read the constraint at
+     * the moment it changes.
+     */
+    const RIGHT_STACK_MIN_WIDTH = '600px';
+    const syncRightPanelWidth = () => {
+      const stack = document.getElementById('jp-right-stack');
+      if (!stack) {
+        return;
+      }
+      const wanted = chatWidget.isVisible ? RIGHT_STACK_MIN_WIDTH : '';
+      if (stack.style.minWidth !== wanted) {
+        stack.style.minWidth = wanted;
+        /*
+         * The split panel holding the stack must refit to read the new
+         * minimum: a fit on the shell stops at the shell's own layout —
+         * Lumino propagates fit-requests upward, not down. The panel is
+         * private, so a window resize — on which JupyterLab refits every
+         * layout — stands in when it is not where it used to be.
+         */
+        const split = (labShell as any)._hsplitPanel;
+        if (split?.fit) {
+          split.fit();
+        } else {
+          window.dispatchEvent(new Event('resize'));
+        }
+      }
+    };
+    labShell.layoutModified.connect(syncRightPanelWidth);
+    void app.restored.then(syncRightPanelWidth);
+
+    /*
      * Tell the chat which Datalayer editor is in front of the user.
      *
      * Both Datalayer editors — the notebook and the `.dlex` document — are

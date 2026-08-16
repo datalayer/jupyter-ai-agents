@@ -28,6 +28,9 @@
 
  /* Ensure the chat container fills the available space in JupyterLab */
 .jp-ai-chat-container {
+  /* Twice the usual sidebar width: a conversation needs the room. The
+     panel can still be dragged wider; narrower stops here. */
+  min-width: 560px;
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
