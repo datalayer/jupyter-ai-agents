@@ -56,13 +56,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
      * their usual width. `fit()` makes the shell re-read the constraint at
      * the moment it changes.
      */
-    const RIGHT_STACK_MIN_WIDTH = '600px';
+    const RIGHT_STACK_MIN_WIDTH_PX = 600;
     const syncRightPanelWidth = () => {
       const stack = document.getElementById('jp-right-stack');
       if (!stack) {
         return;
       }
-      const wanted = chatWidget.isVisible ? RIGHT_STACK_MIN_WIDTH : '';
+      const visible = chatWidget.isVisible;
+      const wanted = visible ? `${RIGHT_STACK_MIN_WIDTH_PX}px` : '';
+      const split = (labShell as any)._hsplitPanel;
       if (stack.style.minWidth !== wanted) {
         stack.style.minWidth = wanted;
         /*
@@ -72,11 +74,40 @@ const plugin: JupyterFrontEndPlugin<void> = {
          * private, so a window resize — on which JupyterLab refits every
          * layout — stands in when it is not where it used to be.
          */
-        const split = (labShell as any)._hsplitPanel;
         if (split?.fit) {
           split.fit();
         } else {
           window.dispatchEvent(new Event('resize'));
+        }
+      }
+      /*
+       * The floor alone is not enough on a workspace that was saved with a
+       * narrower panel: the restored layout states explicit sizes, and on
+       * some paths the split keeps them instead of re-reading the CSS
+       * minimum. Stating the sizes wins over whatever was restored. The
+       * handler re-runs on the layoutModified this triggers and finds
+       * nothing left to change, so it settles rather than loops — and a
+       * user dragging the panel wider than the target is left alone.
+       */
+      if (visible && split?.relativeSizes && split?.setRelativeSizes) {
+        const total = split.node?.getBoundingClientRect().width ?? 0;
+        if (total > 0) {
+          const sizes: number[] = split.relativeSizes();
+          const rightIndex = sizes.length - 1;
+          // Never take more than 60% of the window from the main area.
+          const target = Math.min(0.6, RIGHT_STACK_MIN_WIDTH_PX / total);
+          if (sizes[rightIndex] < target - 0.005) {
+            const remainder = 1 - target;
+            const currentRemainder = 1 - sizes[rightIndex];
+            const next = sizes.map((size, index) =>
+              index === rightIndex
+                ? target
+                : currentRemainder > 0
+                  ? (size * remainder) / currentRemainder
+                  : remainder / Math.max(1, rightIndex)
+            );
+            split.setRelativeSizes(next);
+          }
         }
       }
     };
