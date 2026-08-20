@@ -28,7 +28,6 @@ import {
   iamStore,
   SignInSimple,
 } from '@datalayer/core';
-import { DEFAULT_SERVICE_URLS } from '@datalayer/core/lib/api/constants';
 import { AiAgentIcon } from '@datalayer/icons-react';
 
 import '../style/index.css';
@@ -150,16 +149,6 @@ function useEnsureAgent(
  * Wrapper div ensures proper height propagation in JupyterLab
  */
 export const Chat: React.FC = () => {
-  useEffect(() => {
-    // JupyterLab serves this extension from localhost, but IAM/runtimes are
-    // cloud services; ensure service URLs do not fall back to local origins.
-    coreStore.getState().setConfiguration({
-      iamUrl: DEFAULT_SERVICE_URLS.IAM,
-      runtimesUrl: DEFAULT_SERVICE_URLS.RUNTIMES,
-      aiAgentsUrl: DEFAULT_SERVICE_URLS.AI_AGENTS,
-    });
-  }, []);
-
   const { baseUrl, token } = getJupyterSettings();
   const { isReady, error } = useEnsureAgent(baseUrl, token);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
@@ -210,7 +199,17 @@ export const Chat: React.FC = () => {
       if (!token) {
         throw new Error('Please sign in to list cloud agents.');
       }
-      const client = new AgentRuntimesClient({ token });
+      // The URLs of the page's configuration, never the built-in prod
+      // defaults: against a local plane, defaulting silently lists the
+      // runtimes of production.
+      const { iamUrl, runtimesUrl, spacerUrl } =
+        coreStore.getState().configuration;
+      const client = new AgentRuntimesClient({
+        token,
+        iamUrl,
+        runtimesUrl,
+        spacerUrl,
+      });
       const cloudRuntimes = (await client.listRuntimes()).map((runtime: any) =>
         runtime.rawData()
       );
@@ -345,7 +344,7 @@ export const Chat: React.FC = () => {
               title="Jupyter AI Agents"
               description="Sign in with username/password or token to access cloud agent runtimes."
               leadingIcon={<AiAgentIcon size={24} />}
-              loginUrl={`${DEFAULT_SERVICE_URLS.IAM}/api/iam/v1/login`}
+              loginUrl={`${coreStore.getState().configuration.iamUrl}/api/iam/v1/login`}
               onSignIn={(jwtToken: string) => {
                 void handleSignIn(jwtToken);
               }}
