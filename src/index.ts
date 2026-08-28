@@ -15,6 +15,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import RobotIconJupyterLab from '@datalayer/icons-react/data2/RobotIconJupyterLab';
 import { setupPrimerPortals } from '@datalayer/primer-addons';
 import { ChatWidget } from './widget';
+import { LoopWidget } from './loop/LoopPanel';
 import { useAIAgentsStore } from './store';
 // import { requestAPI } from './handler';
 
@@ -44,6 +45,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Create and add chat widget to left sidebar
     const chatWidget = new ChatWidget();
     labShell.add(chatWidget, 'right', { rank: 1000 });
+
+    // The LOOP workspace, beside the chat rather than replacing it: the same
+    // shell and plugins as the browser workspace, with JupyterLab's own
+    // services as the sandbox and the open notebook as the notebook view.
+    const loopWidget = new LoopWidget(
+      app,
+      notebookTracker,
+      window.location.origin,
+    );
+    labShell.add(loopWidget, 'right', { rank: 1001 });
 
     /*
      * Double the width the right panel opens at while the chat is the
