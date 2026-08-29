@@ -75,7 +75,7 @@
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@datalayer/reactor": "^2.0.0",
+    "@datalayer/reactor": "^1.0.0",
     "@datalayer/agent-runtimes": "^1.0.17",
     "@datalayer/core": "^1.0.24",
     "@datalayer/icons-react": "^1.0.8",
