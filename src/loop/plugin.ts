@@ -29,9 +29,10 @@
 
 import type { JupyterFrontEnd } from '@jupyterlab/application';
 import type { INotebookTracker } from '@jupyterlab/notebook';
-import { contribution, defineExtension, configExtension } from '@datalayer/reactor';
+import { contribution, definePlugin, configurePlugin } from '@datalayer/reactor';
 import {
-  CodeSandboxExtension,
+  ChatPlugin,
+  CodeSandboxPlugin,
   LoopCommand,
   LoopViewType,
   suppliedSource,
@@ -42,9 +43,9 @@ export const LIVE_NOTEBOOK_EXTENSION_NAME =
   '@datalayer/jupyter-ai-agents:loop-notebook';
 
 /** The notebook the user has open, not one the workspace invented. */
-export const LiveNotebookExtension = defineExtension({
+export const LiveNotebookPlugin = definePlugin({
   name: LIVE_NOTEBOOK_EXTENSION_NAME,
-  dependencies: [CodeSandboxExtension],
+  dependencies: [CodeSandboxPlugin],
   contributes: [
     contribution(
       LoopViewType,
@@ -75,12 +76,12 @@ export const LiveNotebookExtension = defineExtension({
 });
 
 /**
- * The extensions to mount in JupyterLab.
+ * The plugins to mount in JupyterLab.
  *
  * The sandbox is configured with the application's services, so there is one
  * kernel: the one the user can see.
  */
-export function jupyterLabExtensions(
+export function jupyterLabPlugins(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
   serverUrl: string,
@@ -88,7 +89,7 @@ export function jupyterLabExtensions(
   setNotebookTracker(notebookTracker);
 
   return [
-    configExtension(CodeSandboxExtension, {
+    configurePlugin(CodeSandboxPlugin, {
       serverUrl,
       target: 'browser',
       kernelSource: suppliedSource(
@@ -96,6 +97,12 @@ export function jupyterLabExtensions(
         'jupyter-server',
       ),
     }),
-    LiveNotebookExtension,
+    // The prompt belongs to the chat plugin, so the words in it are set on
+    // the chat plugin — this panel sits beside a notebook, and saying so is
+    // the difference between a useful placeholder and a generic one.
+    configurePlugin(ChatPlugin, {
+      placeholder: 'Ask about this notebook, or type / for commands',
+    }),
+    LiveNotebookPlugin,
   ];
 }

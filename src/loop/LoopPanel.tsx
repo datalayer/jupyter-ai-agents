@@ -33,16 +33,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JupyterReactTheme } from '@datalayer/jupyter-react';
 import { useReactor } from '@datalayer/reactor/react';
 import {
-  A2uiExtension,
-  AgentsExtension,
-  ChatExtension,
-  CODE_SANDBOX_EXTENSION_NAME,
+  A2uiPlugin,
+  AgentsPlugin,
+  ChatPlugin,
+  CODE_SANDBOX_PLUGIN_NAME,
   LoopWorkspace,
-  ModelsExtension,
+  ModelsPlugin,
   buildLoopReactor,
   type CodeSandboxOutput,
 } from '@datalayer/agent-runtimes';
-import { jupyterLabExtensions } from './plugin';
+import { jupyterLabPlugins } from './plugin';
 
 const queryClient = new QueryClient();
 
@@ -58,11 +58,11 @@ function LoopPanelContent({
   const reactor = useMemo(
     () =>
       buildLoopReactor([
-        ChatExtension,
-        AgentsExtension,
-        ModelsExtension,
-        A2uiExtension,
-        ...jupyterLabExtensions(app, notebookTracker, serverUrl),
+        ChatPlugin,
+        AgentsPlugin,
+        ModelsPlugin,
+        A2uiPlugin,
+        ...jupyterLabPlugins(app, notebookTracker, serverUrl),
       ]),
     [app, notebookTracker, serverUrl],
   );
@@ -70,7 +70,7 @@ function LoopPanelContent({
 
   useEffect(() => {
     const sandbox = reactor.getOutput<CodeSandboxOutput>(
-      CODE_SANDBOX_EXTENSION_NAME,
+      CODE_SANDBOX_PLUGIN_NAME,
     )?.sandbox;
     // JupyterLab's services are already running, so this connects immediately
     // rather than booting anything.
@@ -85,7 +85,6 @@ function LoopPanelContent({
         reactor={reactor}
         manageReactor={false}
         layout="panel"
-        placeholder="Ask about this notebook, or type / for commands"
       />
     </QueryClientProvider>
   );
