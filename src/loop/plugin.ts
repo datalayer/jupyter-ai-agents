@@ -32,7 +32,7 @@ import type { INotebookTracker } from '@jupyterlab/notebook';
 import { contribution, definePlugin, configurePlugin } from '@datalayer/reactor';
 import {
   ChatPlugin,
-  CodeSandboxPlugin,
+  AgentsPlugin,
   LoopCommand,
   LoopViewType,
   suppliedSource,
@@ -45,7 +45,7 @@ export const LIVE_NOTEBOOK_EXTENSION_NAME =
 /** The notebook the user has open, not one the workspace invented. */
 export const LiveNotebookPlugin = definePlugin({
   name: LIVE_NOTEBOOK_EXTENSION_NAME,
-  dependencies: [CodeSandboxPlugin],
+  dependencies: [AgentsPlugin],
   contributes: [
     contribution(
       LoopViewType,
@@ -89,7 +89,7 @@ export function jupyterLabPlugins(
   setNotebookTracker(notebookTracker);
 
   return [
-    configurePlugin(CodeSandboxPlugin, {
+    configurePlugin(AgentsPlugin, {
       serverUrl,
       target: 'browser',
       kernelSource: suppliedSource(

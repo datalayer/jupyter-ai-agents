@@ -36,11 +36,11 @@ import {
   A2uiPlugin,
   AgentsPlugin,
   ChatPlugin,
-  CODE_SANDBOX_PLUGIN_NAME,
+  AGENTS_PLUGIN_NAME,
   LoopWorkspace,
   ModelsPlugin,
   buildLoopReactor,
-  type CodeSandboxOutput,
+  type AgentsOutput,
 } from '@datalayer/agent-runtimes';
 import { jupyterLabPlugins } from './plugin';
 
@@ -69,8 +69,8 @@ function LoopPanelContent({
   useReactor(reactor);
 
   useEffect(() => {
-    const sandbox = reactor.getOutput<CodeSandboxOutput>(
-      CODE_SANDBOX_PLUGIN_NAME,
+    const sandbox = reactor.getOutput<AgentsOutput>(
+      AGENTS_PLUGIN_NAME,
     )?.sandbox;
     // JupyterLab's services are already running, so this connects immediately
     // rather than booting anything.
