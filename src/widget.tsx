@@ -4,6 +4,7 @@
  * BSD 3-Clause License
  */
 
+import type { JSX } from 'react';
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import AiAgentIconJupyterLab from '@datalayer/icons-react/data1/AiAgentIconJupyterLab';

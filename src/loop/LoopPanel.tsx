@@ -25,6 +25,7 @@
  * @module loop/LoopPanel
  */
 
+import type { JSX } from 'react';
 import { useEffect, useMemo } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import type { JupyterFrontEnd } from '@jupyterlab/application';

@@ -25,6 +25,7 @@
  * @module loop/LiveNotebookView
  */
 
+import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { Box, Text } from '@primer/react';
 import type { INotebookTracker } from '@jupyterlab/notebook';
