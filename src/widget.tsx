@@ -4,17 +4,11 @@
  * BSD 3-Clause License
  */
 
+import type { JSX } from 'react';
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { LabIcon } from '@jupyterlab/ui-components';
+import AiAgentIconJupyterLab from '@datalayer/icons-react/data1/AiAgentIconJupyterLab';
 import { Chat } from './Chat';
-
-import sparklesSvgstr from '../style/icons/sparkles.svg';
-
-const sparklesIcon = new LabIcon({
-  name: 'ai-chat:sparkles',
-  svgstr: sparklesSvgstr
-});
 
 const WidgetContent: React.FC = () => {
   return (
@@ -32,7 +26,7 @@ export class ChatWidget extends ReactWidget {
     super();
     this.addClass('jp-ai-chat-container');
     this.id = 'jupyter-ai-chat';
-    this.title.icon = sparklesIcon;
+    this.title.icon = AiAgentIconJupyterLab;
     this.title.closable = true;
   }
 

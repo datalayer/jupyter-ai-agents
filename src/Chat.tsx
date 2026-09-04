@@ -28,10 +28,15 @@ import {
   iamStore,
   SignInSimple,
 } from '@datalayer/core';
-import { DEFAULT_SERVICE_URLS } from '@datalayer/core/lib/api/constants';
 import { AiAgentIcon } from '@datalayer/icons-react';
 
 import '../style/index.css';
+import { useAIAgentsStore } from './store';
+import {
+  useNotebookTools,
+  type FrontendToolDefinition
+} from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/notebookHooks';
+import { useLexicalTools } from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/lexicalHooks';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,17 +149,6 @@ function useEnsureAgent(
  * Wrapper div ensures proper height propagation in JupyterLab
  */
 export const Chat: React.FC = () => {
-  useEffect(() => {
-    // JupyterLab serves this extension from localhost, but IAM/runtimes are
-    // cloud services; ensure service URLs do not fall back to local origins.
-    coreStore.getState().setConfiguration({
-      datalayerUrl: DEFAULT_SERVICE_URLS.IAM,
-      iamUrl: DEFAULT_SERVICE_URLS.IAM,
-      runtimesUrl: DEFAULT_SERVICE_URLS.RUNTIMES,
-      aiAgentsUrl: DEFAULT_SERVICE_URLS.AI_AGENTS,
-    });
-  }, []);
-
   const { baseUrl, token } = getJupyterSettings();
   const { isReady, error } = useEnsureAgent(baseUrl, token);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
@@ -203,9 +197,19 @@ export const Chat: React.FC = () => {
     try {
       const token = iamStore.getState().token;
       if (!token) {
-        throw new Error('Please sign in to list cloud runtimes.');
+        throw new Error('Please sign in to list cloud agents.');
       }
-      const client = new AgentRuntimesClient({ token });
+      // The URLs of the page's configuration, never the built-in prod
+      // defaults: against a local plane, defaulting silently lists the
+      // runtimes of production.
+      const { iamUrl, runtimesUrl, spacerUrl } =
+        coreStore.getState().configuration;
+      const client = new AgentRuntimesClient({
+        token,
+        iamUrl,
+        runtimesUrl,
+        spacerUrl,
+      });
       const cloudRuntimes = (await client.listRuntimes()).map((runtime: any) =>
         runtime.rawData()
       );
@@ -215,7 +219,7 @@ export const Chat: React.FC = () => {
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to load cloud runtimes.';
+        err instanceof Error ? err.message : 'Failed to load cloud agents.';
       setRuntimeError(message);
       throw err;
     } finally {
@@ -223,6 +227,32 @@ export const Chat: React.FC = () => {
     }
   }, []);
 
+  // The doorbell of the store: anything that created or terminated a code
+  // sandbox — the Datalayer UI plugins do — rings it, and the list reloads.
+  const refreshSeq = useAIAgentsStore(state => state.refreshSeq);
+
+  /*
+   * The frontend tools of the editor in front of the user.
+   *
+   * The lab plugin publishes which Datalayer editor is focused; the same
+   * hooks the web application's editors use build the tools of that editor
+   * — the notebook ones over the notebook store, the document ones over the
+   * lexical store, both keyed by the editor's id. Hooks are unconditional,
+   * so both are built and the active editor picks; with no Datalayer editor
+   * focused the chat carries no editor tools.
+   */
+  const activeEditor = useAIAgentsStore(state => state.activeEditor);
+  const notebookTools = useNotebookTools(
+    activeEditor?.kind === 'notebook' ? activeEditor.id : 'jp-ai-agents-idle'
+  );
+  const documentTools = useLexicalTools(
+    activeEditor?.kind === 'document' ? activeEditor.id : 'jp-ai-agents-idle'
+  );
+  const frontendTools: FrontendToolDefinition[] = !activeEditor
+    ? []
+    : activeEditor.kind === 'notebook'
+      ? notebookTools
+      : documentTools;
   useEffect(() => {
     if (!isReady || !isAuthenticated) {
       return;
@@ -231,7 +261,7 @@ export const Chat: React.FC = () => {
       setIsAuthenticated(false);
       setAuthError('Please sign in to list cloud runtimes.');
     });
-  }, [isReady, isAuthenticated, loadCloudRuntimes]);
+  }, [isReady, isAuthenticated, loadCloudRuntimes, refreshSeq]);
 
   const handleSignIn = useCallback(async (authToken: string) => {
     setAuthError(null);
@@ -260,15 +290,6 @@ export const Chat: React.FC = () => {
       setIsAuthenticated(false);
     }
   }, [loadCloudRuntimes]);
-
-  const handleLogout = useCallback(() => {
-    iamStore.getState().logout();
-    setIsAuthenticated(false);
-    setSelectedRuntimePodName(null);
-    setRuntimes([]);
-    setRuntimeError(null);
-    setAuthError(null);
-  }, []);
 
   // Show loading state while initializing
   if (!isReady) {
@@ -323,7 +344,7 @@ export const Chat: React.FC = () => {
               title="Jupyter AI Agents"
               description="Sign in with username/password or token to access cloud agent runtimes."
               leadingIcon={<AiAgentIcon size={24} />}
-              loginUrl={`${DEFAULT_SERVICE_URLS.IAM}/api/iam/v1/login`}
+              loginUrl={`${coreStore.getState().configuration.iamUrl}/api/iam/v1/login`}
               onSignIn={(jwtToken: string) => {
                 void handleSignIn(jwtToken);
               }}
@@ -371,13 +392,14 @@ export const Chat: React.FC = () => {
                 }}
               >
                 <ActionMenu>
-                  <ActionMenu.Button>
-                    {selectedRuntime ? selectedRuntime.given_name : 'Select cloud runtime'}
+                  {/* Nothing to pick: the button says so and does not open. */}
+                  <ActionMenu.Button disabled={visibleRuntimes.length === 0}>
+                    {selectedRuntime ? selectedRuntime.given_name : 'Select cloud agent'}
                   </ActionMenu.Button>
                   <ActionMenu.Overlay width="large">
                     <ActionList selectionVariant="single">
                       <ActionList.GroupHeading>
-                        Cloud Agent Runtimes
+                        Cloud Agents
                       </ActionList.GroupHeading>
                       {visibleRuntimes.map(runtime => (
                         <ActionList.Item
@@ -393,6 +415,24 @@ export const Chat: React.FC = () => {
                           </ActionList.Description>
                         </ActionList.Item>
                       ))}
+                      {selectedRuntimePodName && (
+                        <>
+                          <ActionList.Divider />
+                          {/* The same word as the code sandbox dialog: letting
+                              go of the agent, not cancelling the menu. */}
+                          <ActionList.Item
+                            variant="danger"
+                            onSelect={() => {
+                              setSelectedRuntimePodName(null);
+                            }}
+                          >
+                            Unassign
+                            <ActionList.Description variant="block">
+                              Let go of this agent; the chat waits for another.
+                            </ActionList.Description>
+                          </ActionList.Item>
+                        </>
+                      )}
                     </ActionList>
                   </ActionMenu.Overlay>
                 </ActionMenu>
@@ -405,13 +445,6 @@ export const Chat: React.FC = () => {
                     }}
                   >
                     Refresh
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="invisible"
-                    onClick={handleLogout}
-                  >
-                    Logout
                   </Button>
                 </Box>
               </Box>
@@ -429,7 +462,7 @@ export const Chat: React.FC = () => {
                 >
                   <Spinner />
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    Loading cloud runtimes...
+                    Loading cloud agents...
                   </Text>
                 </Box>
               ) : runtimeError ? (
@@ -439,14 +472,67 @@ export const Chat: React.FC = () => {
               ) : visibleRuntimes.length === 0 ? (
                 <Box sx={{ p: 3 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    No cloud runtimes available for this account.
+                    No cloud agents available for this account.
                   </Text>
                 </Box>
               ) : !selectedRuntime ? (
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    Select a cloud agent runtime to enable chat.
+                    Select a cloud agent to enable chat.
                   </Text>
+                  {/* The agents, right where the choice is asked for: one
+                      row and one button each, so picking one is a click
+                      rather than a trip to the dropdown above. */}
+                  {visibleRuntimes.map(runtime => (
+                    <Box
+                      key={runtime.pod_name}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        border: '1px solid',
+                        borderColor: 'border.default',
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Text
+                          sx={{
+                            display: 'block',
+                            fontSize: 1,
+                            fontWeight: 'semibold',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                          title={runtime.pod_name}
+                        >
+                          {runtime.given_name}
+                        </Text>
+                        <Text
+                          sx={{
+                            display: 'block',
+                            fontSize: 0,
+                            color: 'fg.muted',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {runtime.environment_name}
+                        </Text>
+                      </Box>
+                      <Button
+                        size="small"
+                        onClick={() => {
+                          setSelectedRuntimePodName(runtime.pod_name);
+                        }}
+                      >
+                        Use
+                      </Button>
+                    </Box>
+                  ))}
                 </Box>
               ) : !selectedRuntimeEndpoint ? (
                 <Box sx={{ p: 3 }}>
@@ -463,6 +549,13 @@ export const Chat: React.FC = () => {
                       authToken={iamStore.getState().token}
                       agentId="default"
                       height="100%"
+                      frontendTools={frontendTools}
+                      // The chat sits in a JupyterLab sidebar, next to the
+                      // panels of the application: it wears the theme of the
+                      // lab (the JupyterReactTheme above), not its own — the
+                      // internal boundary would restyle it as the web
+                      // application.
+                      disableInternalJupyterTheme
                       showModelSelector={true}
                       showToolsMenu={true}
                       showInformation={false}

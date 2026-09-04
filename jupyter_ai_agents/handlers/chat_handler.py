@@ -11,7 +11,7 @@ from urllib.parse import urljoin
 
 from jupyter_server.base.handlers import APIHandler
 from pydantic_ai import UsageLimits
-from pydantic_ai.mcp import MCPServerStreamableHTTP
+from pydantic_ai.mcp import MCPToolset
 from pydantic_ai.ui.vercel_ai import VercelAIAdapter
 from starlette.requests import Request
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def create_mcp_server(
     base_url: str,
     token: str | None = None,
-) -> MCPServerStreamableHTTP:
+) -> MCPToolset:
     """
     Create an MCP server connection to the local jupyter-mcp-server.
 
@@ -33,7 +33,7 @@ def create_mcp_server(
         token: Authentication token
 
     Returns:
-        MCPServerStreamableHTTP instance connected to the MCP server
+        MCPToolset instance connected to the MCP server
     """
     # Construct the MCP endpoint URL
     mcp_url = urljoin(base_url.rstrip("/") + "/", "mcp")
@@ -43,10 +43,10 @@ def create_mcp_server(
     # Create MCP server with authentication headers if token is provided
     if token:
         headers = {"Authorization": f"token {token}"}
-        server = MCPServerStreamableHTTP(mcp_url, headers=headers)
+        server = MCPToolset(mcp_url, headers=headers)
         logger.info("MCP server connection created successfully with authentication")
     else:
-        server = MCPServerStreamableHTTP(mcp_url)
+        server = MCPToolset(mcp_url)
         logger.info("MCP server connection created successfully without authentication")
 
     return server
@@ -175,10 +175,6 @@ class VercelAIChatHandler(APIHandler):
                 else:
                     logger.warning("MCP tools enabled but chat_base_url not set")
 
-            # Get builtin tools (empty list - tools metadata is only for UI display)
-            # The actual pydantic-ai tools are registered in the agent itself
-            builtin_tools: list[str] = []
-
             # Create usage limits for the agent
             usage_limits = UsageLimits(
                 tool_calls_limit=10,  # Increased for MCP tool usage
@@ -199,7 +195,6 @@ class VercelAIChatHandler(APIHandler):
                         model=model,
                         usage_limits=usage_limits,
                         toolsets=request_toolsets,
-                        builtin_tools=builtin_tools,
                     )
                     
                     await self._stream_response(response)
@@ -211,7 +206,6 @@ class VercelAIChatHandler(APIHandler):
                     model=model,
                     usage_limits=usage_limits,
                     toolsets=toolsets,
-                    builtin_tools=builtin_tools,
                 )
                 
                 await self._stream_response(response)
