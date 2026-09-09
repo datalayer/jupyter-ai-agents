@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 [project]
 name = "jupyter_ai_agents"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -22,14 +22,22 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "agent-runtimes[all]>=1.0.25",
+  # 1.3.1 is the floor for a resolver reason, not a feature one.
+  #
+  # agent-runtimes 1.2.0 and 1.3.0 declare `opentelemetry-api>=1.44.0` while
+  # `google-adk` — mandatory inside the `ui` extra, and `ui` is inside `all` —
+  # caps it at `<=1.42.1`. `agent-runtimes[all]` is therefore unsatisfiable at
+  # those two versions, and pip does not report it as a conflict: it walks
+  # every version of google-adk, a2a-sdk and datalayer-core looking for an
+  # escape that does not exist, for as long as you let it. A floor above them
+  # is what turns that into an answer.
+  "agent-runtimes[all]>=1.3.1",
   "anyio",
   "datalayer-core>=1.1.56",
   "fastapi",

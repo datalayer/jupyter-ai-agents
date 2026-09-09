@@ -28,7 +28,11 @@ module.exports = {
     asyncWebAssembly: true,
   },
   devServer: {
-    port: 8080,
+    // Not 8080. It is the most contended port on a developer machine, and in
+    // this monorepo's own stack Keycloak holds it — so `make start` died with
+    // EADDRINUSE before webpack had compiled anything. Overridable, so the
+    // next collision is an export rather than an edit to a committed file.
+    port: Number(process.env.PORT) || 3080,
     client: { overlay: false },
     historyApiFallback: true,
     hot: !IS_PRODUCTION,

@@ -31,6 +31,9 @@ clean: ## clean
 example: ## example
 	npm run example
 
+start: ## start
+	npm run example
+
 jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
