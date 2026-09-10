@@ -95,7 +95,7 @@
     "@jupyterlab/services": "^7.0.0",
     "@jupyterlab/settingregistry": "^4.0.0",
     "@jupyterlab/ui-components": "^4.0.0",
-    "@primer/octicons-react": "^19.29.1",
+    "@primer/octicons-react": "^19.35.0",
     "@primer/react": "^37.31.0",
     "@primer/react-brand": "^0.58.0",
     "@tanstack/react-query": "^5.0.0",
@@ -262,7 +262,7 @@
       "@primer/octicons-react": {
         "bundled": true,
         "singleton": true,
-        "requiredVersion": "^19.29.1"
+        "requiredVersion": "^19.35.0"
       },
       "@primer/react": {
         "bundled": true,
