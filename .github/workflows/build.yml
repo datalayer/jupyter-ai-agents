@@ -56,8 +56,9 @@ jobs:
         with:
           # The packaged README sits inside the Python package: walking it
           # makes pytest import jupyter_ai_agents/__init__.py, whose
-          # dependencies this job does not install.
-          ignore_glob: "jupyter_ai_agents/static"
+          # dependencies this job does not install. The pattern has to match
+          # the files, not the directory: the action expands it with glob().
+          ignore_glob: "jupyter_ai_agents/static/**"
 
   test_lint:
     runs-on: ubuntu-latest
@@ -90,7 +91,9 @@ jobs:
         run: |
           pip install my_server_extension.tar.gz
           pip list 2>&1 | grep -ie "jupyter_ai_agents"
-          python -c "import jupyter_ai_agents"
+          # Import from outside the checkout: the source tree shadows the
+          # installed package and carries no generated _version.py.
+          cd "$RUNNER_TEMP" && python -c "import jupyter_ai_agents; print(jupyter_ai_agents.__version__)"
 
   check_release:
     needs: test_sdist
