@@ -197,7 +197,7 @@ export const Chat: React.FC = () => {
     try {
       const token = iamStore.getState().token;
       if (!token) {
-        throw new Error('Please sign in to list cloud agents.');
+        throw new Error('Please sign in to list agent runtimes.');
       }
       // The URLs of the page's configuration, never the built-in prod
       // defaults: against a local plane, defaulting silently lists the
@@ -219,7 +219,7 @@ export const Chat: React.FC = () => {
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to load cloud agents.';
+        err instanceof Error ? err.message : 'Failed to load agent runtimes.';
       setRuntimeError(message);
       throw err;
     } finally {
@@ -394,7 +394,7 @@ export const Chat: React.FC = () => {
                 <ActionMenu>
                   {/* Nothing to pick: the button says so and does not open. */}
                   <ActionMenu.Button disabled={visibleRuntimes.length === 0}>
-                    {selectedRuntime ? selectedRuntime.given_name : 'Select cloud agent'}
+                    {selectedRuntime ? selectedRuntime.given_name : 'Select an agent runtime'}
                   </ActionMenu.Button>
                   <ActionMenu.Overlay width="large">
                     <ActionList selectionVariant="single">
@@ -462,7 +462,7 @@ export const Chat: React.FC = () => {
                 >
                   <Spinner />
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    Loading cloud agents...
+                    Loading agent runtimes...
                   </Text>
                 </Box>
               ) : runtimeError ? (
@@ -472,13 +472,13 @@ export const Chat: React.FC = () => {
               ) : visibleRuntimes.length === 0 ? (
                 <Box sx={{ p: 3 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    No cloud agents available for this account.
+                    No agent runtimes available for this account.
                   </Text>
                 </Box>
               ) : !selectedRuntime ? (
                 <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    Select a cloud agent to enable chat.
+                    Select an agent runtime to enable chat.
                   </Text>
                   {/* The agents, right where the choice is asked for: one
                       row and one button each, so picking one is a click
