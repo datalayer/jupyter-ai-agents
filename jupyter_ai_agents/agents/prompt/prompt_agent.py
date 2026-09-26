@@ -8,7 +8,7 @@ import logging
 from typing import Any
 
 from pydantic_ai import Agent
-from pydantic_ai.mcp import MCPServerStreamableHTTP
+from pydantic_ai.mcp import MCPToolset
 
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class PromptAgentDeps:
 
 def create_prompt_agent(
     model: str,
-    mcp_server: MCPServerStreamableHTTP,
+    mcp_server: MCPToolset,
     notebook_context: dict[str, Any] | None = None,
     max_tool_calls: int = 10,
 ) -> Agent[PromptAgentDeps, str]:
@@ -97,7 +97,7 @@ def create_prompt_agent(
         toolsets=[mcp_server],
         model_settings={"parallel_tool_calls": False},
         deps_type=PromptAgentDeps,
-        system_prompt=system_prompt,
+        instructions=system_prompt,
     )
     
     logger.info(f"Created prompt agent with model {model} (max_tool_calls={max_tool_calls})")
@@ -164,13 +164,17 @@ async def run_prompt_agent(
             request_limit=max_requests,  # Strict limit to avoid rate limiting
         )
         
-        # Add timeout to prevent hanging on retries
-        result = await asyncio.wait_for(
-            agent.run(enhanced_input, deps=deps, usage_limits=usage_limits),
-            timeout=120.0  # 2 minute timeout
-        )
+        # Entering the agent enters its toolsets: the MCP connection is
+        # opened before the run and closed after it, the way the chat
+        # handler holds `async with mcp_server`.
+        async with agent:
+            # Add timeout to prevent hanging on retries
+            result = await asyncio.wait_for(
+                agent.run(enhanced_input, deps=deps, usage_limits=usage_limits),
+                timeout=120.0  # 2 minute timeout
+            )
         logger.info("Prompt agent completed successfully")
-        return result.response
+        return str(result.output)
     except asyncio.TimeoutError:
         logger.error("Prompt agent timed out after 120 seconds")
         return "Error: Operation timed out. The agent may have hit rate limits or is taking too long."

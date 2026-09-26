@@ -31,6 +31,9 @@ clean: ## clean
 example: ## example
 	npm run example
 
+start: ## start
+	npm run example
+
 jupyterlab: ## jupyterlab
 	jupyter lab \
 		--port 8888 \
@@ -87,3 +90,9 @@ publish-pypi: # publish the pypi package
 	@exec echo twine upload ./dist/*-py3-none-any.whl
 	@exec echo
 	@exec echo https://pypi.org/project/jupyter-ai-agents/#history
+
+publish-npm: ## publish @datalayer/jupyter-ai-agents to npm
+	npm run build:lib
+	npm publish --access public
+	@exec echo
+	@exec echo https://www.npmjs.com/package/@datalayer/jupyter-ai-agents

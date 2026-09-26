@@ -118,7 +118,7 @@ def prompt(
     async def _run():
         try:
             # Create MCP server connection(s)
-            from pydantic_ai.mcp import MCPServerStreamableHTTP
+            from pydantic_ai.mcp import MCPToolset
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
             logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
@@ -126,7 +126,7 @@ def prompt(
             toolsets = []
             for server_url in server_urls:
                 logger.info(f"  - {server_url}")
-                mcp_client = MCPServerStreamableHTTP(server_url)
+                mcp_client = MCPToolset(server_url)
                 toolsets.append(mcp_client)
             
             # Use first MCP server for backward compatibility with create_prompt_agent
@@ -247,7 +247,7 @@ def explain_error(
     async def _run():
         try:
             # Create MCP server connection(s)
-            from pydantic_ai.mcp import MCPServerStreamableHTTP
+            from pydantic_ai.mcp import MCPToolset
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
             logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
@@ -255,7 +255,7 @@ def explain_error(
             toolsets = []
             for server_url in server_urls:
                 logger.info(f"  - {server_url}")
-                mcp_client = MCPServerStreamableHTTP(server_url)
+                mcp_client = MCPToolset(server_url)
                 toolsets.append(mcp_client)
             
             # Use first MCP server for backward compatibility with create_explain_error_agent
@@ -407,13 +407,13 @@ def repl(
     async def list_tools_async():
         """List all tools available from the MCP server(s)"""
         try:
-            from pydantic_ai.mcp import MCPServerStreamableHTTP
+            from pydantic_ai.mcp import MCPToolset
             
             server_urls = [s.strip() for s in mcp_servers.split(',')]
             
             for server_url in server_urls:
                 try:
-                    mcp_client = MCPServerStreamableHTTP(server_url)
+                    mcp_client = MCPToolset(server_url)
                     
                     # Use context manager to connect and list tools
                     async with mcp_client:
@@ -517,7 +517,7 @@ def repl(
                 logger.info(f"Using {model_provider} model: {model_name} (timeout: {timeout}s)")
         
         # Create MCP server connection(s)
-        from pydantic_ai.mcp import MCPServerStreamableHTTP
+        from pydantic_ai.mcp import MCPToolset
         
         server_urls = [s.strip() for s in mcp_servers.split(',')]
         logger.info(f"Connecting to {len(server_urls)} MCP server(s)")
@@ -525,7 +525,7 @@ def repl(
         toolsets = []
         for server_url in server_urls:
             logger.info(f"  - {server_url}")
-            mcp_client = MCPServerStreamableHTTP(server_url)
+            mcp_client = MCPToolset(server_url)
             toolsets.append(mcp_client)
         
         # Display welcome message
@@ -557,7 +557,7 @@ Be proactive in suggesting what you can do with the available tools.
             model_obj,
             model_settings={"parallel_tool_calls": False},
             toolsets=toolsets,
-            system_prompt=instructions,
+            instructions=instructions,
         )
         
         typer.echo("="*70)
