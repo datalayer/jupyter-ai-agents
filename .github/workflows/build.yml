@@ -103,9 +103,8 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Dependencies
-        # Without the labextension build: `jlpm` at the root would leave a
-        # yarn.lock there, and yarn would then refuse to install inside the
-        # releaser's nested checkout ("not part of the project declared in").
+        # Without the labextension build: the releaser builds it in its own
+        # checkout (see the before-build-npm hooks in pyproject.toml).
         run: |
           SKIP_JUPYTER_BUILDER=1 pip install -e .
       - name: Check Release
