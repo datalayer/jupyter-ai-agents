@@ -118,7 +118,7 @@ Start JupyterLab, setting a `port` and a `token` to be reused by the agent, and 
 jupyter lab --port 8888 --IdentityProvider.token MY_TOKEN
 ```
 
-Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/docs/models)).
+Jupyter AI Agents supports multiple AI model providers (more information can be found on [this documentation page](https://jupyter-ai-agents.datalayer.tech/models/)).
 
 ### API Keys Configuration
 

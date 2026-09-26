@@ -14,7 +14,7 @@
     "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@datalayer/icons-react": "^1.0.0",
+    "@datalayer/icons-react": "^1.0.14",
     "@datalayer/primer-addons": "^1.0.23",
     "@docusaurus/core": "^3.5.2",
     "@docusaurus/preset-classic": "^3.5.2",
