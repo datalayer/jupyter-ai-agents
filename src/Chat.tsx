@@ -15,6 +15,7 @@ import { Chat as ChatPanel } from '@datalayer/agent-runtimes/lib/chat/Chat';
 import { AgentRuntimesClient } from '@datalayer/agent-runtimes/lib/client/AgentRuntimesClient';
 import { JupyterReactTheme } from '@datalayer/jupyter-react';
 import { ServerConnection } from '@jupyterlab/services';
+import type { INotebookTracker } from '@jupyterlab/notebook';
 import { Box } from '@datalayer/primer-addons';
 import {
   ActionList,
@@ -37,6 +38,16 @@ import {
   type FrontendToolDefinition
 } from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/notebookHooks';
 import { useLexicalTools } from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/lexicalHooks';
+import { AppChat } from './AppChat';
+import {
+  APP_CHAT_WORDS,
+  type AppChatChoice,
+  deploymentChoicesOf,
+  deploymentsUrl,
+  type NotebookContext,
+  notebookContextOf,
+  signedPrefixesOf
+} from './appChat';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -145,10 +156,54 @@ function useEnsureAgent(
 }
 
 /**
+ * The open notebook's selected cell, as an application's agent is given it
+ * (STUDIO A-19, D-10): the notebook JupyterLab last had in front, its path,
+ * the selected cell's source and its outputs as text, cut by
+ * `notebookContextOf`. Read only when the agent asks.
+ *
+ * @param tracker - JupyterLab's notebook tracker.
+ *
+ * @returns The notebook, or `undefined` when none is open.
+ */
+function readActiveNotebook(
+  tracker: INotebookTracker | undefined
+): NotebookContext | undefined {
+  const panel = tracker?.currentWidget;
+  if (!panel) {
+    return undefined;
+  }
+  const notebook = panel.content;
+  const model = notebook.activeCell?.model;
+  const outputs = (
+    model as unknown as { outputs?: { toJSON(): unknown[] } } | undefined
+  )?.outputs;
+  return notebookContextOf({
+    path: panel.context.path,
+    cells: notebook.widgets.length,
+    ...(model
+      ? {
+          cell: {
+            index: notebook.activeCellIndex,
+            type: model.type,
+            source: model.sharedModel.getSource(),
+            outputs: outputs ? outputs.toJSON() : []
+          }
+        }
+      : {})
+  });
+}
+
+/** Props of {@link Chat}. */
+export type ChatProps = {
+  /** JupyterLab's notebooks, for what an application's agent may read (A-19). */
+  notebookTracker?: INotebookTracker;
+};
+
+/**
  * Chat component that provides necessary context providers
  * Wrapper div ensures proper height propagation in JupyterLab
  */
-export const Chat: React.FC = () => {
+export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
   const { baseUrl, token } = getJupyterSettings();
   const { isReady, error } = useEnsureAgent(baseUrl, token);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
@@ -161,6 +216,17 @@ export const Chat: React.FC = () => {
   const [selectedRuntimePodName, setSelectedRuntimePodName] = useState<
     string | null
   >(null);
+  /*
+   * The person's deployed applications (STUDIO A-19): each talked to — live,
+   * kept always on, on a running runtime — or said why not; null until read.
+   */
+  const [deployments, setDeployments] = useState<AppChatChoice[] | null>(
+    null
+  );
+  const [deploymentsError, setDeploymentsError] = useState<string | null>(
+    null
+  );
+  const [selectedAppUid, setSelectedAppUid] = useState<string | null>(null);
 
   const visibleRuntimes = useMemo(() => {
     const agentRuntimes = runtimes.filter(runtime => {
@@ -175,6 +241,40 @@ export const Chat: React.FC = () => {
       visibleRuntimes.find(runtime => runtime.pod_name === selectedRuntimePodName) ??
       null,
     [visibleRuntimes, selectedRuntimePodName]
+  );
+
+  const talkable = useMemo(
+    () =>
+      (deployments ?? []).flatMap(choice =>
+        choice.kind === 'talk' ? [choice.handle] : []
+      ),
+    [deployments]
+  );
+  const selectedApp = useMemo(
+    () => talkable.find(handle => handle.uid === selectedAppUid) ?? null,
+    [talkable, selectedAppUid]
+  );
+  const configuration = coreStore.getState().configuration;
+  const services = useMemo(
+    () => ({
+      aiAgentsUrl: configuration.aiAgentsUrl,
+      spacerUrl: configuration.spacerUrl
+    }),
+    [configuration.aiAgentsUrl, configuration.spacerUrl]
+  );
+  // Where an application's chat sends the person's token, and nowhere else.
+  const signedPrefixes = useMemo(
+    () => signedPrefixesOf(talkable, services),
+    [talkable, services]
+  );
+  const readNotebook = useCallback(
+    async () => readActiveNotebook(notebookTracker),
+    [notebookTracker]
+  );
+  const iamUser = iamStore.getState().user;
+  const appUser = useMemo(
+    () => (iamUser?.handle ? { handle: iamUser.handle } : null),
+    [iamUser?.handle]
   );
 
   // The runtime ingress points at the Jupyter server path
@@ -227,6 +327,43 @@ export const Chat: React.FC = () => {
     }
   }, []);
 
+  /*
+   * The person's deployments, from ai-agents (A-19). A failure is said in
+   * the picker and never stops the runtimes from listing.
+   */
+  const loadDeployments = useCallback(async () => {
+    const authToken = iamStore.getState().token;
+    if (!authToken) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        deploymentsUrl(coreStore.getState().configuration.aiAgentsUrl),
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      if (!response.ok) {
+        let detail = '';
+        try {
+          const body = (await response.json()) as { detail?: unknown };
+          detail = typeof body.detail === 'string' ? body.detail : '';
+        } catch {
+          // The status says it.
+        }
+        throw new Error(
+          detail ||
+            `Listing your applications was refused (${response.status}).`
+        );
+      }
+      setDeployments(deploymentChoicesOf(await response.json()));
+      setDeploymentsError(null);
+    } catch (err) {
+      setDeployments([]);
+      setDeploymentsError(
+        err instanceof Error ? err.message : 'Listing your applications failed.'
+      );
+    }
+  }, []);
+
   // The doorbell of the store: anything that created or terminated a code
   // sandbox — the Datalayer UI plugins do — rings it, and the list reloads.
   const refreshSeq = useAIAgentsStore(state => state.refreshSeq);
@@ -261,7 +398,8 @@ export const Chat: React.FC = () => {
       setIsAuthenticated(false);
       setAuthError('Please sign in to list cloud runtimes.');
     });
-  }, [isReady, isAuthenticated, loadCloudRuntimes, refreshSeq]);
+    void loadDeployments();
+  }, [isReady, isAuthenticated, loadCloudRuntimes, loadDeployments, refreshSeq]);
 
   const handleSignIn = useCallback(async (authToken: string) => {
     setAuthError(null);
@@ -393,13 +531,59 @@ export const Chat: React.FC = () => {
               >
                 <ActionMenu>
                   {/* Nothing to pick: the button says so and does not open. */}
-                  <ActionMenu.Button disabled={visibleRuntimes.length === 0}>
-                    {selectedRuntime ? selectedRuntime.given_name : 'Select an agent runtime'}
+                  <ActionMenu.Button
+                    disabled={
+                      visibleRuntimes.length === 0 &&
+                      (deployments ?? []).length === 0
+                    }
+                  >
+                    {selectedApp
+                      ? selectedApp.name
+                      : selectedRuntime
+                        ? selectedRuntime.given_name
+                        : 'Select an agent runtime'}
                   </ActionMenu.Button>
                   <ActionMenu.Overlay width="large">
                     <ActionList selectionVariant="single">
+                      {/* The person's deployed applications (STUDIO A-19):
+                          the ones kept always on and running are picked,
+                          the others say why not. */}
+                      {deployments && deployments.length > 0 && (
+                        <>
+                          <ActionList.GroupHeading>
+                            {APP_CHAT_WORDS.pickerGroup}
+                          </ActionList.GroupHeading>
+                          {deployments.map(choice =>
+                            choice.kind === 'talk' ? (
+                              <ActionList.Item
+                                key={choice.handle.uid}
+                                selected={choice.handle.uid === selectedAppUid}
+                                onSelect={() => {
+                                  setSelectedAppUid(choice.handle.uid);
+                                  setSelectedRuntimePodName(null);
+                                }}
+                              >
+                                {choice.handle.name}
+                                <ActionList.Description variant="block">
+                                  {choice.handle.slug
+                                    ? `/apps/${choice.handle.slug}`
+                                    : choice.handle.target}
+                                </ActionList.Description>
+                              </ActionList.Item>
+                            ) : (
+                              <ActionList.Item key={choice.uid} disabled>
+                                {choice.name}
+                                <ActionList.Description variant="block">
+                                  {choice.why}
+                                </ActionList.Description>
+                              </ActionList.Item>
+                            )
+                          )}
+                          <ActionList.Divider />
+                        </>
+                      )}
                       <ActionList.GroupHeading>
-                        Cloud Agents
+                        {APP_CHAT_WORDS.runtimesGroup}
                       </ActionList.GroupHeading>
                       {visibleRuntimes.map(runtime => (
                         <ActionList.Item
@@ -407,6 +591,7 @@ export const Chat: React.FC = () => {
                           selected={runtime.pod_name === selectedRuntimePodName}
                           onSelect={() => {
                             setSelectedRuntimePodName(runtime.pod_name);
+                            setSelectedAppUid(null);
                           }}
                         >
                           {runtime.given_name}
@@ -415,7 +600,7 @@ export const Chat: React.FC = () => {
                           </ActionList.Description>
                         </ActionList.Item>
                       ))}
-                      {selectedRuntimePodName && (
+                      {(selectedRuntimePodName || selectedAppUid) && (
                         <>
                           <ActionList.Divider />
                           {/* The same word as the code sandbox dialog: letting
@@ -424,6 +609,7 @@ export const Chat: React.FC = () => {
                             variant="danger"
                             onSelect={() => {
                               setSelectedRuntimePodName(null);
+                              setSelectedAppUid(null);
                             }}
                           >
                             Unassign
@@ -442,6 +628,7 @@ export const Chat: React.FC = () => {
                     variant="invisible"
                     onClick={() => {
                       void loadCloudRuntimes();
+                      void loadDeployments();
                     }}
                   >
                     Refresh
@@ -449,7 +636,18 @@ export const Chat: React.FC = () => {
                 </Box>
               </Box>
 
-              {isLoadingRuntimes ? (
+              {selectedApp ? (
+                <AppChat
+                  // A new conversation for each deployment picked.
+                  key={selectedApp.uid}
+                  handle={selectedApp}
+                  services={services}
+                  token={iamStore.getState().token}
+                  prefixes={signedPrefixes}
+                  user={appUser}
+                  readNotebook={readNotebook}
+                />
+              ) : isLoadingRuntimes ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -470,10 +668,17 @@ export const Chat: React.FC = () => {
                   <Text sx={{ color: 'danger.fg', fontSize: 1 }}>{runtimeError}</Text>
                 </Box>
               ) : visibleRuntimes.length === 0 ? (
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
-                    No agent runtimes available for this account.
+                    {talkable.length > 0
+                      ? `Pick one of ${APP_CHAT_WORDS.pickerGroup.toLowerCase()} above to talk to it.`
+                      : 'No agent runtimes available for this account.'}
                   </Text>
+                  {deployments !== null && talkable.length === 0 && (
+                    <Text sx={{ color: 'fg.muted', fontSize: 0 }}>
+                      {deploymentsError ?? APP_CHAT_WORDS.none}
+                    </Text>
+                  )}
                 </Box>
               ) : !selectedRuntime ? (
                 <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>

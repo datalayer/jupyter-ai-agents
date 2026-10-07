@@ -52,6 +52,20 @@ Currently, we support **Anthropic Claude Sonnet 4.0** as the AI model. To get st
 
 4. **Access the chat interface** through the right panel in JupyterLab.
 
+### Talk to your agent
+
+An application you built and deployed in the Datalayer Agent Studio answers in JupyterLab, in the **AI Agents** panel beside your notebook.
+
+1. Sign in to Datalayer in the panel.
+2. In the Studio, open the application's **Ship** tab and turn on **Always on**: JupyterLab talks to the runtime the deployment is kept on.
+3. In the panel's picker, pick the application under **Your applications**. One that is paused, not kept always on, or whose runtime is not running is listed with the reason, and cannot be picked; when none can, the panel says what to do.
+4. Talk to it. The conversation is a session of the deployment, through the same session API its hosted page uses, in your name. Your Datalayer token goes only to the runtime it is kept on, to Datalayer's Tool Approvals and to the application's item, over HTTPS.
+
+- **Approvals** - when one of its rules says _ask me first_, the request appears in the chat: approve or decline it there.
+- **What it did** - under the chat, each tool it called as a line, e.g. `Support Desk → odoo-accounting: odoo_accounting_aged_balance`, and `Support Desk → JupyterLab: host_context` when it read your notebook.
+- **Your notebook** - only when the application lets its host pass the page (`deployment.embedded.host.context: [page]` in its Appspec, in the version deployed) and a rule lets `host_context` run: when its agent asks, it gets the open notebook's path, how many cells it has, and its selected cell — the source and the outputs as text (streams, plain text, errors), up to 20,000 characters together. Nothing is read before it asks, and nothing when the application says otherwise.
+- **Signed users** - an application that takes only a user its host's server signed (`deployment.embedded.host.user: signed`) is not opened in JupyterLab: JupyterLab does not hold the deployment's secret, and the panel says so.
+
 ### What's Coming Next
 
 We're actively working on expanding the capabilities of Jupyter AI Agents:

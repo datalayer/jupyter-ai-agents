@@ -43,7 +43,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     );
 
     // Create and add chat widget to left sidebar
-    const chatWidget = new ChatWidget();
+    const chatWidget = new ChatWidget(notebookTracker);
     labShell.add(chatWidget, 'right', { rank: 1000 });
 
     // The LOOP workspace, beside the chat rather than replacing it: the same
