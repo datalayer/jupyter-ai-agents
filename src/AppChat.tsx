@@ -16,8 +16,12 @@
  * deployments are kept on, ai-agents' Tool Approvals, Spacer's items.
  *
  * Before the chat opens, the application's Appspec is read from its Spacer
- * item: one that takes only a user its host's server signed (D-21) is
- * refused in a sentence; what its host may pass (D-10) decides whether its
+ * item, and only the version the deployment runs decides — another one is
+ * refused in a sentence. One that takes only a signed user (D-21) is opened
+ * with a user token ai-agents signs for the person (`fetchUserToken`, with
+ * their own token), put in each run's body as
+ * `forwardedProps.loop.user_token` (`signedRunFetch`) while the chat is
+ * open; what its host may pass (D-10) decides whether its
  * agent is given `host_context`, answered with the open notebook's selected
  * cell as `page`. Its approvals (R-05) are ai-agents' Tool Approvals,
  * polled while the chat is open and answered by `<Chat>`'s approval banner;
@@ -27,7 +31,13 @@
  * @module AppChat
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { Chat as ChatPanel } from '@datalayer/agent-runtimes/lib/chat/Chat';
 import { Box } from '@datalayer/primer-addons';
 import { Text } from '@primer/react';
@@ -46,10 +56,16 @@ import {
   notebookContextRefusal,
   pendingApprovalsOf,
   pendingApprovalsUrl,
+  fetchUserToken,
+  revisionRefusal,
+  type SignedUser,
   signedHeaders,
-  signedRefusal,
+  signedRunFetch,
+  signedUserFresh,
   signsRequest,
-  toolLineOf
+  takesSignedUser,
+  toolLineOf,
+  userTokenRefusal
 } from './appChat';
 
 /** How often the approvals the agent waits on are read, while open. */
@@ -150,7 +166,63 @@ export function AppChat(props: AppChatProps): React.JSX.Element {
     };
   }, [handle.appUid, services.spacerUrl, signedFetch]);
 
-  const refused = host ? signedRefusal(handle.name, host) : '';
+  // Only the version deployed decides who its user is and what is passed.
+  const revisionRefused = host ? revisionRefusal(handle, host) : '';
+  const signed = Boolean(host && !revisionRefused && takesSignedUser(host));
+  const [signedRefused, setSignedRefused] = useState('');
+  const [signedReady, setSignedReady] = useState(false);
+  const signedUser = useRef<SignedUser | null>(null);
+
+  // A signed application (D-21): ai-agents signs the person, asked with
+  // their own token; the user token goes in each run's body.
+  const userToken = useCallback(async (): Promise<string> => {
+    if (!signedUserFresh(signedUser.current, Date.now() / 1000)) {
+      if (!token) {
+        throw new Error('Sign in to Datalayer to talk to your applications.');
+      }
+      signedUser.current = await fetchUserToken(
+        services.aiAgentsUrl,
+        handle.uid,
+        token
+      );
+    }
+    return signedUser.current!.token;
+  }, [services.aiAgentsUrl, handle.uid, token]);
+
+  useEffect(() => {
+    signedUser.current = null;
+    setSignedRefused('');
+    setSignedReady(false);
+    if (!signed) {
+      return;
+    }
+    let live = true;
+    userToken()
+      .then(() => {
+        if (live) {
+          setSignedReady(true);
+        }
+      })
+      .catch(error => {
+        if (live) {
+          setSignedRefused(
+            userTokenRefusal(
+              handle.name,
+              error instanceof Error ? error.message : String(error)
+            )
+          );
+        }
+      });
+    const original = window.fetch;
+    window.fetch = signedRunFetch(original.bind(window), handle, userToken);
+    return () => {
+      live = false;
+      window.fetch = original;
+    };
+  }, [signed, handle, userToken]);
+
+  const refused = revisionRefused || signedRefused;
+  const waiting = signed && !signedReady && !signedRefused;
 
   // The approvals its agent waits on, while the chat is open.
   const readApprovals = useCallback(async (): Promise<void> => {
@@ -199,16 +271,16 @@ export function AppChat(props: AppChatProps): React.JSX.Element {
   // terms, never a guess.
   const notebookLine = host ? notebookContextRefusal(handle, host) : '';
   const frontendTools = useMemo(() => {
-    if (!host || host.revision !== handle.version) {
+    if (!host || revisionRefusal(handle, host)) {
       return [];
     }
     const tool = hostContextTool(host, readNotebook, user);
     return tool ? [tool] : [];
-  }, [host, handle.version, readNotebook, user]);
+  }, [host, handle, readNotebook, user]);
 
   const endpoint = agUiEndpoint(handle);
 
-  if (problem || !host || refused) {
+  if (problem || !host || refused || waiting) {
     return (
       <Box sx={{ p: 3 }}>
         <Text sx={{ color: problem ? 'danger.fg' : 'fg.muted', fontSize: 1 }}>

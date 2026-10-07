@@ -44,9 +44,13 @@ import {
   type AppChatChoice,
   deploymentChoicesOf,
   deploymentsUrl,
+  noneTalkableSentence,
   type NotebookContext,
   notebookContextOf,
-  signedPrefixesOf
+  outputsOfModel,
+  pickedHandleOf,
+  signedPrefixesOf,
+  talkableKeyOf
 } from './appChat';
 
 const queryClient = new QueryClient({
@@ -174,8 +178,17 @@ function readActiveNotebook(
   }
   const notebook = panel.content;
   const model = notebook.activeCell?.model;
+  // The outputs read one at a time, as far as what is passed: never every
+  // output serialized first.
   const outputs = (
-    model as unknown as { outputs?: { toJSON(): unknown[] } } | undefined
+    model as unknown as
+      | {
+          outputs?: {
+            readonly length: number;
+            get(index: number): { toJSON(): unknown };
+          };
+        }
+      | undefined
   )?.outputs;
   return notebookContextOf({
     path: panel.context.path,
@@ -186,11 +199,34 @@ function readActiveNotebook(
             index: notebook.activeCellIndex,
             type: model.type,
             source: model.sharedModel.getSource(),
-            outputs: outputs ? outputs.toJSON() : []
+            outputs: outputsOfModel(outputs)
           }
         }
       : {})
   });
+}
+
+/**
+ * Whether a failure to list the runtimes is the person not being signed in
+ * (no token, or IAM refusing it) rather than the listing failing: only
+ * that signs them out (STUDIO A-19 review).
+ *
+ * @param err - What listing the runtimes threw.
+ *
+ * @returns Whether it is an authentication failure.
+ */
+function isAuthFailure(err: unknown): boolean {
+  if (!iamStore.getState().token) {
+    return true;
+  }
+  const failure = err as
+    | { status?: unknown; response?: { status?: unknown } }
+    | undefined;
+  if (failure?.status === 401 || failure?.response?.status === 401) {
+    return true;
+  }
+  const message = err instanceof Error ? err.message : String(err ?? '');
+  return /\b401\b|unauthori[sz]ed/i.test(message);
 }
 
 /** Props of {@link Chat}. */
@@ -243,16 +279,26 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
     [visibleRuntimes, selectedRuntimePodName]
   );
 
+  /*
+   * What is talked to, memoized on a key of it: a refresh answering the same
+   * deployments (or an unrelated `refreshSeq`) changes no reference, so the
+   * chat open, its fetch and its transcript survive it. The deployment
+   * picked is the newest listing's handle (its runtime, agent or version
+   * may have changed).
+   */
+  const talkableKey = talkableKeyOf(deployments ?? []);
   const talkable = useMemo(
     () =>
       (deployments ?? []).flatMap(choice =>
         choice.kind === 'talk' ? [choice.handle] : []
       ),
-    [deployments]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [talkableKey]
   );
   const selectedApp = useMemo(
-    () => talkable.find(handle => handle.uid === selectedAppUid) ?? null,
-    [talkable, selectedAppUid]
+    () => pickedHandleOf(deployments ?? [], selectedAppUid),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [talkableKey, selectedAppUid]
   );
   const configuration = coreStore.getState().configuration;
   const services = useMemo(
@@ -394,9 +440,13 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
     if (!isReady || !isAuthenticated) {
       return;
     }
-    loadCloudRuntimes().catch(() => {
-      setIsAuthenticated(false);
-      setAuthError('Please sign in to list cloud runtimes.');
+    // A runtime-list failure is said beside the picker (`runtimeError`); only
+    // a refused sign-in signs the person out — the applications stay.
+    loadCloudRuntimes().catch(err => {
+      if (isAuthFailure(err)) {
+        setIsAuthenticated(false);
+        setAuthError('Please sign in to list cloud runtimes.');
+      }
     });
     void loadDeployments();
   }, [isReady, isAuthenticated, loadCloudRuntimes, loadDeployments, refreshSeq]);
@@ -406,28 +456,36 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
     try {
       await iamStore.getState().refreshUserByToken(authToken);
       setIsAuthenticated(true);
-      await loadCloudRuntimes();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Authentication failed.';
       setAuthError(message);
       setIsAuthenticated(false);
+      return;
     }
-  }, [loadCloudRuntimes]);
+    // Signed in: the runtimes listing failing is said beside the picker, and
+    // never signs the person out or hides their applications.
+    await loadCloudRuntimes().catch(() => undefined);
+    void loadDeployments();
+  }, [loadCloudRuntimes, loadDeployments]);
 
   const handleApiKeySignIn = useCallback(async (apiKey: string) => {
     setAuthError(null);
     try {
       await iamStore.getState().login(apiKey);
       setIsAuthenticated(true);
-      await loadCloudRuntimes();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Token authentication failed.';
       setAuthError(message);
       setIsAuthenticated(false);
+      return;
     }
-  }, [loadCloudRuntimes]);
+    // Signed in: the runtimes listing failing is said beside the picker, and
+    // never signs the person out or hides their applications.
+    await loadCloudRuntimes().catch(() => undefined);
+    void loadDeployments();
+  }, [loadCloudRuntimes, loadDeployments]);
 
   // Show loading state while initializing
   if (!isReady) {
@@ -636,10 +694,29 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
                 </Box>
               </Box>
 
+              {/* Said beside the picker whatever else shows: loading,
+                  runtimes or none, a deployment picked or not. */}
+              {deploymentsError && (
+                <Box sx={{ px: 2, py: 1 }}>
+                  <Text sx={{ color: 'danger.fg', fontSize: 0 }}>
+                    {APP_CHAT_WORDS.listFailed}: {deploymentsError}
+                  </Text>
+                </Box>
+              )}
+              {deployments !== null &&
+                !deploymentsError &&
+                noneTalkableSentence(deployments) && (
+                  <Box sx={{ px: 2, py: 1 }}>
+                    <Text sx={{ color: 'fg.muted', fontSize: 0 }}>
+                      {noneTalkableSentence(deployments)}
+                    </Text>
+                  </Box>
+                )}
               {selectedApp ? (
                 <AppChat
-                  // A new conversation for each deployment picked.
-                  key={selectedApp.uid}
+                  // A new conversation for each deployment picked, or when
+                  // where it is kept changes; the same listing keeps it.
+                  key={`${selectedApp.uid} ${selectedApp.version} ${selectedApp.url} ${selectedApp.agentId}`}
                   handle={selectedApp}
                   services={services}
                   token={iamStore.getState().token}
@@ -664,8 +741,13 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
                   </Text>
                 </Box>
               ) : runtimeError ? (
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Text sx={{ color: 'danger.fg', fontSize: 1 }}>{runtimeError}</Text>
+                  {talkable.length > 0 && (
+                    <Text sx={{ color: 'fg.muted', fontSize: 1 }}>
+                      {`Pick one of ${APP_CHAT_WORDS.pickerGroup.toLowerCase()} above to talk to it.`}
+                    </Text>
+                  )}
                 </Box>
               ) : visibleRuntimes.length === 0 ? (
                 <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -674,11 +756,6 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
                       ? `Pick one of ${APP_CHAT_WORDS.pickerGroup.toLowerCase()} above to talk to it.`
                       : 'No agent runtimes available for this account.'}
                   </Text>
-                  {deployments !== null && talkable.length === 0 && (
-                    <Text sx={{ color: 'fg.muted', fontSize: 0 }}>
-                      {deploymentsError ?? APP_CHAT_WORDS.none}
-                    </Text>
-                  )}
                 </Box>
               ) : !selectedRuntime ? (
                 <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>

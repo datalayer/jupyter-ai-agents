@@ -29,7 +29,21 @@ import {
   pendingApprovalsUrl,
   signedHeaders,
   signedPrefixesOf,
-  signedRefusal,
+  fetchUserToken,
+  isRunOf,
+  noneTalkableSentence,
+  pickedHandleOf,
+  revisionRefusal,
+  signedRunFetch,
+  signedUserFresh,
+  signedUserOf,
+  SURFACE,
+  takesSignedUser,
+  talkableKeyOf,
+  userTokenRefusal,
+  userTokenUrl,
+  withUserToken,
+  outputsOfModel,
   signsRequest,
   toolLineOf
 } from '../appChat';
@@ -171,14 +185,29 @@ describe("the Appspec's host terms", () => {
     expect(() => appHostOf({})).toThrow();
   });
 
-  it('refuses an application that takes only a signed user (D-21)', () => {
+  it('decides on the version deployed only, and signs a signed user (D-21)', () => {
     const signed = appHostOf(
       item({ deployment: { embedded: { host: { user: 'signed' } } } })
     );
-    expect(signedRefusal('Support Desk', signed)).toBe(
-      "Support Desk takes only a user its host's server signed (deployment.embedded.host.user: signed). JupyterLab cannot sign you: it does not hold the deployment's secret, and Datalayer has no route that signs for the person signed in, so it is not opened here."
+    const handle = { name: 'Support Desk', version: 3 };
+    expect(revisionRefusal(handle, signed)).toBe('');
+    expect(takesSignedUser(signed)).toBe(true);
+    expect(takesSignedUser(appHostOf(item({})))).toBe(false);
+    // Another version's Appspec decides nothing: closed, never guessed.
+    const later = appHostOf(
+      item({ deployment: { embedded: { host: { user: 'claimed' } } } }, 4)
     );
-    expect(signedRefusal('Support Desk', appHostOf(item({})))).toBe('');
+    expect(revisionRefusal(handle, later)).toBe(
+      'Support Desk runs version 3, and its Appspec read is version 4: what the version it runs says of its host and its user is not known, so it is not opened here. Deploy the version you are at to talk to it here.'
+    );
+    expect(
+      userTokenRefusal(
+        'Support Desk',
+        "Only the members of its owner's organization may open it, and you are not one of them."
+      )
+    ).toBe(
+      "Support Desk takes only a signed user (deployment.embedded.host.user: signed), and Datalayer did not sign you for it: Only the members of its owner's organization may open it, and you are not one of them."
+    );
   });
 
   it('reads the notebook only when the deployed version names the page', () => {
@@ -320,7 +349,7 @@ describe('host_context (D-10)', () => {
         },
         { output_type: 'unknown' }
       ])
-    ).toBe('a\n[image/png]\nValueError: bad');
+    ).toEqual({ text: 'a\n[image/png]\nValueError: bad', cut: false });
   });
 
   it('cuts a long cell, the source first, and passes no cell when none is selected', () => {
@@ -468,5 +497,246 @@ describe("what the panel signs with the person's token", () => {
       signedHeaders('https://example.com/x', 'tok', prefixes, { a: 'b' })
     ).toEqual({ a: 'b' });
     expect(signedHeaders(signed, undefined, prefixes)).toEqual({});
+  });
+});
+
+describe('the review of 2026-10-07: live only, the version said, a signed user signed', () => {
+  it('offers only a live deployment that says the version it runs', () => {
+    const choices = deploymentChoicesOf({
+      deployments: [
+        { ...running, uid: 'gone', state: 'deleted' },
+        { ...running, uid: 'none', state: undefined },
+        { ...running, uid: 'nov', version: undefined },
+        { ...running, uid: 'badv', version: '3' },
+        { ...running, uid: 'zero', version: 0 }
+      ]
+    });
+    expect(choices.every(choice => choice.kind === 'closed')).toBe(true);
+    expect(choices.flatMap(c => (c.kind === 'closed' ? [c.why] : []))).toEqual([
+      'Support Desk is not live (deleted), so it is not offered here.',
+      'Support Desk is not live, so it is not offered here.',
+      `Support Desk does not say which version it runs, so what it lets ${SURFACE} do is not known: it is not offered here.`,
+      `Support Desk does not say which version it runs, so what it lets ${SURFACE} do is not known: it is not offered here.`,
+      `Support Desk does not say which version it runs, so what it lets ${SURFACE} do is not known: it is not offered here.`
+    ]);
+  });
+
+  it('says why none can be talked to, whatever the reason', () => {
+    expect(noneTalkableSentence([])).toBe(
+      "You have no deployed applications: ship one from the Studio's Ship tab to talk to it here."
+    );
+    const closed = deploymentChoicesOf({
+      deployments: [
+        { ...running, uid: 'p', state: 'paused' },
+        { ...running, uid: 'down', kept: { state: 'stopped' } }
+      ]
+    });
+    expect(noneTalkableSentence(closed)).toBe(
+      'None of your applications can be talked to here now: each one says why — paused, not kept always on, or its runtime not running.'
+    );
+    expect(
+      noneTalkableSentence(deploymentChoicesOf({ deployments: [running] }))
+    ).toBe('');
+  });
+
+  it('keeps the conversation through a refresh, and takes the newest handle', () => {
+    const first = deploymentChoicesOf({ deployments: [running] });
+    const same = deploymentChoicesOf({ deployments: [{ ...running }] });
+    expect(talkableKeyOf(first)).toBe(talkableKeyOf(same));
+    const moved = deploymentChoicesOf({
+      deployments: [
+        {
+          ...running,
+          version: 4,
+          kept: {
+            ...running.kept,
+            url: 'https://r1.datalayer.run/agent-runtimes/pool/pod-9',
+            agent_id: 'a9'
+          }
+        }
+      ]
+    });
+    expect(talkableKeyOf(moved)).not.toBe(talkableKeyOf(first));
+    expect(pickedHandleOf(moved, 'd1')).toMatchObject({
+      version: 4,
+      url: 'https://r1.datalayer.run/agent-runtimes/pool/pod-9',
+      agentId: 'a9'
+    });
+    expect(pickedHandleOf(moved, 'other')).toBeNull();
+    expect(pickedHandleOf(moved, null)).toBeNull();
+  });
+
+  it('signs a request under a prefix however its origin is spelled', () => {
+    const prefixes = signedPrefixesOf(
+      [{ url: 'https://R1.DATALAYER.RUN:443/agent-runtimes/pool/pod-1' }],
+      {
+        aiAgentsUrl: 'https://r1.datalayer.run:443',
+        spacerUrl: 'https://Prod1.Datalayer.Run'
+      }
+    );
+    expect(
+      signsRequest(
+        'https://r1.datalayer.run/agent-runtimes/pool/pod-1/api/v1/configure',
+        prefixes
+      )
+    ).toBe(true);
+    expect(
+      signsRequest(
+        'https://r1.datalayer.run/api/ai-agents/v1/tool-approvals?agent_id=a',
+        prefixes
+      )
+    ).toBe(true);
+    expect(
+      signsRequest(
+        'https://prod1.datalayer.run/api/spacer/v1/lexicals/app-1',
+        prefixes
+      )
+    ).toBe(true);
+    expect(
+      signsRequest(
+        'https://r1.datalayer.run/agent-runtimes/pool/pod-2/x',
+        prefixes
+      )
+    ).toBe(false);
+  });
+
+  it('asks ai-agents to sign the person, with their own token', async () => {
+    expect(userTokenUrl('https://r1.datalayer.run/', 'd 1')).toBe(
+      'https://r1.datalayer.run/api/ai-agents/v1/apps/deployments/d%201/user-token'
+    );
+    const asked: Array<[string, RequestInit]> = [];
+    const answer =
+      (status: number, body: unknown) =>
+      async (url: string, init: RequestInit) => {
+        asked.push([url, init]);
+        return new Response(JSON.stringify(body), { status });
+      };
+    const signed = await fetchUserToken(
+      'https://r1.datalayer.run',
+      'd1',
+      'tok',
+      answer(200, { user_token: 'u.t.k', exp: 2000 })
+    );
+    expect(signed).toEqual({ token: 'u.t.k', exp: 2000 });
+    expect(asked[0][0]).toBe(
+      'https://r1.datalayer.run/api/ai-agents/v1/apps/deployments/d1/user-token'
+    );
+    expect(asked[0][1]).toMatchObject({
+      method: 'POST',
+      headers: { Authorization: 'Bearer tok' }
+    });
+    await expect(
+      fetchUserToken(
+        'https://r1.datalayer.run',
+        'd1',
+        'tok',
+        answer(403, { detail: 'Only a person is signed as themselves.' })
+      )
+    ).rejects.toThrow('Only a person is signed as themselves.');
+    await expect(
+      fetchUserToken('https://r1.datalayer.run', 'd1', 'tok', answer(500, {}))
+    ).rejects.toThrow('ai-agents refused to sign you (500).');
+    expect(() => signedUserOf({})).toThrow('ai-agents answered no user token.');
+    expect(signedUserFresh({ token: 't', exp: 1000 }, 900)).toBe(true);
+    expect(signedUserFresh({ token: 't', exp: 1000 }, 950)).toBe(false);
+    expect(signedUserFresh(null, 0)).toBe(false);
+  });
+
+  it("sends the user token with the agent's runs only", async () => {
+    const handle = {
+      url: 'https://r1.datalayer.run/agent-runtimes/pool/pod-1',
+      agentId: 'a b'
+    };
+    const run = agUiEndpoint(handle);
+    expect(isRunOf(run, 'POST', handle)).toBe(true);
+    expect(isRunOf(run, 'GET', handle)).toBe(false);
+    expect(
+      isRunOf(
+        'https://r1.datalayer.run/agent-runtimes/pool/pod-1/api/v1/configure',
+        'POST',
+        handle
+      )
+    ).toBe(false);
+    expect(
+      JSON.parse(
+        withUserToken(
+          JSON.stringify({ threadId: 't', forwardedProps: null }),
+          'u.t.k'
+        )
+      )
+    ).toEqual({
+      threadId: 't',
+      forwardedProps: { loop: { user_token: 'u.t.k' } }
+    });
+    expect(
+      JSON.parse(
+        withUserToken(
+          JSON.stringify({
+            forwardedProps: { voice: 1, loop: { modes: ['x'] } }
+          }),
+          'u'
+        )
+      ).forwardedProps
+    ).toEqual({ voice: 1, loop: { modes: ['x'], user_token: 'u' } });
+    expect(withUserToken('not json', 'u')).toBe('not json');
+    expect(withUserToken('[1]', 'u')).toBe('[1]');
+    const sent: Array<[string, RequestInit | undefined]> = [];
+    const base = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      sent.push([String(input), init]);
+      return new Response('{}');
+    }) as typeof fetch;
+    let asked = 0;
+    const wrapped = signedRunFetch(base, handle, async () => {
+      asked += 1;
+      return 'u.t.k';
+    });
+    await wrapped(run, {
+      method: 'POST',
+      body: JSON.stringify({ threadId: 't' })
+    });
+    await wrapped(
+      'https://r1.datalayer.run/agent-runtimes/pool/pod-1/api/v1/configure',
+      { method: 'POST', body: '{}' }
+    );
+    await wrapped('https://example.com/x');
+    expect(
+      JSON.parse(String(sent[0][1]?.body)).forwardedProps.loop.user_token
+    ).toBe('u.t.k');
+    expect(sent[1][1]?.body).toBe('{}');
+    expect(sent[2][1]).toBeUndefined();
+    expect(asked).toBe(1);
+  });
+
+  it('reads the outputs no further than the budget', () => {
+    const read: number[] = [];
+    function* outputs() {
+      for (let index = 0; index < 1000; index++) {
+        read.push(index);
+        yield { output_type: 'stream', text: ['ab', 'cd', 'ef'] };
+      }
+    }
+    expect(outputsText(outputs(), 10)).toEqual({
+      text: 'abcdef\nabc',
+      cut: true
+    });
+    expect(read).toEqual([0, 1]);
+    expect(outputsText([{ output_type: 'stream', text: 'abc\n' }], 3)).toEqual({
+      text: 'abc',
+      cut: false
+    });
+    expect(
+      outputsText([{ output_type: 'error', ename: 'E', evalue: 'v' }], 2)
+    ).toEqual({ text: 'E:', cut: true });
+    const models = {
+      length: 2,
+      get: (i: number) => ({
+        toJSON: () => ({ output_type: 'stream', text: `${i}` })
+      })
+    };
+    expect([...outputsOfModel(models)]).toEqual([
+      { output_type: 'stream', text: '0' },
+      { output_type: 'stream', text: '1' }
+    ]);
+    expect([...outputsOfModel(undefined)]).toEqual([]);
   });
 });
