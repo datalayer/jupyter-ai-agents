@@ -3,6 +3,13 @@
   "title": "@datalayer/jupyter-ai-agents",
   "description": "@datalayer/jupyter-ai-agents settings.",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "agentChatEnabled": {
+      "type": "boolean",
+      "title": "Talk to your deployed applications (preview)",
+      "description": "Lists your deployed applications in the AI Agents panel and lets you talk to their agents. Those kept always on can be talked to; the others are listed as closed, saying why. Off by default; the runtimes' chat is the same either way.",
+      "default": false
+    }
+  },
   "additionalProperties": false
 }

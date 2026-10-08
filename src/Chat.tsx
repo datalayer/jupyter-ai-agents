@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -233,13 +234,23 @@ function isAuthFailure(err: unknown): boolean {
 export type ChatProps = {
   /** JupyterLab's notebooks, for what an application's agent may read (A-19). */
   notebookTracker?: INotebookTracker;
+  /**
+   * Whether the person's deployed applications are listed and talked to
+   * (the plugin's `agentChatEnabled` setting, off by default). Off, no
+   * deployment is listed, ai-agents is asked nothing and `AppChat` is never
+   * mounted.
+   */
+  appChatEnabled?: boolean;
 };
 
 /**
  * Chat component that provides necessary context providers
  * Wrapper div ensures proper height propagation in JupyterLab
  */
-export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
+export const Chat: React.FC<ChatProps> = ({
+  notebookTracker,
+  appChatEnabled = false
+}) => {
   const { baseUrl, token } = getJupyterSettings();
   const { isReady, error } = useEnsureAgent(baseUrl, token);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
@@ -377,9 +388,12 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
    * The person's deployments, from ai-agents (A-19). A failure is said in
    * the picker and never stops the runtimes from listing.
    */
+  // Read after each await: a listing answered once turned off is dropped.
+  const appChatOn = useRef(appChatEnabled);
+  appChatOn.current = appChatEnabled;
   const loadDeployments = useCallback(async () => {
     const authToken = iamStore.getState().token;
-    if (!authToken) {
+    if (!appChatEnabled || !authToken) {
       return;
     }
     try {
@@ -400,15 +414,31 @@ export const Chat: React.FC<ChatProps> = ({ notebookTracker }) => {
             `Listing your applications was refused (${response.status}).`
         );
       }
-      setDeployments(deploymentChoicesOf(await response.json()));
+      const choices = deploymentChoicesOf(await response.json());
+      if (!appChatOn.current) {
+        return;
+      }
+      setDeployments(choices);
       setDeploymentsError(null);
     } catch (err) {
+      if (!appChatOn.current) {
+        return;
+      }
       setDeployments([]);
       setDeploymentsError(
         err instanceof Error ? err.message : 'Listing your applications failed.'
       );
     }
-  }, []);
+  }, [appChatEnabled]);
+
+  // Turned off: whatever was listed or picked is forgotten.
+  useEffect(() => {
+    if (!appChatEnabled) {
+      setDeployments(null);
+      setDeploymentsError(null);
+      setSelectedAppUid(null);
+    }
+  }, [appChatEnabled]);
 
   // The doorbell of the store: anything that created or terminated a code
   // sandbox — the Datalayer UI plugins do — rings it, and the list reloads.

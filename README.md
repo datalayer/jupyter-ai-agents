@@ -54,9 +54,9 @@ Currently, we support **Anthropic Claude Sonnet 4.0** as the AI model. To get st
 
 ### Talk to your agent
 
-An application you built and deployed in the Datalayer Agent Studio answers in JupyterLab, in the **AI Agents** panel beside your notebook.
+An application you built and deployed in the Datalayer Agent Studio answers in JupyterLab, in the **AI Agents** panel beside your notebook. This is a preview, off by default: turn on **Talk to your deployed applications (preview)** in **Settings → Settings Editor → Jupyter AI Agents** (`agentChatEnabled`). Off, the panel lists no application and asks Datalayer nothing about them; your runtimes' chat is the same either way.
 
-1. Sign in to Datalayer in the panel.
+1. Sign in to Datalayer in the panel, and turn the setting on.
 2. In the Studio, open the application's **Ship** tab and turn on **Always on**: JupyterLab talks to the runtime the deployment is kept on.
 3. In the panel's picker, pick the application under **Your applications**. One that is paused, not kept always on, or whose runtime is not running is listed with the reason, and cannot be picked; when none can, the panel says what to do.
 4. Talk to it. The conversation is a session of the deployment, through the same session API its hosted page uses, in your name. Your Datalayer token goes only to the runtime it is kept on, to Datalayer's Tool Approvals and to the application's item, over HTTPS.

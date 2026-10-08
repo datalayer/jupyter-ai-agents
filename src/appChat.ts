@@ -256,6 +256,27 @@ const record = (value: unknown): Record<string, unknown> =>
     : {};
 
 /**
+ * The setting of `@datalayer/jupyter-ai-agents:plugin` that turns talking to
+ * a deployed application's agent on (`schema/plugin.json`, off by default
+ * until it has had one pass against a deployment kept always on).
+ */
+export const APP_CHAT_SETTING = 'agentChatEnabled';
+
+/**
+ * Whether talking to a deployed application's agent is on. Off, the panel
+ * lists no deployment, asks ai-agents nothing and never mounts `AppChat`;
+ * its runtimes are as before.
+ *
+ * @param composite - The plugin's settings (`settings.composite`), or
+ *   nothing when the setting registry is not there.
+ *
+ * @returns True only when the setting is exactly `true`.
+ */
+export function appChatEnabledOf(composite: unknown): boolean {
+  return record(composite)[APP_CHAT_SETTING] === true;
+}
+
+/**
  * Reads a value as a list of strings.
  *
  * @param value - Anything.
