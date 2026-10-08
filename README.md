@@ -52,6 +52,20 @@ Currently, we support **Anthropic Claude Sonnet 4.0** as the AI model. To get st
 
 4. **Access the chat interface** through the right panel in JupyterLab.
 
+### Talk to your agent
+
+An application you built and deployed in the Datalayer Agent Studio answers in JupyterLab, in the **AI Agents** panel beside your notebook. This is a preview, off by default: turn on **Talk to your deployed applications (preview)** in **Settings → Settings Editor → Jupyter AI Agents** (`agentChatEnabled`). Off, the panel lists no application and asks Datalayer nothing about them; your runtimes' chat is the same either way.
+
+1. Sign in to Datalayer in the panel, and turn the setting on.
+2. In the Studio, open the application's **Ship** tab and turn on **Always on**: JupyterLab talks to the runtime the deployment is kept on.
+3. In the panel's picker, pick the application under **Your applications**. One that is paused, not kept always on, or whose runtime is not running is listed with the reason, and cannot be picked; when none can, the panel says what to do.
+4. Talk to it. The conversation is a session of the deployment, through the same session API its hosted page uses, in your name. Your Datalayer token goes only to the runtime it is kept on, to Datalayer's Tool Approvals and to the application's item, over HTTPS.
+
+- **Approvals** - when one of its rules says _ask me first_, the request appears in the chat: approve or decline it there.
+- **What it did** - under the chat, each tool it called as a line, e.g. `Support Desk → odoo-accounting: odoo_accounting_aged_balance`, and `Support Desk → JupyterLab: host_context` when it read your notebook.
+- **Your notebook** - only when the application lets its host pass the page (`deployment.embedded.host.context: [page]` in its Appspec, in the version deployed) and a rule lets `host_context` run: when its agent asks, it gets the open notebook's path, how many cells it has, and its selected cell — the source and the outputs as text (streams, plain text, errors), up to 20,000 characters together. Nothing is read before it asks, and nothing when the application says otherwise.
+- **Signed users** - an application that takes only a signed user (`deployment.embedded.host.user: signed`) is opened in JupyterLab with a short user token Datalayer signs for you (fifteen minutes; the panel asks ai-agents for it with your token), sent with each run as `forwardedProps.loop.user_token`. Only the version deployed decides: when the application was saved since, it is not opened until that version is deployed.
+
 ### What's Coming Next
 
 We're actively working on expanding the capabilities of Jupyter AI Agents:

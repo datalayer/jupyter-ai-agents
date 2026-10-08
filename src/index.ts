@@ -15,6 +15,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import RobotIconJupyterLab from '@datalayer/icons-react/data2/RobotIconJupyterLab';
 import { setupPrimerPortals } from '@datalayer/primer-addons';
 import { ChatWidget } from './widget';
+import { appChatEnabledOf } from './appChat';
 import { LoopWidget } from './loop/LoopPanel';
 import { useAIAgentsStore } from './store';
 // import { requestAPI } from './handler';
@@ -43,7 +44,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     );
 
     // Create and add chat widget to left sidebar
-    const chatWidget = new ChatWidget();
+    const chatWidget = new ChatWidget(notebookTracker);
     labShell.add(chatWidget, 'right', { rank: 1000 });
 
     // The LOOP workspace, beside the chat rather than replacing it: the same
@@ -177,6 +178,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
             '@datalayer/jupyter-ai-agents settings loaded:',
             settings.composite
           );
+          // Talking to deployed applications (STUDIO A-19): off by default.
+          chatWidget.setAppChatEnabled(appChatEnabledOf(settings.composite));
+          settings.changed.connect(() => {
+            chatWidget.setAppChatEnabled(appChatEnabledOf(settings.composite));
+          });
         })
         .catch(reason => {
           console.error(
