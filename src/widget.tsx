@@ -14,10 +14,15 @@ import { Chat } from './Chat';
 const WidgetContent: React.FC<{
   notebookTracker?: INotebookTracker;
   appChatEnabled: boolean;
-}> = ({ notebookTracker, appChatEnabled }) => {
+  acpEnabled: boolean;
+}> = ({ notebookTracker, appChatEnabled, acpEnabled }) => {
   return (
     <>
-      <Chat notebookTracker={notebookTracker} appChatEnabled={appChatEnabled} />
+      <Chat
+        notebookTracker={notebookTracker}
+        appChatEnabled={appChatEnabled}
+        acpEnabled={acpEnabled}
+      />
     </>
   );
 };
@@ -28,6 +33,8 @@ const WidgetContent: React.FC<{
 export class ChatWidget extends ReactWidget {
   /** Off until the setting says otherwise (STUDIO A-19). */
   private appChatEnabled = false;
+  /** Off until the setting says otherwise (SHIELD SH-49). */
+  private acpEnabled = false;
 
   /**
    * @param notebookTracker - JupyterLab's notebooks: an application's agent
@@ -54,11 +61,25 @@ export class ChatWidget extends ReactWidget {
     }
   }
 
+  /**
+   * Turns the agent over ACP on or off (the plugin's `acpAgentEnabled`
+   * setting, off by default).
+   *
+   * @param enabled - Whether it is on.
+   */
+  setAcpEnabled(enabled: boolean): void {
+    if (this.acpEnabled !== enabled) {
+      this.acpEnabled = enabled;
+      this.update();
+    }
+  }
+
   render(): JSX.Element {
     return (
       <WidgetContent
         notebookTracker={this.notebookTracker}
         appChatEnabled={this.appChatEnabled}
+        acpEnabled={this.acpEnabled}
       />
     );
   }

@@ -16,6 +16,7 @@ import RobotIconJupyterLab from '@datalayer/icons-react/data2/RobotIconJupyterLa
 import { setupPrimerPortals } from '@datalayer/primer-addons';
 import { ChatWidget } from './widget';
 import { appChatEnabledOf } from './appChat';
+import { acpPanelEnabledOf } from './acpClient';
 import { LoopWidget } from './loop/LoopPanel';
 import { useAIAgentsStore } from './store';
 // import { requestAPI } from './handler';
@@ -180,8 +181,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
           );
           // Talking to deployed applications (STUDIO A-19): off by default.
           chatWidget.setAppChatEnabled(appChatEnabledOf(settings.composite));
+          // A runtime's harness over ACP (SHIELD SH-49): off by default.
+          chatWidget.setAcpEnabled(acpPanelEnabledOf(settings.composite));
           settings.changed.connect(() => {
             chatWidget.setAppChatEnabled(appChatEnabledOf(settings.composite));
+            chatWidget.setAcpEnabled(acpPanelEnabledOf(settings.composite));
           });
         })
         .catch(reason => {

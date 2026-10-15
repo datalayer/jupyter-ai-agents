@@ -9,6 +9,12 @@
       "title": "Talk to your deployed applications (preview)",
       "description": "Lists your deployed applications in the AI Agents panel and lets you talk to their agents. Those kept always on can be talked to; the others are listed as closed, saying why. Off by default; the runtimes' chat is the same either way.",
       "default": false
+    },
+    "acpAgentEnabled": {
+      "type": "boolean",
+      "title": "Agent over ACP (preview)",
+      "description": "Adds an 'Agent over ACP' mode beside a runtime's chat: a shielded harness on the runtime, reached over the Agent Client Protocol, editing the runtime's workspace; its diffs and the questions the Shield lets through are shown in the panel. Off by default.",
+      "default": false
     }
   },
   "additionalProperties": false

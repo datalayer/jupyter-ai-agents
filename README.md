@@ -66,6 +66,20 @@ An application you built and deployed in the Datalayer Agent Studio answers in J
 - **Your notebook** - only when the application lets its host pass the page (`deployment.embedded.host.context: [page]` in its Appspec, in the version deployed) and a rule lets `host_context` run: when its agent asks, it gets the open notebook's path, how many cells it has, and its selected cell — the source and the outputs as text (streams, plain text, errors), up to 20,000 characters together. Nothing is read before it asks, and nothing when the application says otherwise.
 - **Signed users** - an application that takes only a signed user (`deployment.embedded.host.user: signed`) is opened in JupyterLab with a short user token Datalayer signs for you (fifteen minutes; the panel asks ai-agents for it with your token), sent with each run as `forwardedProps.loop.user_token`. Only the version deployed decides: when the application was saved since, it is not opened until that version is deployed.
 
+### An agent over ACP
+
+A coding agent running on one of your Datalayer runtimes — Claude Code, Codex or any agent that speaks the [Agent Client Protocol](https://agentclientprotocol.com), behind the runtime's Shield — can be driven from the **AI Agents** panel. This is a preview, off by default: turn on **Agent over ACP (preview)** in **Settings → Settings Editor → Jupyter AI Agents** (`acpAgentEnabled`). Off, the panel shows the runtime's chat only.
+
+1. Sign in to Datalayer in the panel, turn the setting on, and pick a runtime.
+2. Switch from **Chat** to **Agent over ACP**, pick the agent the runtime serves over ACP, and **Connect**. The panel opens the runtime's `/api/v1/acp/ws/<agent>` and says who you are in its first messages (your Datalayer token is never put in the address).
+3. Write a prompt. The agent works in the **runtime's workspace**, shown above the conversation — not in your notebook's own folder.
+
+- **Edits** - each file the agent changes is shown as a unified diff under its tool call, with the lines added and removed.
+- **Questions** - when one of the Shield's rules says _ask me first_ (a `git push`, say), the question appears with the rule's sentence: **Approve** or **Reject** answers it. What the rules allow or refuse themselves is not asked: it shows as the agent's tool calls and the Shield's sentences.
+- **Cancel** stops the running turn.
+
+Not yet: the runtime's workspace is not the notebook's folder (the files the agent edits are the runtime's); a runtime serves an agent over ACP only when one of its applications runs a harness.
+
 ### What's Coming Next
 
 We're actively working on expanding the capabilities of Jupyter AI Agents:

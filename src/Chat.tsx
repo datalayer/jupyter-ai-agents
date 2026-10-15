@@ -40,6 +40,8 @@ import {
 } from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/notebookHooks';
 import { useLexicalTools } from '@datalayer/agent-runtimes/lib/tools/adapters/agent-runtimes/lexicalHooks';
 import { AppChat } from './AppChat';
+import { AcpPanel } from './AcpPanel';
+import { ACP_WORDS } from './acpClient';
 import {
   APP_CHAT_WORDS,
   type AppChatChoice,
@@ -208,6 +210,21 @@ function readActiveNotebook(
 }
 
 /**
+ * The folder of the notebook JupyterLab last had in front, sent as an ACP
+ * session's cwd (SH-49): the runtime answers with its own workspace, where
+ * the harness's paths are.
+ *
+ * @param tracker - JupyterLab's notebook tracker.
+ *
+ * @returns The folder, `/` with no notebook open.
+ */
+function notebookFolderOf(tracker: INotebookTracker | undefined): string {
+  const path = tracker?.currentWidget?.context.path ?? '';
+  const folder = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
+  return `/${folder}`;
+}
+
+/**
  * Whether a failure to list the runtimes is the person not being signed in
  * (no token, or IAM refusing it) rather than the listing failing: only
  * that signs them out (STUDIO A-19 review).
@@ -241,6 +258,12 @@ export type ChatProps = {
    * mounted.
    */
   appChatEnabled?: boolean;
+  /**
+   * Whether a runtime's harness can be talked to over ACP (the plugin's
+   * `acpAgentEnabled` setting, off by default; SHIELD SH-49). Off, the
+   * runtime's chat is all there is.
+   */
+  acpEnabled?: boolean;
 };
 
 /**
@@ -249,7 +272,8 @@ export type ChatProps = {
  */
 export const Chat: React.FC<ChatProps> = ({
   notebookTracker,
-  appChatEnabled = false
+  appChatEnabled = false,
+  acpEnabled = false
 }) => {
   const { baseUrl, token } = getJupyterSettings();
   const { isReady, error } = useEnsureAgent(baseUrl, token);
@@ -274,6 +298,9 @@ export const Chat: React.FC<ChatProps> = ({
     null
   );
   const [selectedAppUid, setSelectedAppUid] = useState<string | null>(null);
+  // The runtime's chat, or its harness over ACP (SH-49, behind its setting).
+  const [runtimeMode, setRuntimeMode] = useState<'chat' | 'acp'>('chat');
+  const acpMode = acpEnabled && runtimeMode === 'acp';
 
   const visibleRuntimes = useMemo(() => {
     const agentRuntimes = runtimes.filter(runtime => {
@@ -854,6 +881,33 @@ export const Chat: React.FC<ChatProps> = ({
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+                  {acpEnabled && (
+                    <Box sx={{ display: 'flex', gap: 1, px: 2, pt: 2 }}>
+                      <Button
+                        size="small"
+                        variant={acpMode ? 'invisible' : 'default'}
+                        onClick={() => setRuntimeMode('chat')}
+                      >
+                        Chat
+                      </Button>
+                      <Button
+                        size="small"
+                        variant={acpMode ? 'default' : 'invisible'}
+                        onClick={() => setRuntimeMode('acp')}
+                      >
+                        {ACP_WORDS.mode}
+                      </Button>
+                    </Box>
+                  )}
+                  {acpMode ? (
+                    <AcpPanel
+                      // A new connection for each runtime picked.
+                      key={selectedRuntimeEndpoint}
+                      runtimeUrl={selectedRuntimeEndpoint}
+                      token={iamStore.getState().token ?? ''}
+                      cwd={notebookFolderOf(notebookTracker)}
+                    />
+                  ) : (
                   <Box sx={{ flex: 1, minHeight: 0 }}>
                     <ChatPanel
                       protocol="vercel-ai"
@@ -885,6 +939,7 @@ export const Chat: React.FC<ChatProps> = ({
                       ]}
                     />
                   </Box>
+                  )}
                 </Box>
               )}
             </Box>
