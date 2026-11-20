@@ -21,12 +21,15 @@
     "@docusaurus/theme-live-codeblock": "^3.5.2",
     "@docusaurus/theme-mermaid": "^3.5.2",
     "@mdx-js/react": "^3.0.1",
+    "@primer/primitives": "^10.7.0",
+    "@primer/react": "^37.31.0",
     "clsx": "^2.1.1",
     "docusaurus-lunr-search": "^3.5.0",
     "react": "18.3.1",
     "react-calendly": "^4.1.0",
     "react-dom": "18.3.1",
-    "react-modal-image": "^2.6.0"
+    "react-modal-image": "^2.6.0",
+    "styled-components": "^5.3.10"
   },
   "browserslist": {
     "production": [

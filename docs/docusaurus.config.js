@@ -10,6 +10,7 @@ module.exports = {
   organizationName: 'datalayer', // Usually your GitHub org/user name.
   projectName: 'jupyter-ai-agents', // Usually your repo name.
   markdown: {
+    format: 'detect',
     mermaid: true,
   },
   plugins: [
